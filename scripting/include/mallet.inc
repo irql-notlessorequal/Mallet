@@ -9,6 +9,8 @@ native int MalletIsReady();
 
 native int MalletIsX64();
 
+native int MalletAPIVersion();
+
 /* Conversions */
 
 native int MalletConvertClassFromString(char[] strclass);
@@ -33,7 +35,13 @@ native int MalletConvertTeamFromString(char[] strclass);
  * @param weaponSlot	Slot idx to equip weapon on
  * @return A entity index if successful, else a negative value which is mapped into a mallet error.
  */
-native int MalletCreateWeapon(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot);
+native int MalletCreateWeaponDumb(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot);
+
+/**
+ * EXPERIMENTAL FUNCTION.
+ * USE AT YOUR OWN RISK.
+ */
+native int MalletCreateWeaponEcon(int client, int weaponId);
 
 /**
  * Checks if a entity is a wearable.
@@ -42,6 +50,14 @@ native int MalletCreateWeapon(int client, int weaponId, const char[] weaponName,
  * @return A boolean mapped as an int (returns 1 on success)
  */
 native int MalletIsWearable(int entity);
+
+/**
+ * Checks if a entity is a weapon.
+ * 
+ * @param entity	Entity Index
+ * @return A boolean mapped as an int (returns 1 on success)
+ */
+native int MalletIsWeapon(int entity);
 
 /**
  * Creates and returns a wearable entity
@@ -104,15 +120,19 @@ public SharedPlugin __pl_mallet =
 public void __pl_mallet_SetNTVOptional()
 {
 	MarkNativeAsOptional("MalletIsReady");
+	MarkNativeAsOptional("MalletIsX64");
+	MarkNativeAsOptional("MalletAPIVersion");
 
 	MarkNativeAsOptional("MalletConvertClassFromString");
 	MarkNativeAsOptional("MalletConvertSlotFromString");
 	MarkNativeAsOptional("MalletConvertTeamFromString");
 
-	MarkNativeAsOptional("MalletCreateWeapon");
+	MarkNativeAsOptional("MalletCreateWeaponDumb");
+	MarkNativeAsOptional("MalletCreateWeaponEcon");
 	MarkNativeAsOptional("MalletCreateWearable");
 	MarkNativeAsOptional("MalletEquipWearable");
 	MarkNativeAsOptional("MalletIsWearable");
+	MarkNativeAsOptional("MalletIsWeapon");
 	MarkNativeAsOptional("MalletRemoveWearable");
 	MarkNativeAsOptional("MalletRemoveWeapon");
 	MarkNativeAsOptional("MalletGetWearableOwner");

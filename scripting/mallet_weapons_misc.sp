@@ -2,10 +2,9 @@ static Handle hSDKIsWeapon = INVALID_HANDLE;
 
 public bool InitializeWeaponsMisc()
 {
-	GameData gamedata = new GameData("sm-tf2.games");
 	GameData hGameConf = new GameData("tf2.mallet");
 
-	if (gamedata == INVALID_HANDLE || hGameConf == INVALID_HANDLE)
+	if (hGameConf == INVALID_HANDLE)
 	{
 		PrintToServer("[Mallet] Failed to find the game data handle!")
 		return false;
@@ -22,8 +21,8 @@ public bool InitializeWeaponsMisc()
 		return false;
 	}
 
-	delete gamedata;
 	delete hGameConf;
+	return true;
 }
 
 int InternalRemoveItem(int client, int entity)
