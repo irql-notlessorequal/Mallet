@@ -9,6 +9,8 @@
 static Handle hSDKEquipWearable = INVALID_HANDLE;
 static Handle hSDKRemoveWearable = INVALID_HANDLE;
 static Handle hSDKIsWearable = INVALID_HANDLE;
+static Handle hGiveNamedItem = INVALID_HANDLE;
+static Handle hSDKIsWeapon = INVALID_HANDLE;
 
 public bool InitializeWeapons() {
 
@@ -52,6 +54,30 @@ public bool InitializeWeapons() {
 	if (hSDKIsWearable == INVALID_HANDLE)
 	{
 		PrintToServer("[Mallet] Failed to hook into CBaseEntity::IsWearable!")
+		return false;
+	}
+
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBaseEntity::IsBaseCombatWeapon");
+	PrepSDKCall_SetReturnInfo(SDKType_Bool, SDKPass_Plain);
+	hSDKIsWeapon = EndPrepSDKCall();
+
+	if (hSDKIsWeapon == INVALID_HANDLE)
+	{
+		PrintToServer("[Mallet] Failed to hook into CBaseEntity::IsBaseCombatWeapon!")
+		return false;
+	}
+
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBasePlayer::GiveNamedItem");
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Plain);
+	hGiveNamedItem = EndPrepSDKCall();
+
+	if (hGiveNamedItem == INVALID_HANDLE)
+	{
+		PrintToServer("[Mallet] Failed to hook into CBasePlayer::GiveNamedItem!")
 		return false;
 	}
 
@@ -122,6 +148,7 @@ int GiveWearable(int clientIdx, int weaponId, const char[] weaponName)
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
 
+	SetEntProp(ent, Prop_Send, "m_hOwnerEntity", clientIdx);
 	SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/weapons/c_models/c_persian_shield/c_persian_shield_all.mdl"));
 	SetEntProp(ent, Prop_Send, "m_iItemDefinitionIndex", weaponId);
 	
@@ -142,6 +169,7 @@ int InternalCreateWearable(int client, int weaponId, const char[] weaponName)
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
 
+	SetEntProp(ent, Prop_Send, "m_hOwnerEntity", client);
 	SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/weapons/c_models/c_persian_shield/c_persian_shield_all.mdl"));
 	SetEntProp(ent, Prop_Send, "m_iItemDefinitionIndex", weaponId);
 	
@@ -160,7 +188,7 @@ int InternalEquipWearable(int client, int entity)
 		return MALLET_ERROR_INVALID_ENTITY;
 	}
 
-	SDKCall(hSDKEquipWearable, client, ent);
+	SDKCall(hSDKEquipWearable, client, entity);
 	return 1;
 }
 
@@ -182,25 +210,23 @@ int InternalCreateWeapon(int client, int weaponId, const char[] weaponName, int 
 		return InternalCreateWeapon(client, weaponId, newWeaponName, level, quality, weaponSlot);
 	}
 
+#if defined(MALLET_EXPERIMENTAL_WEAPON_SPAWN_LOGIC)
+	int weapon = SDKCall(hGiveNamedItem, client, weaponName, 0);
+#else
 	int weapon = CreateEntityByName(weaponName);
+#endif
 	if (!IsValidEntity(weapon))
 	{
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
 
-	char entClass[64];
-	if (!GetEntityNetClass(weapon, entClass, sizeof(entClass)))
-	{
-		return MALLET_ERROR_INVALID_ENTITY_CLASS;
-	}
+	/* Set up the entity. */
+	SetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex", weaponId);
+	SetEntProp(weapon, Prop_Send, "m_bInitialized", 1);
 
-	SetEntData(weapon, FindSendPropInfo(entClass, "m_iItemDefinitionIndex"), weaponId);
-	SetEntData(weapon, FindSendPropInfo(entClass, "m_bInitialized"), 1);
-	SetEntData(weapon, FindSendPropInfo(entClass, "m_iEntityLevel"), level);
-	SetEntData(weapon, FindSendPropInfo(entClass, "m_iEntityQuality"), quality);
-	SetEntProp(weapon, Prop_Send, "m_bValidatedAttachedEntity", 1);
-	SetEntProp(weapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client));
-	SetEntPropEnt(weapon, Prop_Send, "m_hOwnerEntity", client);
+	/* Apply misc. data */
+	SetEntProp(weapon, Prop_Send, "m_iEntityLevel", level);
+	SetEntProp(weapon, Prop_Send, "m_iEntityQuality", quality);
 
 	if (StrEqual(weaponName, "tf_weapon_builder", false) || StrEqual(weaponName, "tf_weapon_sapper", false))
 	{
@@ -223,6 +249,9 @@ int InternalCreateWeapon(int client, int weaponId, const char[] weaponName, int 
 		}
 	}
 
+#if defined(MALLET_EXPERIMENTAL_WEAPON_SPAWN_LOGIC)
+	return weapon;
+#else
 	if (!DispatchSpawn(weapon))
 	{
 		return MALLET_ERROR_FAILED_TO_SPAWN;
@@ -231,40 +260,98 @@ int InternalCreateWeapon(int client, int weaponId, const char[] weaponName, int 
 	{
 		return weapon;
 	}
+#endif
 }
 
-int InternalRemoveWeapon(int client, int weapon)
+void InternalRemoveExtraWearables(int weaponEntity)
 {
-	int _slot = -1;
-	for (int idx = 0; idx < 8; idx++)
+	int hExtraWearable = GetEntPropEnt(weaponEntity, Prop_Send, "m_hExtraWearable");
+
+	if (hExtraWearable != -1)
 	{
-		if (weapon == GetPlayerWeaponSlot(client, idx))
-		{
-			_slot = idx;
-			break;
-		}
+		TF2_RemoveWearable(GetEntPropEnt(hExtraWearable, Prop_Send, "m_hOwnerEntity"), hExtraWearable);
+		SetEntPropEnt(weaponEntity, Prop_Send, "m_hExtraWearable", -1);
 	}
 
-	if (_slot == -1)
+	int hExtraWearableViewModel = GetEntPropEnt(weaponEntity, Prop_Send, "m_hExtraWearableViewModel");
+
+	if (hExtraWearableViewModel != -1)
 	{
-#if defined MALLET_DEBUG
-		PrintToServer("[Mallet->Attributes] InternalRemoveWeapon: Failed to find the slot for weapon %i", weapon);
-#endif
+		TF2_RemoveWearable(GetEntPropEnt(hExtraWearableViewModel, Prop_Send, "m_hOwnerEntity"), hExtraWearableViewModel);
+		SetEntPropEnt(weaponEntity, Prop_Send, "m_hExtraWearableViewModel", -1);
+	}
+}
+
+int InternalGetPlayerWearable(int client, int index)
+{
+	return -1;
+}
+
+int InternalGetWearableCount(int client)
+{
+	return 0;
+}
+
+int InternalRemoveItem(int client, int entity)
+{
+	if (Internal_IsWeapon(entity))
+	{
+		if (!RemovePlayerItem(client, entity))
+		{
+			return 0;
+		}
+
+		InternalRemoveExtraWearables(entity);
+	}
+	else if (Internal_IsWearable(entity))
+	{
+		TF2_RemoveWearable(client, entity);
+	}
+
+	MalletRemoveEntity(entity);
+	return 1;
+}
+
+public int InternalRemoveAllWeapons(int client)
+{
+	for (int i = 0; i < GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons"); ++i)
+	{
+		int weaponEntity = GetPropEnt(Prop_Send, "m_hMyWeapons", i);
+
+		if (weaponEntity == -1)
+		{
+			continue;
+		}
+
+		InternalRemoveItem(client, weaponEntity);
+	}
+
+	for (int i = InternalGetWearableCount(client) - 1; i >= 0; i--)
+	{
+		int wearableEntity = InternalGetPlayerWearable(client, i);
+
+		if (wearableEntity == -1)
+		{
+			continue;
+		}
+
+		InternalRemoveItem(client, wearableEntity);
+	}
+
+	return 1;
+}
+
+/* native int MalletRemoveAllWeapon(int client) */
+public int Native_RemoveAllWeapons(Handle plugin, int numParams)
+{
+	int client = GetNativeCell(1);
+	if (client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Client %d is invalid", client);
 		return -1;
 	}
 
-	TF2_RemoveWeaponSlot(client, _slot);
-
-	if (Internal_IsWearable(weapon))
-	{
-		SDKCall(hSDKRemoveWearable, client, weapon);
-		return 1;
-	}
-	else
-	{
-		RemoveEntity(weapon);
-		return 1;
-	}
+	return InternalRemoveAllWeapons(client);
 }
 
 /* native int MalletRemoveWeapon(int client, int wearable) */
@@ -279,7 +366,25 @@ public int Native_RemoveWeapon(Handle plugin, int numParams)
 
 	int entity = GetNativeCell(2);
 
-	return InternalRemoveWeapon(client, entity);
+	return InternalRemoveItem(client, entity);
+}
+
+/* native int MalletIsWeapon(int entity) */
+public int Native_IsWeapon(Handle plugin, int numParams)
+{
+	int entity = GetNativeCell(1);
+	
+	return Internal_IsWeapon(entity);
+}
+
+bool Internal_IsWeapon(int entity)
+{
+	if (entity <= MaxClients || !IsValidEntity(entity))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "%d is an invalid entity", entity);
+	}
+
+	return SDKCall(hSDKIsWeapon, entity);
 }
 
 /* native int MalletIsWearable(int entity) */

@@ -52,6 +52,18 @@
 				"linux"		"93"
 				"linux64"	"93"
 			}
+			"CBaseEntity::IsBaseCombatWeapon"
+			{
+				"windows"	"91"
+				"linux"		"92"
+				"linux64"	"92"
+			}
+			"CBasePlayer::GiveNamedItem"
+			{
+				"windows"	"412"
+				"linux"		"413"
+				"linux64"	"413"
+			}
 		}
 		"Signatures"
 		{

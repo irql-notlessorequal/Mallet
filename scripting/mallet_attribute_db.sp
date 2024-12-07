@@ -865,11 +865,16 @@ public int Native_GetAttributeLocalization(Handle plugin, int numParams)
 	int key = GetNativeCell(1);
 	int valueSize = GetNativeCell(3);
 
-	char strAttrib[MAX_ATTRIBUTE_NAME_LENGTH];
-	GetNativeString(2, strAttrib, MAX_ATTRIBUTE_NAME_LENGTH);
+	if (valueSize <= 0 || valueSize > MAX_ATTRIBUTE_NAME_LENGTH)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid valueSize (%i)", valueSize);
+	}
 
-	bool retValue = InternalGetAttributeValue(key, strAttrib, MAX_ATTRIBUTE_NAME_LENGTH);
-	SetNativeString(2, strAttrib, MAX_ATTRIBUTE_NAME_LENGTH);
+	char[] strAttrib = new char[valueSize];
+	GetNativeString(2, strAttrib, valueSize);
+
+	bool retValue = InternalGetAttributeValue(key, strAttrib, valueSize);
+	SetNativeString(2, strAttrib, valueSize);
 
 	return retValue;
 }

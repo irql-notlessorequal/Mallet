@@ -7,6 +7,8 @@
 
 native int MalletIsReady();
 
+native int MalletIsX64();
+
 /* Conversions */
 
 native int MalletConvertClassFromString(char[] strclass);
@@ -66,6 +68,10 @@ native int MalletRemoveWearable(int client, int wearable);
 native int MalletRemoveWeapon(int client, int wearable);
 
 native int MalletGetWearableOwner(int weapon, int client);
+
+/* WeaponsDB */
+
+native int MalletGetWeaponIndex(int weaponNameSize, const char[] weaponName, int& value);
 
 /* AttributeDB */
 

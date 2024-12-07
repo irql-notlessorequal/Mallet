@@ -7,12 +7,25 @@
 #include "mallet_attribute_db.sp"
 #include "mallet_attributes.sp"
 #include "mallet_players.sp"
+#include "mallet_loadout.sp"
+
+#if defined _X64
+
+#if defined _X64_IMPLEMENTATION_PORT64
+#define _X64_OK 1
+#elseif defined _X64_IMPLEMENTATION_MEMORY_POINTER
+#define _X64_OK 1
+#else
+#error "No x64 implementation set! Set either _X64_IMPLEMENTATION_PORT64 or _X64_IMPLEMENTATION_MEMORY_POINTER as a build time macro!"
+#endif
+
+#endif
 
 public Plugin myinfo = {
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2024-09-07",
+	version	= "2024-11-13",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 
@@ -30,6 +43,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	}
 
 	CreateNative("MalletIsReady", Native_IsReady);
+	CreateNative("MalletIsX64", Native_IsX64);
 
 	/* Conversions */
 	CreateNative("MalletConvertClassFromString", Native_ConvertClassFromString);
@@ -45,6 +59,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MalletRemoveWeapon", Native_RemoveWeapon);
 	CreateNative("MalletGetWearableOwner", Native_GetWearableOwner);
 
+	/* WeaponsDB */
+	CreateNative("MalletGetWeaponIndex", Native_GetWeaponIndex);
+
 	/* AttributeDB */
 	CreateNative("MalletGetAttributeLocalization", Native_GetAttributeLocalization);
 
@@ -54,6 +71,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	/* Players */
 	CreateNative("MalletIsValidPlayer", Native_IsValidPlayer);
+
+	/* Loadout */
+	CreateNative("MalletGetItemLoadoutSlot", Native_GetItemLoadoutSlot);
 	
 	RegPluginLibrary("mallet");
 	return APLRes_Success;
@@ -63,13 +83,30 @@ public int Native_IsReady(Handle plugin, int numParams) {
 	return MALLET_IS_READY;
 }
 
+public int Native_IsX64(Handle plugin, int numParams)
+{
+#if defined _X64
+	return 1;
+#else
+	return 0;
+#endif
+}
+
 public void OnPluginStart()
 {
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [OnPluginStart] Initializing...");
+#endif
+
 	if (!InitializeAttributes())
 	{
 		SetFailState("[OnPluginStart] InitializeAttributes() returned FALSE.");
 		return;
 	}
+
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded attributes.");
+#endif
 
 	if (!InitializeWeapons())
 	{
@@ -77,11 +114,22 @@ public void OnPluginStart()
 		return;
 	}
 
-	if (!InitializeWeaponsDB())
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded weapons.");
+#endif
+
+	if (!InitializeLoadout())
 	{
-		SetFailState("[OnPluginStart] InitializeWeaponsDB() returned FALSE.");
+		SetFailState("[OnPluginStart] InitializeLoadout() returned FALSE.");
 		return;
 	}
 
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded loadout.");
+#endif
+
 	MALLET_IS_READY = true;	
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [OnPluginStart] Mallet is ready.");
+#endif
 }
