@@ -39,8 +39,7 @@ UNEXPORT bool GetCompatibleSaxxyWeapon(const TFClassType type, char weaponName[2
 	}
 	else if (type == TFClass_Heavy)
 	{
-		/* I'm not sure that this is correct... */
-		strcopy(weaponName, sizeof weaponName, "tf_weapon_fireaxe");
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_fists");
 		return true;
 	}
 	else if (type == TFClass_Spy)
