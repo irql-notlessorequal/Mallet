@@ -5,6 +5,60 @@
 #include "mallet_weapons_wearable.sp"
 #include "mallet_econ.sp"
 
+UNEXPORT bool GetCompatibleSaxxyWeapon(const TFClassType type, char weaponName[24])
+{
+	if (type == TFClass_Scout)
+	{
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_bat");
+		return true;
+	}
+	else if (type == TFClass_Sniper)
+	{
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_club");
+		return true;
+	}
+	else if (type == TFClass_Soldier)
+	{
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_shovel");
+		return true;
+	}
+	else if (type == TFClass_DemoMan)
+	{
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_bottle");
+		return true;
+	}
+	else if (type == TFClass_Engineer)
+	{
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_wrench");
+		return true;
+	}
+	else if (type == TFClass_Pyro)
+	{
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_fireaxe");
+		return true;
+	}
+	else if (type == TFClass_Heavy)
+	{
+		/* I'm not sure that this is correct... */
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_fireaxe");
+		return true;
+	}
+	else if (type == TFClass_Spy)
+	{
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_knife");
+		return true;
+	}
+	else if (type == TFClass_Medic)
+	{
+		strcopy(weaponName, sizeof weaponName, "tf_weapon_bonesaw");
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 /* native int MalletCreateWeaponDumb(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot) */
 EXPERIMENTAL public int Native_CreateWeaponDumb(Handle plugin, int numParams)
 {
@@ -38,8 +92,8 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 		/* "saxxy" doesn't exist, convert to an actual weapon. */
 		TFClassType classType = TF2_GetPlayerClass(client);
 
-		char newWeaponName[64];
-		TranslateWeaponEntForClass(newWeaponName, 64, classType);
+		char newWeaponName[24];
+		GetCompatibleSaxxyWeapon(classType, newWeaponName);
 
 		return InternalCreateWeaponDumb(client, weaponId, newWeaponName, level, quality, weaponSlot);
 	}
