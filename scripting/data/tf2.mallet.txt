@@ -67,6 +67,14 @@
 		}
 		"Signatures"
 		{
+			"TranslateWeaponEntForClass()"
+			{
+				// get x-ref to structure containing string "saxxy"
+				"library"	"server"
+				"linux"		"@_Z26TranslateWeaponEntForClassPKci"
+				"linux64"	"@_Z26TranslateWeaponEntForClassPKci"
+				"windows"	"\x55\x8B\xEC\x53\x8B\x5D\x08\x56\x57\x85\xDB\x74\x2A\x33\xFF"
+			}
 			"CEconItemSchema::GetItemDefinition"	//(int), returns CEconItemDefinition*
 			{
 				"library"			"server"

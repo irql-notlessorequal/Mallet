@@ -1,0 +1,27 @@
+## Mallet API changelog.
+
+### version 1
+
+Initial release.
+
+### version 2 (2024-12-07)
+
+- `MalletCreateWeapon` no longer exists.
+	
+	The native has been split into `MalletCreateWeaponDumb` and `MalletCreateWeaponEcon`.
+
+	These functions are considered experimental, and may change with future revisions of Mallet.
+
+- Added `MalletIsWeapon`.
+
+- Added Econ interface with the following natives:
+
+	```
+	MalletTranslateWeaponEntForClass
+	```
+
+	A build time macro `MALLET_ENABLE_TF2ECON_COMPAT` is also available to provide TF2Econ compatibility.
+
+- The Loadout interface has been declared as unstable, meaning that it will either change rapidly or be removed at any moment. Users should use caution.
+
+- Added `MalletAPIVersion` to query the API version in use.

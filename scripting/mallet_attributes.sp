@@ -21,32 +21,32 @@ Handle hSDKSchema = INVALID_HANDLE;
 // CUtlVector offsets
 enum m_Attributes_m_Memory // CUtlVector<CEconItemAttribute>
 {
-	Attributes_m_Memory_AttrIndex =	8,	//0x08
-	Attributes_m_Memory_sizeof =	24,	//0x18
+	Attributes_m_Memory_AttrIndex =	8,	// 0x08
+	Attributes_m_Memory_sizeof =	24,	// 0x18
 }
 
 enum static_attrib_t64
 {
-	StaticAttrib_m_iAttributeDefinitionIndex =	0,	//0x00
-	StaticAttrib_m_flValue =					4,	//0x04
-	StaticAttrib_sizeof =						16,	//0x10
+	StaticAttrib_m_iAttributeDefinitionIndex =	0,	// 0x00
+	StaticAttrib_m_flValue =					4,	// 0x04
+	StaticAttrib_sizeof =						16,	// 0x10
 }
 
 // CAttributeList offsets
 enum CAttributeList64
 {
-	AL_CUtlVector_m_Attributes_m_Memory = 	8,	//0x08, CAttributeList.m_Attributes.m_Memory.m_pMemory
-	AL_CUtlVector_m_Size =					24,	//0x18, 4 bytes padding after this
-	AL_CUtlVector_pAttrElement =			32,	//0x20
-	AL_m_pAttributeManager =				40,	//0x28
+	AL_CUtlVector_m_Attributes_m_Memory = 	8,	// 0x08, CAttributeList.m_Attributes.m_Memory.m_pMemory
+	AL_CUtlVector_m_Size =					24,	// 0x18, 4 bytes padding after this
+	AL_CUtlVector_pAttrElement =			32,	// 0x20
+	AL_m_pAttributeManager =				40,	// 0x28
 }
 
 // CEconItemAttributeDefinition offsets
 enum CEconItemAttributeDefinition64
 {
-	AttrDef_m_nDefIndex =			8,	//0x08
-	AttrDef_m_pAttrType =			16,	//0x10
-	AttrDef_m_bStoredAsInteger =	26,	//0x1A
+	AttrDef_m_nDefIndex =			8,	// 0x08
+	AttrDef_m_pAttrType =			16,	// 0x10
+	AttrDef_m_bStoredAsInteger =	26,	// 0x1A
 }
 #endif
 
@@ -124,14 +124,14 @@ public bool InitializeAttributes()
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinitionByName");
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	//Returns address of a CEconItemAttributeDefinition
+	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
 #warning "Should AddParameter be SDKPass_Pointer in MP?"
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);	//Returns address of a CEconItemAttributeDefinition
+	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #else
 	PrepSDKCall_AddParameter(SDKType_String, SDKType_PlainOldData);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);	//Returns address of a CEconItemAttributeDefinition
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #endif
 	hSDKGetAttributeDefByName = EndPrepSDKCall();
 

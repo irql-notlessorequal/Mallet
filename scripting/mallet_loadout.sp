@@ -154,15 +154,8 @@ Address GetEconItemSchema() {
 }
 #endif
 
-/*
- * TF2EconData compatibility
- * GetItemLoadoutSlot(int defindex, int playerClass)
- */
-public int Native_GetItemLoadoutSlot(Handle plugin, int numParams)
+int InternalGetItemLoadoutSlot(int defindex, int playerClass)
 {
-	int defindex = GetNativeCell(1);
-	int playerClass = GetNativeCell(2);
-
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	return ThrowNativeError(SP_ERROR_NATIVE, "Interface unavailable on Port64.");
 #elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
@@ -176,4 +169,16 @@ public int Native_GetItemLoadoutSlot(Handle plugin, int numParams)
 	return LoadFromAddress(pItemDef + offs_CEconItemDefinition_aiItemSlot +
                         view_as<Address>(playerClass * 4), NumberType_Int32);
 #endif
+}
+
+/*
+ * TF2EconData compatibility
+ * GetItemLoadoutSlot(int defindex, int playerClass)
+ */
+UNSTABLE public int Native_GetItemLoadoutSlot(Handle plugin, int numParams)
+{
+	int defindex = GetNativeCell(1);
+	int playerClass = GetNativeCell(2);
+
+	return InternalGetItemLoadoutSlot(defindex, playerClass);
 }

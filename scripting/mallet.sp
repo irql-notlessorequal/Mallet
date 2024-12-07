@@ -8,6 +8,7 @@
 #include "mallet_attributes.sp"
 #include "mallet_players.sp"
 #include "mallet_loadout.sp"
+#include "mallet_econ.sp"
 
 #if defined _X64
 
@@ -25,7 +26,7 @@ public Plugin myinfo = {
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2024-11-13",
+	version	= "2024-12-07",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 
@@ -44,20 +45,33 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	CreateNative("MalletIsReady", Native_IsReady);
 	CreateNative("MalletIsX64", Native_IsX64);
+	CreateNative("MalletAPIVersion", Native_APIVersion);
 
 	/* Conversions */
 	CreateNative("MalletConvertClassFromString", Native_ConvertClassFromString);
 	CreateNative("MalletConvertSlotFromString", Native_ConvertSlotFromString);
 	CreateNative("MalletConvertTeamFromString", Native_ConvertTeamFromString);
 
+	/* Econ */
+#if defined (MALLET_ENABLE_TF2ECON_COMPAT)
+	CreateNative("TF2Econ_TranslateWeaponEntForClass", Native_TranslateWeaponEntForClass);
+#endif
+	CreateNative("MalletTranslateWeaponEntForClass", Native_TranslateWeaponEntForClass);
+
 	/* Weapons */
-	CreateNative("MalletCreateWeapon", Native_CreateWeapon);
+	CreateNative("MalletCreateWeaponDumb", Native_CreateWeaponDumb);
+	CreateNative("MalletRemoveWeapon", Native_RemoveWeapon);
+	CreateNative("MalletGetWearableOwner", Native_GetWearableOwner);
+	CreateNative("MalletIsWeapon", Native_IsWeapon);
+
+	/* Weapons (Econ) */
+	CreateNative("MalletCreateWeaponEcon", Native_CreateWeaponEcon);
+
+	/* Weapons (Wearables) */
 	CreateNative("MalletCreateWearable", Native_CreateWearable);
 	CreateNative("MalletEquipWearable", Native_EquipWearable);
 	CreateNative("MalletIsWearable", Native_IsWearable);
 	CreateNative("MalletRemoveWearable", Native_RemoveWearable);
-	CreateNative("MalletRemoveWeapon", Native_RemoveWeapon);
-	CreateNative("MalletGetWearableOwner", Native_GetWearableOwner);
 
 	/* WeaponsDB */
 	CreateNative("MalletGetWeaponIndex", Native_GetWeaponIndex);
@@ -92,6 +106,12 @@ public int Native_IsX64(Handle plugin, int numParams)
 #endif
 }
 
+public int Native_APIVersion(Handle plugin, int numParams)
+{
+	/* This value should be bumped every time a breaking change or major change is introduced... */
+	return 2;
+}
+
 public void OnPluginStart()
 {
 #if defined MALLET_DEBUG
@@ -106,6 +126,16 @@ public void OnPluginStart()
 
 #if defined MALLET_DEBUG
 	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded attributes.");
+#endif
+
+	if (!InitializeEcon())
+	{
+		SetFailState("[OnPluginStart] InitializeEcon() returned FALSE.");
+		return;
+	}
+
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded econ.");
 #endif
 
 	if (!InitializeWeapons())
