@@ -842,7 +842,7 @@ IntMap __GenerateAttributeClassDB()
 	return DB;
 }
 
-IntMap ATTRIBUTE_CLASS_DB;
+static IntMap ATTRIBUTE_CLASS_DB;
 
 bool InternalGetAttributeClassValue(int key, char[] value, int valueSize)
 {

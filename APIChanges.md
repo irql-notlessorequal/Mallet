@@ -28,7 +28,12 @@ Initial release.
 
 ### version 3 (2024-12-14)
 
-- Added Locale interface.
+- Added the AttributeLocale interface with the following natives.
+
+	```
+	MalletGetRawAttributeDescription
+	MalletGetAttributeDescription
+	```
 
 - `MalletGetAttributeLocalization` has been renamed to `MalletGetAttributeClass`.
 

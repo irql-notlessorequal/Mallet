@@ -5,11 +5,11 @@
 #include "mallet_weapons.sp"
 #include "mallet_weapons_db.sp"
 #include "mallet_attribute_db.sp"
+#include "mallet_attribute_locale.sp"
 #include "mallet_attributes.sp"
 #include "mallet_players.sp"
 #include "mallet_loadout.sp"
 #include "mallet_econ.sp"
-#include "mallet_locale.sp"
 
 #if defined _X64
 
@@ -80,10 +80,13 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	/* AttributeDB */
 	CreateNative("MalletGetAttributeClass", Native_GetAttributeClass);
 
+	/* AttributeLocale */
+	CreateNative("MalletGetRawAttributeDescription", Native_GetRawAttributeDescription);
+	CreateNative("MalletGetAttributeDescription", Native_GetAttributeDescription);
+
 	/* Attributes */
 	CreateNative("MalletSetAttribute", Native_SetAttribute);
 	CreateNative("MalletDeleteAllAttributes", Native_DeleteAllAttributes);
-	CreateNative("MalletGetAttributeDescription", Native_GetAttributeDescription);
 
 	/* Players */
 	CreateNative("MalletIsValidPlayer", Native_IsValidPlayer);
@@ -118,16 +121,6 @@ public void OnPluginStart()
 {
 #if defined MALLET_DEBUG
 	PrintToServer("[Mallet] [OnPluginStart] Initializing...");
-#endif
-
-	if (!InitializeLocale())
-	{
-		SetFailState("[OnPluginStart] InitializeLocale() returned FALSE.");
-		return;
-	}
-
-#if defined MALLET_DEBUG
-	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded locale.");
 #endif
 
 	if (!InitializeAttributes())

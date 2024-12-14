@@ -365,64 +365,6 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 	return true;
 }
 
-EXPERIMENTAL bool InternalGetAttributeDescription(int iDefIndex)
-{
-#if defined(_X64_IMPLEMENTATION_PORT64)
-	int pEconItemAttributeDefinition[2];
-	GetByID(pEconItemAttributeDefinition, iDefIndex);
-
-	if (!pEconItemAttributeDefinition[0])
-	{
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEconItemAttributeDefinition = GetByID(iDefIndex);
-	if (!pEconItemAttributeDefinition)
-	{
-#else
-	Address pEconItemAttributeDefinition = GetAttributeDefinitionByID(iDefIndex);
-	if (pEconItemAttributeDefinition == Address_Null)
-	{
-#endif
-		return false;
-	}
-
-	/* description_string is at offset 32 */
-#define DESCRIPTION_STRING_OFFSET 32
-
-	char attribute_desc[32];
-#if defined(_X64_IMPLEMENTATION_PORT64)
-	int pAttributeDescription[2];
-	int dummy_offset[] = {DESCRIPTION_STRING_OFFSET, 0};
-
-	Port64_Add(pEconItemAttributeDefinition, dummy_offset, pAttributeDescription)
-	ReadMemoryString(pAttributeDescription, attribute_desc, 32);
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	ReadMemoryString(pEconItemAttributeDefinition.Offset(DESCRIPTION_STRING_OFFSET), attribute_desc, 32);
-#else
-	Address pAttributeDescription = view_as<Address>(pEconItemAttributeDefinition + view_as<Address>(DESCRIPTION_STRING_OFFSET));
-	ReadMemoryString(pAttributeDescription, attribute_desc, 32);
-#endif
-
-	/* TODO */
-	PrintToServer("[Mallet->Attributes] [DEBUG] GetAttributeDescription(%i):", iDefIndex, attribute_desc);
-	PrintToServer("%s", attribute_desc);
-	return false;
-}
-
-/* native bool MalletGetAttributeDescription(int attribute) */
-public int Native_GetAttributeDescription(Handle plugin, int numParams)
-{
-	if (numParams != 1)
-	{
-		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
-	}
-
-	int iDefIndex = GetNativeCell(1);
-#if defined MALLET_DEBUG
-	PrintToServer("[Mallet->Attributes] GetAttributeDescription()={iDefIndex=%i}", iDefIndex);
-#endif
-	return InternalGetAttributeDescription(iDefIndex);
-}
-
 /* native bool MalletDeleteAllAttributes(int iEntity) */
 public int Native_DeleteAllAttributes(Handle plugin, int numParams)
 {

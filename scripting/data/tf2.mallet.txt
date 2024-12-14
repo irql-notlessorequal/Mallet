@@ -67,12 +67,6 @@
 		}
 		"Signatures"
 		{
-			"GLocalizationProvider"	// static?
-			{
-				"library"	"server"
-				"linux"		"@_Z21GLocalizationProviderv"
-				"linux64"	"@_Z21GLocalizationProviderv"
-			}
 			"GEconItemSchema"	// static?
 			{
 				"library"			"server"

@@ -93,13 +93,17 @@ native int MalletGetWeaponIndex(int weaponNameSize, const char[] weaponName, int
 
 native int MalletGetAttributeClass(int key, char[] value, int valueSize);
 
+/* AttributeLocale */
+
+native int MalletGetRawAttributeDescription(int key, char[] value, int valueSize);
+
+native int MalletGetAttributeDescription(int key, char[] value, int valueSize, any value);
+
 /* Attributes */
 
 native int MalletSetAttribute(int iEntity, int iDefIndex, float flValue);
 
 native int MalletDeleteAllAttributes(int iEntity);
-
-native int MalletGetAttributeDescription(int iDefIndex);
 
 /* Players */
 
