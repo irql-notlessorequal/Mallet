@@ -9,6 +9,7 @@
 #include "mallet_players.sp"
 #include "mallet_loadout.sp"
 #include "mallet_econ.sp"
+#include "mallet_locale.sp"
 
 #if defined _X64
 
@@ -26,7 +27,7 @@ public Plugin myinfo = {
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2024-12-07",
+	version	= "2024-12-14",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 
@@ -77,11 +78,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MalletGetWeaponIndex", Native_GetWeaponIndex);
 
 	/* AttributeDB */
-	CreateNative("MalletGetAttributeLocalization", Native_GetAttributeLocalization);
+	CreateNative("MalletGetAttributeClass", Native_GetAttributeClass);
 
 	/* Attributes */
 	CreateNative("MalletSetAttribute", Native_SetAttribute);
 	CreateNative("MalletDeleteAllAttributes", Native_DeleteAllAttributes);
+	CreateNative("MalletGetAttributeDescription", Native_GetAttributeDescription);
 
 	/* Players */
 	CreateNative("MalletIsValidPlayer", Native_IsValidPlayer);
@@ -109,13 +111,23 @@ public int Native_IsX64(Handle plugin, int numParams)
 public int Native_APIVersion(Handle plugin, int numParams)
 {
 	/* This value should be bumped every time a breaking change or major change is introduced... */
-	return 2;
+	return 3;
 }
 
 public void OnPluginStart()
 {
 #if defined MALLET_DEBUG
 	PrintToServer("[Mallet] [OnPluginStart] Initializing...");
+#endif
+
+	if (!InitializeLocale())
+	{
+		SetFailState("[OnPluginStart] InitializeLocale() returned FALSE.");
+		return;
+	}
+
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded locale.");
 #endif
 
 	if (!InitializeAttributes())

@@ -3,7 +3,7 @@
 
 #include "mallet_int_map.sp"
 
-IntMap __GenerateAttributeDB()
+IntMap __GenerateAttributeClassDB()
 {
 	IntMap DB = new IntMap();
     DB.SetString(1, "damage penalty");
@@ -842,20 +842,20 @@ IntMap __GenerateAttributeDB()
 	return DB;
 }
 
-IntMap HMMR_ATTRIBUTE_DB;
+IntMap ATTRIBUTE_CLASS_DB;
 
-bool InternalGetAttributeValue(int key, char[] value, int valueSize)
+bool InternalGetAttributeClassValue(int key, char[] value, int valueSize)
 {
-	if (HMMR_ATTRIBUTE_DB == null)
+	if (ATTRIBUTE_CLASS_DB == null)
 	{
-		HMMR_ATTRIBUTE_DB = __GenerateAttributeDB();
+		ATTRIBUTE_CLASS_DB = __GenerateAttributeClassDB();
 	}
 
-	return HMMR_ATTRIBUTE_DB.GetString(key, value, valueSize);
+	return ATTRIBUTE_CLASS_DB.GetString(key, value, valueSize);
 }
 
-/* native bool MalletGetAttributeLocalization(int key, char[] value, int valueSize) */
-public int Native_GetAttributeLocalization(Handle plugin, int numParams)
+/* native bool MalletGetAttributeClass(int key, char[] value, int valueSize) */
+public int Native_GetAttributeClass(Handle plugin, int numParams)
 {
     if (numParams != 3)
 	{
@@ -873,7 +873,7 @@ public int Native_GetAttributeLocalization(Handle plugin, int numParams)
 	char[] strAttrib = new char[valueSize];
 	GetNativeString(2, strAttrib, valueSize);
 
-	bool retValue = InternalGetAttributeValue(key, strAttrib, valueSize);
+	bool retValue = InternalGetAttributeClassValue(key, strAttrib, valueSize);
 	SetNativeString(2, strAttrib, valueSize);
 
 	return retValue;

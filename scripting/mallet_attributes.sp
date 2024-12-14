@@ -8,6 +8,9 @@
 
 #include <sdktools>
 
+#include "mallet_defines.sp"
+#include "mallet_utils.sp"
+
 Handle hSDKSetRuntimeValue = INVALID_HANDLE;
 Handle hSDKGetAttributeDef = INVALID_HANDLE;
 Handle hSDKGetAttributeDefByName = INVALID_HANDLE;
@@ -53,7 +56,8 @@ enum CEconItemAttributeDefinition64
 public bool InitializeAttributes()
 {
 	Handle hGameConf = LoadGameConfigFile("tf2.mallet");
-	if (hGameConf == INVALID_HANDLE) {
+	if (hGameConf == INVALID_HANDLE)
+	{
 		PrintToServer("[Mallet] Failed to find the gamedata config handle!");
 		return false;
 	}
@@ -69,7 +73,7 @@ public bool InitializeAttributes()
 	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);
 	hSDKSchema = EndPrepSDKCall();
 #else
-    StartPrepSDKCall(SDKCall_Static);
+	StartPrepSDKCall(SDKCall_Static);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 	hSDKSchema = EndPrepSDKCall();
@@ -80,7 +84,7 @@ public bool InitializeAttributes()
 		return false;
 	}
 
-    /* This one is immune. */
+    /* This one is immune to x64 changes. */
     StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CAttributeList::SetRuntimeAttributeValue");
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
@@ -107,7 +111,7 @@ public bool InitializeAttributes()
 	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);
 	hSDKGetAttributeDef = EndPrepSDKCall();
 #else
-    StartPrepSDKCall(SDKCall_Raw);
+	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinition");
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
@@ -130,7 +134,7 @@ public bool InitializeAttributes()
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #else
-	PrepSDKCall_AddParameter(SDKType_String, SDKType_PlainOldData);
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #endif
 	hSDKGetAttributeDefByName = EndPrepSDKCall();
@@ -179,7 +183,7 @@ public bool InitializeAttributes()
 	return true;
 }
 
-#if defined _X64
+#if defined(_X64_IMPLEMENTATION_PORT64)
 static void GetItemSchema(any pSchema[2]) {
 	SDKCall(hSDKSchema, pSchema);
 }
@@ -208,6 +212,29 @@ void GetByID(any econ[2], int id)
 		return;
 
 	SDKCall(hSDKGetAttributeDef, pSchema, econ, id);
+}
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+static MemoryPointer GetItemSchema() {
+	return SDKCall(hSDKSchema);
+}
+
+/**
+ * Sets this to entity address + the m_AttributeList offset.  This does not correspond to the CUtlVector instance
+ * (which is offset by 0x08).
+ */
+MemoryPointer GetEntityAttributeList(int entity)
+{
+	/* Call CEconEntity::GetAttributeList() and store the offset. */
+	return SDKCall(hSDKGetAttributeList, GetEntityMemoryPointer(entity));
+}
+
+MemoryPointer GetByID(int id)
+{
+	MemoryPointer schema = GetItemSchema();
+	if (!schema)
+		return;
+
+	return SDKCall(hSDKGetAttributeDef, pSchema, id);
 }
 #else
 static Address GetItemSchema() {
@@ -250,18 +277,29 @@ bool InternalDeleteAllAttributes(int iEntity)
 		return false;
 	}
 
-#if defined _X64
+#if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEntAttributeList[2];
 
 	GetEntityAttributeList(pEntAttributeList, iEntity);
-	if (!pEntAttributeList[0]) {
+	if (!pEntAttributeList[0])
+	{
+		return false;
+	}
+
+	SDKCall(hSDKDestroyAllAttributes, pEntAttributeList);
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+	MemoryPointer pEntAttributeList = GetEntityAttributeList(iEntity);
+
+	if (!pEntAttributeList)
+	{
 		return false;
 	}
 
 	SDKCall(hSDKDestroyAllAttributes, pEntAttributeList);
 #else
 	Address pEntAttributeList = GetEntityAttributeList(iEntity);
-	if (pEntAttributeList == Address_Null) {
+	if (pEntAttributeList == Address_Null)
+	{
 		return false;
 	}
 
@@ -277,38 +315,112 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 		return false;
 	}
 
-#if defined _X64
+#if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEntAttributeList[2];
 
 	GetEntityAttributeList(pEntAttributeList, iEntity);
 
-	if (!pEntAttributeList[0]) {
+	if (!pEntAttributeList[0])
+	{
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+	MemoryPointer pEntAttributeList = GetEntityAttributeList(iEntity);
+
+	if (!pEntAttributeList)
+	{
 #else
 	Address pEntAttributeList = GetEntityAttributeList(iEntity);
-	if (pEntAttributeList == Address_Null) {
+	if (pEntAttributeList == Address_Null)
+	{
 #endif
 		return false;
 	}
 
-#if defined _X64
+#if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEconItemAttributeDefinition[2];
 
 	GetByID(pEconItemAttributeDefinition, iDefIndex);
 
-	if (!pEconItemAttributeDefinition[0]) {
+	if (!pEconItemAttributeDefinition[0])
+	{
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+	MemoryPointer pEconItemAttributeDefinition = GetByID(iDefIndex);
+
+	if (!pEconItemAttributeDefinition)
+	{
 #else
 	Address pAttribDef = GetAttributeDefinitionByID(iDefIndex);
-	if (pAttribDef == Address_Null) {
+	if (pAttribDef == Address_Null)
+	{
 #endif
 		return false;
 	}
 
-#if defined _X64
+#if defined(_X64_IMPLEMENTATION_PORT64)
+	SDKCall(hSDKSetRuntimeValue, pEntAttributeList, pEconItemAttributeDefinition, flValue);
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
 	SDKCall(hSDKSetRuntimeValue, pEntAttributeList, pEconItemAttributeDefinition, flValue);
 #else
 	SDKCall(hSDKSetRuntimeValue, pEntAttributeList, pAttribDef, flValue);
 #endif
 	return true;
+}
+
+EXPERIMENTAL bool InternalGetAttributeDescription(int iDefIndex)
+{
+#if defined(_X64_IMPLEMENTATION_PORT64)
+	int pEconItemAttributeDefinition[2];
+	GetByID(pEconItemAttributeDefinition, iDefIndex);
+
+	if (!pEconItemAttributeDefinition[0])
+	{
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+	MemoryPointer pEconItemAttributeDefinition = GetByID(iDefIndex);
+	if (!pEconItemAttributeDefinition)
+	{
+#else
+	Address pEconItemAttributeDefinition = GetAttributeDefinitionByID(iDefIndex);
+	if (pEconItemAttributeDefinition == Address_Null)
+	{
+#endif
+		return false;
+	}
+
+	/* description_string is at offset 32 */
+#define DESCRIPTION_STRING_OFFSET 32
+
+	char attribute_desc[32];
+#if defined(_X64_IMPLEMENTATION_PORT64)
+	int pAttributeDescription[2];
+	int dummy_offset[] = {DESCRIPTION_STRING_OFFSET, 0};
+
+	Port64_Add(pEconItemAttributeDefinition, dummy_offset, pAttributeDescription)
+	ReadMemoryString(pAttributeDescription, attribute_desc, 32);
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+	ReadMemoryString(pEconItemAttributeDefinition.Offset(DESCRIPTION_STRING_OFFSET), attribute_desc, 32);
+#else
+	Address pAttributeDescription = view_as<Address>(pEconItemAttributeDefinition + view_as<Address>(DESCRIPTION_STRING_OFFSET));
+	ReadMemoryString(pAttributeDescription, attribute_desc, 32);
+#endif
+
+	/* TODO */
+	PrintToServer("[Mallet->Attributes] [DEBUG] GetAttributeDescription(%i):", iDefIndex, attribute_desc);
+	PrintToServer("%s", attribute_desc);
+	return false;
+}
+
+/* native bool MalletGetAttributeDescription(int attribute) */
+public int Native_GetAttributeDescription(Handle plugin, int numParams)
+{
+	if (numParams != 1)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
+	}
+
+	int iDefIndex = GetNativeCell(1);
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet->Attributes] GetAttributeDescription()={iDefIndex=%i}", iDefIndex);
+#endif
+	return InternalGetAttributeDescription(iDefIndex);
 }
 
 /* native bool MalletDeleteAllAttributes(int iEntity) */

@@ -91,7 +91,7 @@ native int MalletGetWeaponIndex(int weaponNameSize, const char[] weaponName, int
 
 /* AttributeDB */
 
-native int MalletGetAttributeLocalization(int key, char[] value, int valueSize);
+native int MalletGetAttributeClass(int key, char[] value, int valueSize);
 
 /* Attributes */
 
@@ -137,7 +137,7 @@ public void __pl_mallet_SetNTVOptional()
 	MarkNativeAsOptional("MalletRemoveWeapon");
 	MarkNativeAsOptional("MalletGetWearableOwner");
 
-	MarkNativeAsOptional("MalletGetAttributeLocalization");
+	MarkNativeAsOptional("MalletGetAttributeClass");
 
 	MarkNativeAsOptional("MalletSetAttribute");
 	MarkNativeAsOptional("MalletDeleteAllAttributes");

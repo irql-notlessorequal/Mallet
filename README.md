@@ -13,7 +13,7 @@ Mallet has the following build-time defines available for users:
 		Known limitations: Loadout API is not available due to GameData APIs not being covered.
 	- `_X64_IMPLEMENTATION_MEMORY_POINTER=1` uses a [proposed merge request](https://github.com/alliedmodders/sourcemod/pull/2196) to implement 64-bit memory pointers.
 
-		Known limitations: Mallet's implementation is incomplete, experimental and untested!
+		Known limitations: Mallet's implementation is experimental and untested!
 
 Compiling for 64-bit:
 ```

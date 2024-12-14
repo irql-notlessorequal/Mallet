@@ -25,3 +25,11 @@ Initial release.
 - The Loadout interface has been declared as unstable, meaning that it will either change rapidly or be removed at any moment. Users should use caution.
 
 - Added `MalletAPIVersion` to query the API version in use.
+
+### version 3 (2024-12-14)
+
+- Added Locale interface.
+
+- `MalletGetAttributeLocalization` has been renamed to `MalletGetAttributeClass`.
+
+- The Attributes interface now has a untested and potentially broken implementation of MemoryPointer.

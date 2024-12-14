@@ -1,3 +1,4 @@
+
 methodmap IntMapSnapshot < Handle
 {
 	// Returns the number of keys in the map snapshot.
