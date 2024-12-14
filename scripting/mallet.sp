@@ -163,6 +163,16 @@ public void OnPluginStart()
 	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded loadout.");
 #endif
 
+	if (!InitializeAttributeLocale())
+	{
+		SetFailState("[OnPluginStart] InitializeAttributeLocale() returned FALSE.");
+		return;
+	}
+
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded AttributeLocale.");
+#endif
+
 	MALLET_IS_READY = true;	
 #if defined MALLET_DEBUG
 	PrintToServer("[Mallet] [OnPluginStart] Mallet is ready.");

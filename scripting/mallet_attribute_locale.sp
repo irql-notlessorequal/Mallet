@@ -1,3 +1,40 @@
+#include "include/stocksoup/textparse"
+
+static StringMap TRANSLATION_PAIRS;
+
+public bool InitializeAttributeLocale()
+{
+	TRANSLATION_PAIRS = new StringMap();
+	
+	File file = OpenFile("resource/tf_english.txt", "rb", .use_valve_fs = true);
+	if (!file)
+	{
+		PrintToServer("[Mallet::AttributeLocale] Failed to open resource/tf_english.txt!");
+		return false;
+	}
+
+	/* Setup locale parser. */
+	TranslationFileParser tfp;
+	tfp.Init();
+	tfp.OnKeyValue = OnTranslationPair;
+
+	/* Parse the not-so KeyValues file. */
+	tfp.ParseOpenUTF16File(file);
+	delete file;
+	
+	/* Allow errors, not my fault Valve chose to add comments into the file... */
+	return true;
+}
+
+void OnTranslationPair(const char[] key, const char[] value)
+{
+	/* Not an attribute string. */
+	if (StrContains(key, "Attrib_") != 0)
+		return;
+
+	TRANSLATION_PAIRS.SetString(key, value);
+}
+
 /**
  * TODO:
  * - Reuse the KeyValues, we're currently very inefficient.
@@ -34,31 +71,8 @@ bool InternalGetRawAttributeDescription(int iDefIndex, char[] value, int valueSi
 	char description_string[512];
 	items_game.GetString("description_string", description_string, 512);
 
-	/* Not an English speaker? Too bad! */
-	KeyValues language = new KeyValues("lang");
-	if (!language.ImportFromFile("resource/tf_english.txt"))
-	{
-		PrintToServer("[Mallet::AttributeLocale] Failed to open resource/tf_english.txt!");
-
-		delete language;
-		delete items_game;
-		return false;
-	}
-
-	if (!language.JumpToKey("Tokens"))
-	{
-		PrintToServer("[Mallet::AttributeLocale] Failed to find the Tokens object!");
-
-		delete language;
-		delete items_game;
-		return false;
-	}
-
-	language.GetString(description_string, value, valueSize, "N/A");
-
-	delete language;
 	delete items_game;
-	return true;
+	return TRANSLATION_PAIRS.GetString(description_string, value, valueSize);
 }
 
 /* native bool MalletGetRawAttributeDescription(int key, char[] value, int valueSize) */
