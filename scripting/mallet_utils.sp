@@ -22,6 +22,10 @@ void ReadMemoryString(any addr[2], char[] buffer, int size)
 		int offset_addr[2];
 		Port64_LoadFromAddress(addr, i, NumberType_Int8, offset_addr);
 
+#if defined(MALLET_DEBUG_READ_MEMORY_STRING)
+		PrintToServer("[Mallet::ReadMemoryString] idx=%i, addr={%i, %i}", i, offset_addr[0], offset_addr[1]);
+#endif
+
 		/* FIXME: We're assuming that only using the LOW bits will work... */ 
 		if( (buffer[i] = view_as<char>(offset_addr[0])) == '\0' )
 			return;
@@ -43,6 +47,9 @@ void ReadMemoryString(MemoryPointer addr, char[] buffer, int size)
 	for( ; i < max; i++ )
 	{
 		int data = addr.Load(NumberType_Int8, i);
+#if defined(MALLET_DEBUG_READ_MEMORY_STRING)
+		PrintToServer("[Mallet::ReadMemoryString] idx=%i, addr={%i}", i, addr);
+#endif
 		if( (buffer[i] = view_as<char>(data)) == '\0' )
 			return;
 	}
@@ -56,6 +63,9 @@ void ReadMemoryString(Address addr, char[] buffer, int size)
 
 	int i = 0;
 	for( ; i < max; i++ )
+#if defined(MALLET_DEBUG_READ_MEMORY_STRING)
+		PrintToServer("[Mallet::ReadMemoryString] idx=%i, addr={%i}", i, addr);
+#endif
 		if( (buffer[i] = view_as<char>(LoadFromAddress(addr + view_as<Address>(i), NumberType_Int8))) == '\0' )
 			return;
 
