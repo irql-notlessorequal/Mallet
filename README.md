@@ -14,6 +14,7 @@ Mallet has the following build-time defines available for users:
 	- `_X64_IMPLEMENTATION_MEMORY_POINTER=1` uses a [proposed merge request](https://github.com/alliedmodders/sourcemod/pull/2196) to implement 64-bit memory pointers.
 
 		Known limitations: Mallet's implementation is experimental and untested!
+- `MALLET_DISABLE_ATTRIBUTE_LOCALE=1` disables the AttributeLocale interface.
 
 Compiling for 64-bit:
 ```
@@ -24,6 +25,13 @@ Compiling for 32-bit
 ```
 ./spcomp mallet.sp
 ```
+## Running Mallet.
+
+The `AttributeLocale` interface may cause Mallet to not load, with `Exception reported: Script execution timed out` being thrown.
+
+To bypass this, either increase `SlowScriptTimeout` in `addons/sourcemod/configs/core.cfg` to at least 30 seconds.
+
+Or compile Mallet with `MALLET_DISABLE_ATTRIBUTE_LOCALE=1`, remember that any users of this API will have an exception thrown.
 
 ## License
 

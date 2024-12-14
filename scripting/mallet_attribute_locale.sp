@@ -4,8 +4,11 @@ static StringMap TRANSLATION_PAIRS;
 
 public bool InitializeAttributeLocale()
 {
+#if defined(MALLET_DISABLE_ATTRIBUTE_LOCALE)
+	return true;
+#else
 	TRANSLATION_PAIRS = new StringMap();
-	
+
 	File file = OpenFile("resource/tf_english.txt", "rb", .use_valve_fs = true);
 	if (!file)
 	{
@@ -24,6 +27,7 @@ public bool InitializeAttributeLocale()
 	
 	/* Allow errors, not my fault Valve chose to add comments into the file... */
 	return true;
+#endif
 }
 
 void OnTranslationPair(const char[] key, const char[] value)
@@ -78,6 +82,9 @@ bool InternalGetRawAttributeDescription(int iDefIndex, char[] value, int valueSi
 /* native bool MalletGetRawAttributeDescription(int key, char[] value, int valueSize) */
 public int Native_GetRawAttributeDescription(Handle plugin, int numParams)
 {
+#if defined(MALLET_DISABLE_ATTRIBUTE_LOCALE)
+	return ThrowNativeError(SP_ERROR_NATIVE, "GetRawAttributeDescription is unavailable in this Mallet build.");
+#else
 	if (numParams != 3)
 	{
 		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
@@ -98,11 +105,15 @@ public int Native_GetRawAttributeDescription(Handle plugin, int numParams)
 	SetNativeString(2, strAttrib, valueSize);
 
 	return retValue;
+#endif
 }
 
 /* native bool MalletGetAttributeDescription(int key, char[] value, int valueSize, any value) */
 public int Native_GetAttributeDescription(Handle plugin, int numParams)
 {
+#if defined(MALLET_DISABLE_ATTRIBUTE_LOCALE)
+	return ThrowNativeError(SP_ERROR_NATIVE, "GetAttributeDescription is unavailable in this Mallet build.");
+#else
 	if (numParams != 4)
 	{
 		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
@@ -133,5 +144,6 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 	}
 
 	return true;
+#endif
 }
 
