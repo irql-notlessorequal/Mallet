@@ -99,6 +99,8 @@ native int MalletSetAttribute(int iEntity, int iDefIndex, float flValue);
 
 native int MalletDeleteAllAttributes(int iEntity);
 
+native int MalletGetAttributeDescription(int iDefIndex);
+
 /* Players */
 
 native int MalletIsValidPlayer(int client);
@@ -141,6 +143,7 @@ public void __pl_mallet_SetNTVOptional()
 
 	MarkNativeAsOptional("MalletSetAttribute");
 	MarkNativeAsOptional("MalletDeleteAllAttributes");
+	MarkNativeAsOptional("MalletGetAttributeDescription");
 
 	MarkNativeAsOptional("MalletIsValidPlayer");
 }
