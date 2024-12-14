@@ -25,23 +25,12 @@ Compiling for 32-bit
 ```
 ./spcomp mallet.sp
 ```
-## Running Mallet.
-
-The `AttributeLocale` interface may cause Mallet to not load, with `Exception reported: Script execution timed out` being thrown.
-
-To bypass this, either increase `SlowScriptTimeout` in `addons/sourcemod/configs/core.cfg` to at least 30 seconds.
-
-Or compile Mallet with `MALLET_DISABLE_ATTRIBUTE_LOCALE=1`, remember that any users of this API will have an exception thrown.
-
 ## License
 
 Mallet contains fragments of code from [TF2Attributes](https://github.com/FlaminSarge/tf2attributes) and [TF2EconData](https://github.com/nosoop/SM-TFEconData).
 
-Mallet uses portions of [StockSoup](https://github.com/nosoop/stocksoup/) created by nosoop.
-
 [TF2EconData](https://github.com/nosoop/SM-TFEconData) is licensed under the GNU General Public License v3.0.
 
-[StockSoup](https://github.com/nosoop/stocksoup/) is licensed under the GNU General Public License v3.0.
 ```
 Copyright (C) 2024  IRQL_NOT_LESS_OR_EQUAL
 
