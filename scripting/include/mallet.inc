@@ -97,7 +97,7 @@ native int MalletGetAttributeClass(int key, char[] value, int valueSize);
 
 native int MalletGetRawAttributeDescription(int key, char[] value, int valueSize);
 
-native int MalletGetAttributeDescription(int key, char[] value, int valueSize, any value);
+native int MalletGetAttributeDescription(int key, char[] value, int valueSize, any attributeValue);
 
 /* Attributes */
 
