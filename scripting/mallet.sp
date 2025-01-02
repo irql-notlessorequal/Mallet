@@ -17,8 +17,10 @@
 #define _X64_OK 1
 #elseif defined _X64_IMPLEMENTATION_MEMORY_POINTER
 #define _X64_OK 1
+#elseif defined _X64_IMPLEMENTATION_VIRTUAL_ADDRESS
+#error "This implementation is currently not supported."
 #else
-#error "No x64 implementation set! Set either _X64_IMPLEMENTATION_PORT64 or _X64_IMPLEMENTATION_MEMORY_POINTER as a build time macro!"
+#error "No x64 implementation set! Set either _X64_IMPLEMENTATION_PORT64, _X64_IMPLEMENTATION_MEMORY_POINTER or _X64_IMPLEMENTATION_VIRTUAL_ADDRESS as a build time macro!"
 #endif
 
 #endif
@@ -27,7 +29,7 @@ public Plugin myinfo = {
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2024-12-14",
+	version	= "2025-01-02",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 

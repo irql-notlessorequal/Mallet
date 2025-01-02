@@ -26,7 +26,7 @@ bool TranslateWeaponEntForClass(char[] buffer, int maxlen, int playerClass)
 	return SDKCall(hSDKCallTranslateWeaponEntForClass, buffer, maxlen, buffer, playerClass) > 0;
 }
 
-int Native_TranslateWeaponEntForClass(Handle hPlugin, int nParams)
+public int Native_TranslateWeaponEntForClass(Handle hPlugin, int nParams)
 {
 	char weaponClass[64];
 	GetNativeString(1, weaponClass, sizeof(weaponClass));

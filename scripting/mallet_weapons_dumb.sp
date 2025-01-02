@@ -5,6 +5,34 @@
 #include "mallet_weapons_wearable.sp"
 #include "mallet_econ.sp"
 
+static Handle hGiveNamedItem = INVALID_HANDLE;
+
+public bool InitializeWeaponsDumb()
+{
+	GameData hGameConf = new GameData("tf2.mallet");
+	if (hGameConf == INVALID_HANDLE)
+	{
+		PrintToServer("[Mallet] Failed to find the game data handle!")
+		return false;
+	}
+
+	StartPrepSDKCall(SDKCall_Player);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBasePlayer::GiveNamedItem");
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Plain);
+	hGiveNamedItem = EndPrepSDKCall();
+	
+	if (hGiveNamedItem == INVALID_HANDLE)
+	{
+		PrintToServer("[Mallet] Failed to hook into CBasePlayer::GiveNamedItem!")
+		return false;
+	}
+
+	delete hGameConf;
+	return true;
+}
+
 UNEXPORT bool GetCompatibleSaxxyWeapon(const TFClassType type, char weaponName[24])
 {
 	if (type == TFClass_Scout)
@@ -97,7 +125,7 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 		return InternalCreateWeaponDumb(client, weaponId, newWeaponName, level, quality, weaponSlot);
 	}
 
-	int weapon = CreateEntityByName(weaponName);
+	int weapon = SDKCall(hGiveNamedItem, client, weaponName, 0);
 	if (!IsValidEntity(weapon))
 	{
 		return MALLET_ERROR_GENERAL_ERROR;
@@ -106,17 +134,10 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 	char entityClass[64];
 	GetEntityNetClass(weapon, entityClass, sizeof(entityClass));
 
-	/**
-	 * Set up the entity. 
-	 * 
-	 * No I don't care that this breaks TOS. I expect users of this function not to be brain dead.
-	 * I am asking for a lot aren't I?
-	 */
+	/* Set up the entity. */
 	SetEntData(weapon, FindSendPropInfo(entityClass, "m_iItemDefinitionIndex"), weaponId);	
 	SetEntData(weapon, FindSendPropInfo(entityClass, "m_bInitialized"), true);
-
-	/* TODO(rake): Does this have a 'FindSendPropInfo' equivalent? */
-	SetEntProp(weapon, Prop_Send, "m_bValidatedAttachedEntity", true);
+	SetEntData(weapon, FindSendPropInfo(entityClass, "m_bValidatedAttachedEntity"), true);
 
 	/* Apply misc. data */
 	int internal_level = 1;
@@ -135,50 +156,35 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 	SetEntData(weapon, FindSendPropInfo(entityClass, "m_iEntityLevel"), internal_level);
 	SetEntData(weapon, FindSendPropInfo(entityClass, "m_iEntityQuality"), internal_quality);
 
-	if (!DispatchSpawn(weapon))
+	switch (weaponId)
 	{
-		return MALLET_ERROR_FAILED_TO_SPAWN;
-	}
-	else
-	{
-		switch (weaponId)
+		/* The Vaccinator */
+		case 998:
 		{
-			/* The Red-Tape Recorder */
-			case 810:
-			{
-				SetEntData(weapon, FindSendPropInfo(entityClass, "m_iObjectType"), 3);
-				SetEntData(weapon, FindDataMapInfo(weapon, "m_iSubType"), 3);
-				static int buildables[4] = {0, 0, 0, 1};
-				SetEntDataArray(weapon, FindSendPropInfo(entityClass, "m_aBuildableObjectTypes"), buildables, 4);
-			}
-
-			/* The Vaccinator */
-			case 998:
-			{
-				SetEntData(weapon, FindSendPropInfo(entityClass, "m_nChargeResistType"), 0);
-			}
-
-			/* Dragon's Fury */
-			case 1178:
-			{
-				int iOffset = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", 1) * 4;
-				int iAmmoTable = FindSendPropInfo("CTFPlayer", "m_iAmmo");
-				SetEntData(client, iAmmoTable + iOffset, 40, 4);
-			}
-
-			/* The Flare Gun */
-			/* The Detonator */
-			/* The Scorch Shot */
-			case 39, 351, 740:
-			{
-				int iOffset = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", 1) * 4;
-				int iAmmoTable = FindSendPropInfo("CTFPlayer", "m_iAmmo");
-				SetEntData(client, iAmmoTable + iOffset, 16, 4);	
-			}
+			SetEntData(weapon, FindSendPropInfo(entityClass, "m_nChargeResistType"), 0);
 		}
 
-		/* TODO(rake): Move this into the switch statement above. */
-		if (StrEqual(weaponName, "tf_weapon_builder", false) || StrEqual(weaponName, "tf_weapon_sapper", false))
+		/* Dragon's Fury */
+		case 1178:
+		{
+			int iOffset = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", 1) * 4;
+			int iAmmoTable = FindSendPropInfo("CTFPlayer", "m_iAmmo");
+			SetEntData(client, iAmmoTable + iOffset, 40, 4);
+		}
+
+		/* The Flare Gun */
+		/* The Detonator */
+		/* The Scorch Shot */
+		case 39, 351, 740:
+		{
+			int iOffset = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", 1) * 4;
+			int iAmmoTable = FindSendPropInfo("CTFPlayer", "m_iAmmo");
+			SetEntData(client, iAmmoTable + iOffset, 16, 4);	
+		}
+
+		/* PDA (ed: Toolbox) */
+		/* Sapper */
+		case 28, 735, 736, 810, 831, 933, 1080, 1102:
 		{
 			SetEntProp(weapon, Prop_Send, "m_iObjectType", 3);
 			if (weaponSlot == TFWeaponSlot_Secondary)
@@ -198,6 +204,13 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 			}
 		}
 
-		return weapon;
+		/* Gas Passer */
+		case 1180:
+		{
+			/* Some items don't work if they are spawned with a full charge. */
+			SetEntPropFloat(client, Prop_Send, "m_flItemChargeMeter", 99.5, 1);
+		}
 	}
+
+	return weapon;
 }

@@ -99,6 +99,8 @@ native int MalletGetRawAttributeDescription(int key, char[] value, int valueSize
 
 native int MalletGetAttributeDescription(int key, char[] value, int valueSize, any attributeValue);
 
+native int MalletGetRandomAttribute(bool excludeBroken);
+
 /* Attributes */
 
 native int MalletSetAttribute(int iEntity, int iDefIndex, float flValue);
@@ -148,6 +150,7 @@ public void __pl_mallet_SetNTVOptional()
 	MarkNativeAsOptional("MalletSetAttribute");
 	MarkNativeAsOptional("MalletDeleteAllAttributes");
 	MarkNativeAsOptional("MalletGetAttributeDescription");
+	MarkNativeAsOptional("MalletGetRandomAttribute");
 
 	MarkNativeAsOptional("MalletIsValidPlayer");
 }

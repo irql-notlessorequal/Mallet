@@ -14,6 +14,9 @@ Mallet has the following build-time defines available for users:
 	- `_X64_IMPLEMENTATION_MEMORY_POINTER=1` uses a [proposed merge request](https://github.com/alliedmodders/sourcemod/pull/2196) to implement 64-bit memory pointers.
 
 		Known limitations: Mallet's implementation is experimental and untested!
+	- `_X64_IMPLEMENTATION_VIRTUAL_ADDRESS=1` is a placeholder for a future implementation.
+
+		Does not compile.
 - `MALLET_DISABLE_ATTRIBUTE_LOCALE=1` disables the AttributeLocale interface.
 
 Compiling for 64-bit:
@@ -32,7 +35,7 @@ Mallet contains fragments of code from [TF2Attributes](https://github.com/Flamin
 [TF2EconData](https://github.com/nosoop/SM-TFEconData) is licensed under the GNU General Public License v3.0.
 
 ```
-Copyright (C) 2024  IRQL_NOT_LESS_OR_EQUAL
+Copyright (C) 2024-2025  IRQL_NOT_LESS_OR_EQUAL
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published

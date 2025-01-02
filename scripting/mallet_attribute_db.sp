@@ -842,6 +842,16 @@ IntMap __GenerateAttributeClassDB()
 	return DB;
 }
 
+static const int ATTRIBUTE_RANGES_EXCLUDED[][] = {
+	{556, 609},
+	{615, 615},
+	{2000, 2009},
+	{2035, 2040},
+	{2054, 2058},
+	{2066, 2066},
+	{3000, 3018}
+};
+
 static IntMap ATTRIBUTE_CLASS_DB;
 
 bool InternalGetAttributeClassValue(int key, char[] value, int valueSize)
@@ -879,15 +889,42 @@ public int Native_GetAttributeClass(Handle plugin, int numParams)
 	return retValue;
 }
 
-/* native int MalletGetRandomAttribute() */
+/* native int MalletGetRandomAttribute(bool excludeBroken) */
 public int Native_GetRandomAttribute(Handle plugin, int numParams)
 {
-	if (numParams != 0)
+	if (numParams > 1)
 	{
 		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
 	}
 
+	bool excludeBroken = false;
+	if (numParams == 1)
+	{
+		excludeBroken = GetNativeCell(1);
+	}
+
 	IntMapSnapshot snapshot = ATTRIBUTE_CLASS_DB.Snapshot();
-	int index = GetRandomInt(0, snapshot.Length);
+	
+	int index;
+	for (;;)
+	{
+		index = GetRandomInt(0, snapshot.Length - 1);
+
+		if (!excludeBroken)
+		{
+			break;
+		}
+
+		for (int arrCheckIdx = 0; arrCheckIdx < sizeof(ATTRIBUTE_RANGES_EXCLUDED); arrCheckIdx++)
+		{
+			if (index >= ATTRIBUTE_RANGES_EXCLUDED[arrCheckIdx][0] && index <= ATTRIBUTE_RANGES_EXCLUDED[arrCheckIdx][1])
+			{
+				continue;
+			}
+		}
+
+		break;
+	}
+
 	return snapshot.GetKey(index);
 }

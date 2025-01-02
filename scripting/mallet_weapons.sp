@@ -5,5 +5,5 @@
 
 public bool InitializeWeapons()
 {
-	return InitializeWeaponsWearable() && InitializeWeaponsMisc();
+	return InitializeWeaponsDumb() && InitializeWeaponsWearable() && InitializeWeaponsMisc();
 }
