@@ -103,39 +103,37 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
 
+	char entityClass[64];
+	GetEntityNetClass(weapon, entityClass, sizeof(entityClass));
+
 	/**
 	 * Set up the entity. 
 	 * 
 	 * No I don't care that this breaks TOS. I expect users of this function not to be brain dead.
 	 * I am asking for a lot aren't I?
 	 */
-	SetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex", weaponId);
-	SetEntProp(weapon, Prop_Send, "m_bInitialized", true);
+	SetEntData(weapon, FindSendPropInfo(entityClass, "m_iItemDefinitionIndex"), weaponId);	
+	SetEntData(weapon, FindSendPropInfo(entityClass, "m_bInitialized"), true);
+
+	/* TODO(rake): Does this have a 'FindSendPropInfo' equivalent? */
 	SetEntProp(weapon, Prop_Send, "m_bValidatedAttachedEntity", true);
 
 	/* Apply misc. data */
-	SetEntProp(weapon, Prop_Send, "m_iEntityLevel", level);
-	SetEntProp(weapon, Prop_Send, "m_iEntityQuality", quality);
+	int internal_level = 1;
+	int internal_quality = 6;
 
-	if (StrEqual(weaponName, "tf_weapon_builder", false) || StrEqual(weaponName, "tf_weapon_sapper", false))
+	if (level)
 	{
-		SetEntProp(weapon, Prop_Send, "m_iObjectType", 3);
-		if (weaponSlot == TFWeaponSlot_Secondary)
-		{
-			SetEntProp(weapon, Prop_Data, "m_iSubType", 3);
-			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 0);
-			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 1);
-			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 2);
-			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 3);
-		}
-		else
-		{
-			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 0);
-			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 1);
-			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 2);
-			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 3);
-		}
+		internal_level = level;
 	}
+
+	if (quality)
+	{
+		internal_quality = quality;
+	}
+
+	SetEntData(weapon, FindSendPropInfo(entityClass, "m_iEntityLevel"), internal_level);
+	SetEntData(weapon, FindSendPropInfo(entityClass, "m_iEntityQuality"), internal_quality);
 
 	if (!DispatchSpawn(weapon))
 	{
@@ -143,6 +141,63 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 	}
 	else
 	{
+		switch (weaponId)
+		{
+			/* The Red-Tape Recorder */
+			case 810:
+			{
+				SetEntData(weapon, FindSendPropInfo(entityClass, "m_iObjectType"), 3);
+				SetEntData(weapon, FindDataMapInfo(weapon, "m_iSubType"), 3);
+				static int buildables[4] = {0, 0, 0, 1};
+				SetEntDataArray(weapon, FindSendPropInfo(entityClass, "m_aBuildableObjectTypes"), buildables, 4);
+			}
+
+			/* The Vaccinator */
+			case 998:
+			{
+				SetEntData(weapon, FindSendPropInfo(entityClass, "m_nChargeResistType"), 0);
+			}
+
+			/* Dragon's Fury */
+			case 1178:
+			{
+				int iOffset = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", 1) * 4;
+				int iAmmoTable = FindSendPropInfo("CTFPlayer", "m_iAmmo");
+				SetEntData(client, iAmmoTable + iOffset, 40, 4);
+			}
+
+			/* The Flare Gun */
+			/* The Detonator */
+			/* The Scorch Shot */
+			case 39, 351, 740:
+			{
+				int iOffset = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", 1) * 4;
+				int iAmmoTable = FindSendPropInfo("CTFPlayer", "m_iAmmo");
+				SetEntData(client, iAmmoTable + iOffset, 16, 4);	
+			}
+		}
+
+		/* TODO(rake): Move this into the switch statement above. */
+		if (StrEqual(weaponName, "tf_weapon_builder", false) || StrEqual(weaponName, "tf_weapon_sapper", false))
+		{
+			SetEntProp(weapon, Prop_Send, "m_iObjectType", 3);
+			if (weaponSlot == TFWeaponSlot_Secondary)
+			{
+				SetEntProp(weapon, Prop_Data, "m_iSubType", 3);
+				SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 0);
+				SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 1);
+				SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 2);
+				SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 3);
+			}
+			else
+			{
+				SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 0);
+				SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 1);
+				SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 2);
+				SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 3);
+			}
+		}
+
 		return weapon;
 	}
 }
