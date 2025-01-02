@@ -102,10 +102,12 @@ public int Native_CreateWeaponDumb(Handle plugin, int numParams)
 	char weaponName[64];
 	GetNativeString(3, weaponName, 64);
 
-	return InternalCreateWeaponDumb(client, weaponId, weaponName);
+	int weaponSlot = GetNativeCell(6);
+
+	return InternalCreateWeaponDumb(client, weaponId, weaponName, weaponSlot);
 }
 
-int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName)
+int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, int weaponSlot)
 {
 	if (StrEqual(weaponName, "tf_wearable_demoshield", false))
 	{
@@ -120,7 +122,7 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName)
 		char newWeaponName[24];
 		GetCompatibleSaxxyWeapon(classType, newWeaponName);
 
-		return InternalCreateWeaponDumb(client, weaponId, newWeaponName);
+		return InternalCreateWeaponDumb(client, weaponId, newWeaponName, weaponSlot);
 	}
 
 	/**
@@ -130,14 +132,38 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName)
 	 * - Not working
 	 * - See above.
 	 */
-	int weapon = SDKCall(hGiveNamedItem, client, weaponName, 0, 0);
+	int weapon = SDKCall(hGiveNamedItem, client, weaponName, 0);
 
 	if (weapon <= 0)
 	{
 		return MALLET_ERROR_FAILED_TO_SPAWN;
 	}
-	else
+
+	/* Set up the entity. */
+	SetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex", weaponId);
+	SetEntProp(weapon, Prop_Send, "m_bValidatedAttachedEntity", true);
+
+	/* Setting "m_bInitialized" doesn't work, and won't ever work. */
+
+	if (StrEqual(weaponName, "tf_weapon_builder", false) || StrEqual(weaponName, "tf_weapon_sapper", false))
 	{
-		return weapon;
+		SetEntProp(weapon, Prop_Send, "m_iObjectType", 3);
+		if (weaponSlot == TFWeaponSlot_Secondary)
+		{
+			SetEntProp(weapon, Prop_Data, "m_iSubType", 3);
+			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 0);
+			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 1);
+			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 2);
+			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 3);
+		}
+		else
+		{
+			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 0);
+			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 1);
+			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 1, _, 2);
+			SetEntProp(weapon, Prop_Send, "m_aBuildableObjectTypes", 0, _, 3);
+		}
 	}
+
+	return weapon;
 }
