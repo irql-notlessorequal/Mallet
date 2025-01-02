@@ -628,7 +628,7 @@ public int Native_GetRawAttributeDescription(Handle plugin, int numParams)
 #endif
 }
 
-/* native bool MalletGetAttributeDescription(int key, char[] value, int valueSize, any value) */
+/* native bool MalletGetAttributeDescription(int key, char[] value, int valueSize, any attributeValue) */
 public int Native_GetAttributeDescription(Handle plugin, int numParams)
 {
 #if defined(MALLET_DISABLE_ATTRIBUTE_LOCALE)

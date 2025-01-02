@@ -79,6 +79,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	/* AttributeDB */
 	CreateNative("MalletGetAttributeClass", Native_GetAttributeClass);
+	CreateNative("MalletGetRandomAttribute", Native_GetRandomAttribute);
 
 	/* AttributeLocale */
 	CreateNative("MalletGetRawAttributeDescription", Native_GetRawAttributeDescription);

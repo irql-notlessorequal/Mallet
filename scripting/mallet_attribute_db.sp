@@ -878,3 +878,16 @@ public int Native_GetAttributeClass(Handle plugin, int numParams)
 
 	return retValue;
 }
+
+/* native int MalletGetRandomAttribute() */
+public int Native_GetRandomAttribute(Handle plugin, int numParams)
+{
+	if (numParams != 0)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
+	}
+
+	IntMapSnapshot snapshot = ATTRIBUTE_CLASS_DB.Snapshot();
+	int index = GetRandomInt(0, snapshot.Length);
+	return snapshot.GetKey(index);
+}

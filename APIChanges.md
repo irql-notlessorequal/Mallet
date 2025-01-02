@@ -37,4 +37,10 @@ Initial release.
 
 - `MalletGetAttributeLocalization` has been renamed to `MalletGetAttributeClass`.
 
+- Added `MalletGetRandomAttribute` into the AttributeDB interface.
+
+	This provides a random known attribute ID, including unused attributes.
+
+	A future revision of Mallet may add an optional parameter to exclude unused attributes.
+
 - The Attributes interface now has a untested and potentially broken implementation of MemoryPointer.
