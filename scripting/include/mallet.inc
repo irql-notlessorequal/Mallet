@@ -7,16 +7,39 @@
 
 native int MalletIsReady();
 
+/**
+ * Returns TRUE if the compiled Mallet version is built for 64-bit.
+ */
 native int MalletIsX64();
 
+/**
+ * Returns the API version.
+ * 
+ * Check `APIChanges.md` for more details.
+ */
 native int MalletAPIVersion();
 
 /* Conversions */
 
+/**
+ * Converts a string into an instance of `TFClassType`
+ * 
+ * @return Integer representation of `TFClassType`
+ */
 native int MalletConvertClassFromString(char[] strclass);
 
+/**
+ * Converts a string into an instance of `TFWeaponSlot_[...]`
+ * 
+ * @return Integer representation of `TFWeaponSlot`
+ */
 native int MalletConvertSlotFromString(char[] strclass);
 
+/**
+ * Converts a string into an instance of `TFTeam`
+ * 
+ * @return Integer representation of `TFTeam`
+ */
 native int MalletConvertTeamFromString(char[] strclass);
 
 /* Weapons */
@@ -99,12 +122,35 @@ native int MalletGetRawAttributeDescription(int key, char[] value, int valueSize
 
 native int MalletGetAttributeDescription(int key, char[] value, int valueSize, any attributeValue);
 
+/**
+ * Returns a random Team Fortress 2 item attribute.
+ * 
+ * @param excludeBroken		Exclude known broken attributes or attributes that are prone to crash players when misused.
+ * @return An integer identifier of the attribute.
+ */
 native int MalletGetRandomAttribute(bool excludeBroken);
 
 /* Attributes */
 
+/**
+ * Sets an attribute for the following entity. (weapon/wearabale)
+ * 
+ * @param iEntity	The entity of the weapon or wearable
+ * @param iDefIndex	The attribute identifier.
+ * @param flValue	The value to set (as a float)
+ * 
+ * @return	A boolean in the form of an integer.
+ */
 native int MalletSetAttribute(int iEntity, int iDefIndex, float flValue);
 
+/**
+ * Removes all attributes from a weapon entity.
+ * 
+ * (Wearables should use the player entity instead)
+ * 
+ * @param iEntity	The entity of the weapon or wearable
+ * @return	A boolean in the form of an integer.
+ */
 native int MalletDeleteAllAttributes(int iEntity);
 
 /* Players */

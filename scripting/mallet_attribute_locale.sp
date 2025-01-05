@@ -641,6 +641,7 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 
 	int key = GetNativeCell(1);
 	int valueSize = GetNativeCell(3);
+	any attributeValue = GetNativeCell(4);
 
 	if (valueSize <= 0 || valueSize > 2048)
 	{
@@ -650,19 +651,14 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 	char[] strAttrib = new char[valueSize];
 	GetNativeString(2, strAttrib, valueSize);
 
+	char valueBuffer[8];
+	Format(valueBuffer, 8, "%s", attributeValue);
+
 	if (!InternalGetRawAttributeDescription(key, strAttrib, valueSize))
 		return false;
 
-	if (StrContains(strAttrib, "%s1"))
-	{
-		/* TODO: Replace %s1 with the value given. */
-		SetNativeString(2, "TODO", sizeof("TODO"));
-	}
-	else
-	{
-		SetNativeString(2, strAttrib, valueSize);
-	}
-
+	ReplaceString(strAttrib, valueSize, "%s1", valueBuffer);
+	SetNativeString(2, strAttrib, valueSize);
 	return true;
 #endif
 }
