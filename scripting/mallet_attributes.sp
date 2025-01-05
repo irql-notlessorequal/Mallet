@@ -239,8 +239,23 @@ static MemoryPointer GetItemSchema() {
  */
 MemoryPointer GetEntityAttributeList(int entity)
 {
-	/* Call CEconEntity::GetAttributeList() and store the offset. */
-	return SDKCall(hSDKGetAttributeList, GetEntityMemoryPointer(entity));
+	if (1 <= entity <= MaxClients)
+	{
+		/* The Mallet Way(TM) doesn't work here, fallback to using the net_prop offset. */
+		int offsAttributeList = GetEntSendPropOffs(entity, "m_AttributeList", true);
+
+		if (offsAttributeList <= 0)
+		{
+			return null;
+		}
+
+		return GetEntityMemoryPointer(entity).Offset(offsAttributeList);
+	}
+	else
+	{
+		/* Call CEconEntity::GetAttributeList() and store the offset. */
+		return SDKCall(hSDKGetAttributeList, GetEntityMemoryPointer(entity));	
+	}
 }
 
 MemoryPointer GetByID(int id)
