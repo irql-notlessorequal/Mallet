@@ -196,11 +196,26 @@ void GetEntityAttributeList(any list[2], int entity)
 {
 	int address[2];
 
-	/* Get our entity address. */
-	Port64_GetEntityAddress(entity, address, 0);
+	if (1 <= entity <= MaxClients)
+	{
+		/* The Mallet Way(TM) doesn't work here, fallback to using the net_prop offset. */
+		int offsAttributeList = GetEntSendPropOffs(entity, "m_AttributeList", true);
 
-	/* Call CEconEntity::GetAttributeList() and store the offset. */
-	SDKCall(hSDKGetAttributeList, address, list);
+		if (offsAttributeList <= 0)
+		{
+			return;
+		}
+
+		Port64_GetEntityAddress(entity, address, offsAttributeList);
+	}
+	else
+	{
+		/* Get our entity address. */
+		Port64_GetEntityAddress(entity, address, 0);
+
+		/* Call CEconEntity::GetAttributeList() and store the offset. */
+		SDKCall(hSDKGetAttributeList, address, list);	
+	}
 }
 
 void GetByID(any econ[2], int id)

@@ -844,8 +844,10 @@ IntMap __GenerateAttributeClassDB()
 
 static const int ATTRIBUTE_RANGES_EXCLUDED[][] = {
 	{152, 152},
-	{227, 227},
+	{192, 194},
+	{227, 229},
 	{261, 262},
+	{448, 448},
 	{454, 463},
 	{556, 609},
 	{615, 615},
