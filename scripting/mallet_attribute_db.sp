@@ -900,6 +900,24 @@ public int Native_GetAttributeClass(Handle plugin, int numParams)
 	return retValue;
 }
 
+bool IsExcludedAttribute(int attr)
+{
+	for (int arrCheckIdx = 0; arrCheckIdx < sizeof(ATTRIBUTE_RANGES_EXCLUDED); arrCheckIdx++)
+	{
+		int min = ATTRIBUTE_RANGES_EXCLUDED[arrCheckIdx][0];
+		int max = ATTRIBUTE_RANGES_EXCLUDED[arrCheckIdx][1];
+#if defined(MALLET_DEBUG)
+		PrintToServer("[Mallet->AttributeDB] IsExcludedAttribute(): attr=%i, min=%i, max=%i", attr, min, max);
+#endif
+		if (attr >= min && attr <= max)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /* native int MalletGetRandomAttribute(bool excludeBroken) */
 public int Native_GetRandomAttribute(Handle plugin, int numParams)
 {
@@ -915,35 +933,20 @@ public int Native_GetRandomAttribute(Handle plugin, int numParams)
 	}
 
 	IntMapSnapshot snapshot = __GetIntMapSnapshot();
-	int index;
 	for (;;)
 	{
-		index = GetRandomInt(0, snapshot.Length - 1);
+		int index = GetRandomInt(0, snapshot.Length - 1);
 
 		if (!excludeBroken)
 		{
-			break;
+			return snapshot.GetKey(index);
 		}
 
-		/* SourcePawn doesn't let us do any fancy labels or similar, just use a variable instead... */
-		bool shouldLoop = false;
-		for (int arrCheckIdx = 0; arrCheckIdx < sizeof(ATTRIBUTE_RANGES_EXCLUDED); arrCheckIdx++)
+		if (IsExcludedAttribute(index))
 		{
-			if (index >= ATTRIBUTE_RANGES_EXCLUDED[arrCheckIdx][0] && index <= ATTRIBUTE_RANGES_EXCLUDED[arrCheckIdx][1])
-			{
-#if defined(MALLET_DEBUG)
-				PrintToServer("[Mallet->AttributeDB] GetRandomAttribute(%b): Prevented the following attribute: %i", excludeBroken, index);
-#endif
-				shouldLoop = true;
-
-				/* Hopefully this only breaks the nested loop. */
-				break;
-			}
+			continue;
 		}
 
-		if (!shouldLoop)
-			break;
+		return snapshot.GetKey(index);
 	}
-
-	return snapshot.GetKey(index);
 }
