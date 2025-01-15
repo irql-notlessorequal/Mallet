@@ -157,6 +157,29 @@ native int MalletDeleteAllAttributes(int iEntity);
 
 native int MalletIsValidPlayer(int client);
 
+/* Holidays */
+
+native int MalletIsHolidayActive(int holiday);
+
+/* */
+
+enum MalletHoliday
+{
+	kHoliday_None = 0,
+	kHoliday_TFBirthday,
+	kHoliday_Halloween,
+	kHoliday_Christmas,
+	kHoliday_CommunityUpdate,
+	kHoliday_EOTL,
+	kHoliday_Valentines,
+	kHoliday_MeetThePyro,
+	kHoliday_FullMoon,
+	kHoliday_HalloweenOrFullMoon,
+	kHoliday_HalloweenOrFullMoonOrValentines,
+	kHoliday_AprilFools,
+	kHolidayCount,
+};
+
 /* */
 
 public SharedPlugin __pl_mallet =
@@ -199,4 +222,6 @@ public void __pl_mallet_SetNTVOptional()
 	MarkNativeAsOptional("MalletGetRandomAttribute");
 
 	MarkNativeAsOptional("MalletIsValidPlayer");
+
+	MarkNativeAsOptional("MalletIsHolidayActive");
 }

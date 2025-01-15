@@ -44,3 +44,11 @@ Initial release.
 	A future revision of Mallet may add an optional parameter to exclude unused attributes.
 
 - The Attributes interface now has a untested and potentially broken implementation of MemoryPointer.
+
+### version 4 (2025-01-15)
+
+- Added the Holidays interface with the following natives.
+
+	```
+	MalletIsHolidayActive
+	```

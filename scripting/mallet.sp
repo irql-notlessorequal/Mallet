@@ -10,6 +10,7 @@
 #include "mallet_players.sp"
 #include "mallet_loadout.sp"
 #include "mallet_econ.sp"
+#include "mallet_holidays.sp"
 
 #if defined _X64
 
@@ -29,7 +30,7 @@ public Plugin myinfo = {
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2025-01-02",
+	version	= "2025-01-15",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 
@@ -96,6 +97,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	/* Loadout */
 	CreateNative("MalletGetItemLoadoutSlot", Native_GetItemLoadoutSlot);
+
+	/* Holidays */
+	CreateNative("MalletIsHolidayActive", Native_IsHolidayActive);
 	
 	RegPluginLibrary("mallet");
 	return APLRes_Success;
@@ -117,7 +121,7 @@ public int Native_IsX64(Handle plugin, int numParams)
 public int Native_APIVersion(Handle plugin, int numParams)
 {
 	/* This value should be bumped every time a breaking change or major change is introduced... */
-	return 3;
+	return 4;
 }
 
 public void OnPluginStart()
@@ -164,6 +168,16 @@ public void OnPluginStart()
 
 #if defined MALLET_DEBUG
 	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded loadout.");
+#endif
+
+	if (!InitializeHolidays())
+	{
+		SetFailState("[OnPluginStart] InitializeHolidays() returned FALSE.");
+		return;
+	}
+
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded holidays.");
 #endif
 
 	MALLET_IS_READY = true;	

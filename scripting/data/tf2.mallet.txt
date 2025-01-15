@@ -64,6 +64,12 @@
 				"linux"		"413"
 				"linux64"	"413"
 			}
+			"CTFGameRules::IsHolidayActive"
+			{
+				"windows"	"139"
+				"linux"		"140"
+				"linux64"	"140"
+			}
 		}
 		"Signatures"
 		{
