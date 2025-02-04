@@ -60,3 +60,7 @@ Initial release.
 	You can use the defined flag `MALLET_WEAPON_FLAG_FORCE_DUMB` to force the legacy path.
 
 	This method once again replaces `MalletCreateWeaponDumb` and `MalletCreateWeaponEcon`.
+
+- Removed the Loadout API.
+
+	This has no purpose as Pallet (once it's ready) will likely take over any functionality.

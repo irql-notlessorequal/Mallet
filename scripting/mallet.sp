@@ -8,7 +8,6 @@
 #include "mallet_attribute_locale.sp"
 #include "mallet_attributes.sp"
 #include "mallet_players.sp"
-#include "mallet_loadout.sp"
 #include "mallet_econ.sp"
 #include "mallet_holidays.sp"
 
@@ -92,9 +91,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	/* Players */
 	CreateNative("MalletIsValidPlayer", Native_IsValidPlayer);
 
-	/* Loadout */
-	CreateNative("MalletGetItemLoadoutSlot", Native_GetItemLoadoutSlot);
-
 	/* Holidays */
 	CreateNative("MalletIsHolidayActive", Native_IsHolidayActive);
 	
@@ -155,16 +151,6 @@ public void OnPluginStart()
 
 #if defined MALLET_DEBUG
 	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded weapons.");
-#endif
-
-	if (!InitializeLoadout())
-	{
-		SetFailState("[OnPluginStart] InitializeLoadout() returned FALSE.");
-		return;
-	}
-
-#if defined MALLET_DEBUG
-	PrintToServer("[Mallet] [OnPluginStart] Successfully loaded loadout.");
 #endif
 
 	if (!InitializeHolidays())
