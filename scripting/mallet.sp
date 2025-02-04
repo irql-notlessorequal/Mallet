@@ -63,13 +63,10 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MalletTranslateWeaponEntForClass", Native_TranslateWeaponEntForClass);
 
 	/* Weapons */
-	CreateNative("MalletCreateWeaponDumb", Native_CreateWeaponDumb);
+	CreateNative("MalletCreateWeapon", Native_CreateWeapon);
 	CreateNative("MalletRemoveWeapon", Native_RemoveWeapon);
 	CreateNative("MalletGetWearableOwner", Native_GetWearableOwner);
 	CreateNative("MalletIsWeapon", Native_IsWeapon);
-
-	/* Weapons (Econ) */
-	CreateNative("MalletCreateWeaponEcon", Native_CreateWeaponEcon);
 
 	/* Weapons (Wearables) */
 	CreateNative("MalletCreateWearable", Native_CreateWearable);
@@ -121,7 +118,7 @@ public int Native_IsX64(Handle plugin, int numParams)
 public int Native_APIVersion(Handle plugin, int numParams)
 {
 	/* This value should be bumped every time a breaking change or major change is introduced... */
-	return 4;
+	return 5;
 }
 
 public void OnPluginStart()

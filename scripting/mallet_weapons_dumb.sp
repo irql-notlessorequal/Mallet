@@ -86,27 +86,6 @@ UNEXPORT bool GetCompatibleSaxxyWeapon(const TFClassType type, char weaponName[2
 	}
 }
 
-/* native int MalletCreateWeaponDumb(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot) */
-public int Native_CreateWeaponDumb(Handle plugin, int numParams)
-{
-	if (numParams != 6)
-	{
-		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
-	}
-
-	int client = GetNativeCell(1);
-	int weaponId = GetNativeCell(2);
-
-	char weaponName[64];
-	GetNativeString(3, weaponName, 64);
-
-	int level = GetNativeCell(4);
-	int quality = GetNativeCell(5);
-	int weaponSlot = GetNativeCell(6);
-
-	return InternalCreateWeaponDumb(client, weaponId, weaponName, level, quality, weaponSlot);
-}
-
 int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot)
 {
 	if (StrEqual(weaponName, "tf_wearable_demoshield", false))

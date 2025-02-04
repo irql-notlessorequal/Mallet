@@ -56,15 +56,10 @@ native int MalletConvertTeamFromString(char[] strclass);
  * @param level			Weapon Level
  * @param quality		Weapon Quality
  * @param weaponSlot	Slot idx to equip weapon on
+ * @param flags 		[OPTIONAL]
  * @return A entity index if successful, else a negative value which is mapped into a mallet error.
  */
-native int MalletCreateWeaponDumb(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot);
-
-/**
- * EXPERIMENTAL FUNCTION.
- * USE AT YOUR OWN RISK.
- */
-native int MalletCreateWeaponEcon(int client, int weaponId);
+native int MalletCreateWeapon(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot, int flags);
 
 /**
  * Checks if a entity is a wearable.
@@ -162,6 +157,14 @@ native int MalletIsValidPlayer(int client);
 native int MalletIsHolidayActive(int holiday);
 
 /* */
+
+#if !defined(_MALLET_WEAPONS_FLAGS)
+#define _MALLET_WEAPONS_FLAGS 1
+
+#define MALLET_WEAPON_FLAG_PRESERVE_ATTRIBUTES (1 << 5)
+#define MALLET_WEAPON_FLAG_FORCE_GENERATION (1 << 6)
+#define MALLET_WEAPON_FLAG_FORCE_DUMB (1 << 7)
+#endif
 
 enum MalletHoliday
 {

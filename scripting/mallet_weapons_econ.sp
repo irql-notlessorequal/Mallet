@@ -2,30 +2,13 @@
 #include "mallet_loadout.sp"
 #include "mallet_econ.sp"
 
-/* native int MalletCreateWeaponEcon(int client, int weaponId) */
-EXPERIMENTAL public int Native_CreateWeaponEcon(Handle plugin, int numParams)
+public bool InitializeWeaponsEcon()
 {
-	if (numParams != 2)
-	{
-		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
-	}
-
-	int client = GetNativeCell(1);
-	int weaponId = GetNativeCell(2);
-	return InternalCreateWeaponEcon(client, weaponId);
+	return false;
 }
 
-int InternalCreateWeaponEcon(int client, int weaponId)
+int InternalCreateWeaponEcon(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot, int flags)
 {
-	if (!IsValidEntity(client))
-	{
-		ThrowError("InternalCreateWeaponEcon(): Invalid entity: %i", client);
-	}
-
-	int playerClass = TF2_GetPlayerClass(client);
-	char weaponClassName[64];
-
-	TranslateWeaponEntForClass(weaponClassName, sizeof (weaponClassName), playerClass);
-
-	ThrowError("MALLET TODO");
+	SetFailState("unreachable: Requires Pallet.");
+	return MALLET_ERROR_FAILED_TO_SPAWN;
 }
