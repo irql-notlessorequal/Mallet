@@ -97,12 +97,20 @@ public int Native_SwapWeapon(Handle plugin, int numParams)
 
 int InternalSwapWeapon(int client, int weaponEntity, int slot)
 {
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] [SwapWeapon] client=%d weaponEntity=%d slot=%d", client, weaponEntity, slot);
+#endif
+
 	if (!IsValidEntity(weaponEntity))
 	{
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
 
 	int oldEntity = GetEntProp(client, Prop_Send, "m_hMyWeapons", _, slot);
+
+	EquipPlayerWeapon(client, weaponEntity);
+	SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weaponEntity);
+
 	if (oldEntity == -1)
 	{
 		/**
@@ -111,12 +119,10 @@ int InternalSwapWeapon(int client, int weaponEntity, int slot)
 		 */
 		return 0;
 	}
-
-	TF2_RemoveWeaponSlot(client, slot);
-	EquipPlayerWeapon(client, weaponEntity);
-	SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weaponEntity);
-
-	return oldEntity;
+	else
+	{
+		return oldEntity;
+	}
 }
 
 /* native int MalletSwapWeaponAndPurge(int client, int weaponEntity, int slot) */
