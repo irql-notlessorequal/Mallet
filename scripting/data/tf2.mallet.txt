@@ -58,12 +58,6 @@
 				"linux"		"92"
 				"linux64"	"92"
 			}
-			"CBasePlayer::GiveNamedItem"
-			{
-				"windows"	"412"
-				"linux"		"413"
-				"linux64"	"413"
-			}
 			"CTFGameRules::IsHolidayActive"
 			{
 				"windows"	"139"

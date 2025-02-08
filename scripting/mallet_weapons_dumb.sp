@@ -5,31 +5,9 @@
 #include "mallet_weapons_wearable.sp"
 #include "mallet_econ.sp"
 
-static Handle hGiveNamedItem = INVALID_HANDLE;
-
 public bool InitializeWeaponsDumb()
 {
-	GameData hGameConf = new GameData("tf2.mallet");
-	if (hGameConf == INVALID_HANDLE)
-	{
-		PrintToServer("[Mallet] Failed to find the game data handle!")
-		return false;
-	}
-
-	StartPrepSDKCall(SDKCall_Player);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CBasePlayer::GiveNamedItem");
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_CBaseEntity, SDKPass_Plain);
-	hGiveNamedItem = EndPrepSDKCall();
-	
-	if (hGiveNamedItem == INVALID_HANDLE)
-	{
-		PrintToServer("[Mallet] Failed to hook into CBasePlayer::GiveNamedItem!")
-		return false;
-	}
-
-	delete hGameConf;
+	/* This doesn't use any engine functions, it will always work. (in theory) */
 	return true;
 }
 
