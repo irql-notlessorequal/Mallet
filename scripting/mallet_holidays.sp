@@ -12,7 +12,7 @@ public bool InitializeHolidays()
 	}
 
 	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFGameRules::IsHolidayActive");
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CTFGameRules::IsHolidayActive");
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 	hIsHolidayActive = EndPrepSDKCall();
