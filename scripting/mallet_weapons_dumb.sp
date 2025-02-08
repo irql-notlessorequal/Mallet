@@ -104,7 +104,7 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 		return InternalCreateWeaponDumb(client, weaponId, newWeaponName, level, quality, weaponSlot);
 	}
 
-	int weapon = SDKCall(hGiveNamedItem, client, weaponName, 0);
+	int weapon = CreateEntityByName(weaponName);
 	if (!IsValidEntity(weapon))
 	{
 		return MALLET_ERROR_GENERAL_ERROR;
@@ -192,5 +192,12 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 		}
 	}
 
-	return weapon;
+	if (!DispatchSpawn(weapon))
+	{
+		return MALLET_ERROR_FAILED_TO_SPAWN;
+	}
+	else
+	{
+		return weapon;
+	}
 }
