@@ -97,10 +97,15 @@ public int Native_SwapWeapon(Handle plugin, int numParams)
 
 int InternalSwapWeapon(int client, int weaponEntity, int slot)
 {
+	if (!IsValidEntity(weaponEntity))
+	{
+		return MALLET_ERROR_GENERAL_ERROR;
+	}
+
 	int oldEntity = GetEntProp(client, Prop_Send, "m_hMyWeapons", _, slot);
 	if (oldEntity == -1)
 	{
-		return -1;
+		return MALLET_ERROR_GENERAL_ERROR;
 	}
 
 	EquipPlayerWeapon(client, weaponEntity);
@@ -133,7 +138,7 @@ public int Native_SwapWeaponAndPurge(Handle plugin, int numParams)
 bool InternalSwapWeaponAndPurge(int client, int weaponEntity, int slot)
 {
 	int oldWeapon = InternalSwapWeapon(client, weaponEntity, slot);
-	if (!oldWeapon)
+	if (oldWeapon <= 0)
 	{
 		return false;
 	}
