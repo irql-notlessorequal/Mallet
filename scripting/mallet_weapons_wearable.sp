@@ -5,7 +5,8 @@ static Handle hSDKEquipWearable = INVALID_HANDLE;
 static Handle hSDKRemoveWearable = INVALID_HANDLE;
 static Handle hSDKIsWearable = INVALID_HANDLE;
 
-UNEXPORT bool InitializeWeaponsWearable() {
+public bool InitializeWeaponsWearable()
+{
 	GameData gamedata = new GameData("sm-tf2.games");
 	GameData hGameConf = new GameData("tf2.mallet");
 

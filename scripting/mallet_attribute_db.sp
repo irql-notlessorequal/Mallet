@@ -929,6 +929,44 @@ bool IsExcludedAttribute(int attr)
 	return false;
 }
 
+/* native int MalletAttributeFromName(char[] string, int stringSize) */
+public int Native_AttributeFromName(Handle plugin, int numParams)
+{
+	if (numParams != 2)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
+	}
+
+	int stringSize = GetNativeCell(2);
+	if (stringSize <= 0 || stringSize > PLATFORM_MAX_PATH)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid string size parameter (%i)", stringSize);
+	}
+
+	char str[stringSize];
+	GetNativeString(2, str, stringSize);
+
+	char temp[PLATFORM_MAX_PATH];
+
+	IntMapSnapshot snapshot = __GetIntMapSnapshot();
+	/**
+	 * Arguably this is still faster than quering the game.
+	 * (watch it not be)
+	 */
+	for (int idx = 0; idx < snapshot.Length; idx++)
+	{
+		int key = snapshot.GetKey(idx);
+		ATTRIBUTE_CLASS_DB.GetString(key, temp, PLATFORM_MAX_PATH);
+
+		if (StrEqual(temp, str, false))
+		{
+			return key;
+		}
+	}
+
+	return false;
+}
+
 /* native int MalletGetRandomAttribute(bool excludeBroken) */
 public int Native_GetRandomAttribute(Handle plugin, int numParams)
 {
@@ -948,12 +986,7 @@ public int Native_GetRandomAttribute(Handle plugin, int numParams)
 	{
 		int index = GetRandomInt(0, snapshot.Length - 1);
 
-		if (!excludeBroken)
-		{
-			return snapshot.GetKey(index);
-		}
-
-		if (IsExcludedAttribute(index))
+		if (excludeBroken && IsExcludedAttribute(index))
 		{
 			continue;
 		}

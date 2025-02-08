@@ -79,6 +79,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MalletGetWeaponIndex", Native_GetWeaponIndex);
 
 	/* AttributeDB */
+	CreateNative("MalletAttributeFromName", Native_AttributeFromName);
 	CreateNative("MalletGetAttributeClass", Native_GetAttributeClass);
 	CreateNative("MalletGetRandomAttribute", Native_GetRandomAttribute);
 
@@ -88,6 +89,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	/* Attributes */
 	CreateNative("MalletSetAttribute", Native_SetAttribute);
+	CreateNative("MalletRemoveAttribute", Native_RemoveAttribute);
 	CreateNative("MalletDeleteAllAttributes", Native_DeleteAllAttributes);
 
 	/* Players */

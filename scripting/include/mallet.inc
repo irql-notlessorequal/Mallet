@@ -106,6 +106,8 @@ native int MalletGetWearableOwner(int weapon, int client);
 /**
  * Equips the weapon on a client's slot.
  * 
+ * This function may return zero if there was no weapon previously equipped.
+ * 
  * @param client 	index of the client
  * @param weaponEntity 	index of the weapon entity
  * @param slot		slot of the weapon
@@ -129,13 +131,16 @@ native int MalletGetWeaponIndex(int weaponNameSize, const char[] weaponName, int
 
 /* AttributeDB */
 
+/**
+ * Returns the attribute definition index from the string name.
+ * 
+ * @param string 	char array containing the name of the attribute
+ * @param stringSize 	Size of the char array
+ * @return The index as an integer or zero if no such attribute was found.
+ */
+native int MalletAttributeFromName(char[] string, int stringSize);
+
 native int MalletGetAttributeClass(int key, char[] value, int valueSize);
-
-/* AttributeLocale */
-
-native int MalletGetRawAttributeDescription(int key, char[] value, int valueSize);
-
-native int MalletGetAttributeDescription(int key, char[] value, int valueSize, any attributeValue);
 
 /**
  * Returns a random Team Fortress 2 item attribute.
@@ -143,7 +148,13 @@ native int MalletGetAttributeDescription(int key, char[] value, int valueSize, a
  * @param excludeBroken		Exclude known broken attributes or attributes that are prone to crash players when misused.
  * @return An integer identifier of the attribute.
  */
-native int MalletGetRandomAttribute(bool excludeBroken);
+native int MalletGetRandomAttribute(bool excludeBroken=false);
+
+/* AttributeLocale */
+
+native int MalletGetRawAttributeDescription(int key, char[] value, int valueSize);
+
+native int MalletGetAttributeDescription(int key, char[] value, int valueSize, any attributeValue);
 
 /* Attributes */
 
@@ -157,6 +168,16 @@ native int MalletGetRandomAttribute(bool excludeBroken);
  * @return	A boolean in the form of an integer.
  */
 native int MalletSetAttribute(int iEntity, int iDefIndex, float flValue);
+
+/**
+ * Removes an attribute for the following entity. (weapon/wearabale)
+ * 
+ * @param iEntity	The entity of the weapon or wearable
+ * @param iDefIndex	The attribute identifier.
+ * 
+ * @return	A boolean in the form of an integer.
+ */
+native int MalletRemoveAttribute(int iEntity, int iDefIndex);
 
 /**
  * Removes all attributes from a weapon entity.
@@ -238,12 +259,14 @@ public void __pl_mallet_SetNTVOptional()
 	MarkNativeAsOptional("MalletSwapWeapon");
 	MarkNativeAsOptional("MalletSwapWeaponAndPurge");
 
+	MarkNativeAsOptional("MalletAttributeFromName");
 	MarkNativeAsOptional("MalletGetAttributeClass");
+	MarkNativeAsOptional("MalletGetRandomAttribute");
 
 	MarkNativeAsOptional("MalletSetAttribute");
+	MarkNativeAsOptional("MalletRemoveAttribute");
 	MarkNativeAsOptional("MalletDeleteAllAttributes");
 	MarkNativeAsOptional("MalletGetAttributeDescription");
-	MarkNativeAsOptional("MalletGetRandomAttribute");
 
 	MarkNativeAsOptional("MalletIsValidPlayer");
 

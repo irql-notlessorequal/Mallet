@@ -1,3 +1,9 @@
+#include <sdktools>
+#include <tf2>
+
+#include "mallet_defines.sp"
+#include "mallet_weapons_wearable.sp"
+
 static Handle hSDKIsWeapon = INVALID_HANDLE;
 
 public bool InitializeWeaponsMisc()

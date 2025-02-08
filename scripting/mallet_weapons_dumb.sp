@@ -11,7 +11,7 @@ public bool InitializeWeaponsDumb()
 	return true;
 }
 
-UNEXPORT bool GetCompatibleSaxxyWeapon(const TFClassType type, char weaponName[24])
+bool GetCompatibleSaxxyWeapon(const TFClassType type, char weaponName[24])
 {
 	if (type == TFClass_Scout)
 	{

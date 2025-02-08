@@ -1,7 +1,6 @@
 #if !defined(_MALLET_GENERAL)
 #define _MALLET_GENERAL 1
 
-#define UNEXPORT
 #define EXPERIMENTAL
 #define UNSTABLE
 #endif

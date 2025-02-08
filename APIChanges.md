@@ -63,6 +63,12 @@ Initial release.
 
 - Weapons: Added `MalletSwapWeapon` and `MalletSwapWeaponAndPurge`
 
+- Attributes: Added `MalletRemoveAttribute`
+
+- AttributeDB: The argument `excludeBroken` in `MalletGetRandomAttribute` is now optional.
+
+- AttributeDB: Added `MalletAttributeFromName`
+
 - Removed the Loadout API.
 
 	This has no purpose as Pallet (once it's ready) will likely take over any functionality.

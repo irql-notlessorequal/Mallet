@@ -15,6 +15,7 @@ Handle hSDKSetRuntimeValue = INVALID_HANDLE;
 Handle hSDKGetAttributeDef = INVALID_HANDLE;
 Handle hSDKGetAttributeDefByName = INVALID_HANDLE;
 Handle hSDKGetAttributeList = INVALID_HANDLE;
+Handle hSDKRemoveAttribute = INVALID_HANDLE;
 Handle hSDKDestroyAllAttributes = INVALID_HANDLE;
 Handle hSDKSchema = INVALID_HANDLE;
 
@@ -165,6 +166,18 @@ public bool InitializeAttributes()
 	if (hSDKGetAttributeList == INVALID_HANDLE)
 	{
 		PrintToServer("[Mallet] Failed to hook into CEconEntity::GetAttributeList!")
+		return false;
+	}
+
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CAttributeList::RemoveAttribute");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	hSDKRemoveAttribute = EndPrepSDKCall();
+
+	if (hSDKRemoveAttribute == INVALID_HANDLE)
+	{
+		PrintToServer("[Mallet] Failed to hook into CAttributeList::RemoveAttribute!")
 		return false;
 	}
 
@@ -395,6 +408,57 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 	return true;
 }
 
+bool InternalRemoveAttribute(int entity, int iDefIndex)
+{
+	if (!IsValidEntity(iEntity))
+	{
+		return false;
+	}
+
+#if defined(_X64_IMPLEMENTATION_PORT64)
+	int pEntAttributeList[2];
+
+	GetEntityAttributeList(pEntAttributeList, iEntity);
+
+	if (!pEntAttributeList[0])
+	{
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+	MemoryPointer pEntAttributeList = GetEntityAttributeList(iEntity);
+
+	if (!pEntAttributeList)
+	{
+#else
+	Address pEntAttributeList = GetEntityAttributeList(iEntity);
+	if (pEntAttributeList == Address_Null)
+	{
+#endif
+		return false;
+	}
+
+#if defined(_X64_IMPLEMENTATION_PORT64)
+	int pEconItemAttributeDefinition[2];
+
+	GetByID(pEconItemAttributeDefinition, iDefIndex);
+
+	if (!pEconItemAttributeDefinition[0])
+	{
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+	MemoryPointer pEconItemAttributeDefinition = GetByID(iDefIndex);
+
+	if (!pEconItemAttributeDefinition)
+	{
+#else
+	Address pAttribDef = GetAttributeDefinitionByID(iDefIndex);
+	if (pAttribDef == Address_Null)
+	{
+#endif
+		return false;
+	}
+
+	SDKCall(hSDKRemoveAttribute, pEntAttributeList, null, pEconItemAttributeDefinition);
+	return true;
+}
+
 /* native bool MalletDeleteAllAttributes(int iEntity) */
 public int Native_DeleteAllAttributes(Handle plugin, int numParams)
 {
@@ -409,6 +473,23 @@ public int Native_DeleteAllAttributes(Handle plugin, int numParams)
 	PrintToServer("[Mallet->Attributes] DeleteAllAttributes()={iEntity=%i}", iEntity);
 #endif
 	return InternalDeleteAllAttributes(iEntity);
+}
+
+/* native bool MalletRemoveAttribute(int iEntity, int iDefIndex) */
+public int Native_RemoveAttribute(Handle plugin, int numParams)
+{
+	if (numParams != 2)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
+	}
+
+	int iEntity = GetNativeCell(1);
+	int iDefIndex = GetNativeCell(2);
+
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet->Attributes] RemoveAttribute()={iEntity=%i, iDefIndex=%i}", iEntity, iDefIndex);
+#endif
+	return InternalRemoveAttribute(iEntity, iDefIndex);
 }
 
 /* native bool MalletSetAttribute(int iEntity, int iDefIndex, float flValue) */
