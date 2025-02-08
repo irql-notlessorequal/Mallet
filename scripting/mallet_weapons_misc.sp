@@ -74,6 +74,74 @@ public int InternalRemoveAllWeapons(int client)
 	return 1;
 }
 
+/* native int MalletSwapWeapon(int client, int weaponEntity, int slot) */
+public int Native_SwapWeapon(Handle plugin, int numParams)
+{
+	if (numParams != 3)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
+	}
+
+	int client = GetNativeCell(1);
+	if (client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Client %d is invalid", client);
+		return -1;
+	}
+
+	int weaponEntity = GetNativeCell(2);
+	int slot = GetNativeCell(3);
+
+	return InternalSwapWeapon(client, weaponEntity, slot);
+}
+
+int InternalSwapWeapon(int client, int weaponEntity, int slot)
+{
+	int oldEntity = GetEntProp(client, Prop_Send, "m_hMyWeapons", _, slot);
+	if (oldEntity == -1)
+	{
+		return -1;
+	}
+
+	EquipPlayerWeapon(client, weaponEntity);
+	SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weaponEntity);
+
+	return oldEntity;
+}
+
+/* native int MalletSwapWeaponAndPurge(int client, int weaponEntity, int slot) */
+public int Native_SwapWeaponAndPurge(Handle plugin, int numParams)
+{
+	if (numParams != 3)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
+	}
+
+	int client = GetNativeCell(1);
+	if (client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		ThrowNativeError(SP_ERROR_NATIVE, "Client %d is invalid", client);
+		return -1;
+	}
+
+	int weaponEntity = GetNativeCell(2);
+	int slot = GetNativeCell(3);
+
+	return InternalSwapWeaponAndPurge(client, weaponEntity, slot);
+}
+
+bool InternalSwapWeaponAndPurge(int client, int weaponEntity, int slot)
+{
+	int oldWeapon = InternalSwapWeapon(client, weaponEntity, slot);
+	if (!oldWeapon)
+	{
+		return false;
+	}
+
+	RemoveEntity(oldWeapon);
+	return true;
+}
+
 /* native int MalletRemoveAllWeapon(int client) */
 public int Native_RemoveAllWeapons(Handle plugin, int numParams)
 {

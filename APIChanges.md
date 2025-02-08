@@ -61,6 +61,8 @@ Initial release.
 
 	This method once again replaces `MalletCreateWeaponDumb` and `MalletCreateWeaponEcon`.
 
+- Weapons: Added `MalletSwapWeapon` and `MalletSwapWeaponAndPurge`
+
 - Removed the Loadout API.
 
 	This has no purpose as Pallet (once it's ready) will likely take over any functionality.

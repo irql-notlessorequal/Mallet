@@ -99,9 +99,29 @@ native int MalletEquipWearable(int client, int entity);
 
 native int MalletRemoveWearable(int client, int wearable);
 
-native int MalletRemoveWeapon(int client, int wearable);
+native int MalletRemoveWeapon(int client, int weapon);
 
 native int MalletGetWearableOwner(int weapon, int client);
+
+/**
+ * Equips the weapon on a client's slot.
+ * 
+ * @param client 	index of the client
+ * @param weaponEntity 	index of the weapon entity
+ * @param slot		slot of the weapon
+ * @return An int with the entity index of the old weapon
+ */
+native int MalletSwapWeapon(int client, int weaponEntity, int slot);
+
+/**
+ * Equips the weapon on a client's slot and deletes the previous weapon.
+ * 
+ * @param client 	index of the client
+ * @param weaponEntity 	index of the weapon entity
+ * @param slot		slot of the weapon
+ * @return A boolean.
+ */
+native int MalletSwapWeaponAndPurge(int client, int weaponEntity, int slot);
 
 /* WeaponsDB */
 
@@ -207,8 +227,7 @@ public void __pl_mallet_SetNTVOptional()
 	MarkNativeAsOptional("MalletConvertSlotFromString");
 	MarkNativeAsOptional("MalletConvertTeamFromString");
 
-	MarkNativeAsOptional("MalletCreateWeaponDumb");
-	MarkNativeAsOptional("MalletCreateWeaponEcon");
+	MarkNativeAsOptional("MalletCreateWeapon");
 	MarkNativeAsOptional("MalletCreateWearable");
 	MarkNativeAsOptional("MalletEquipWearable");
 	MarkNativeAsOptional("MalletIsWearable");
@@ -216,6 +235,8 @@ public void __pl_mallet_SetNTVOptional()
 	MarkNativeAsOptional("MalletRemoveWearable");
 	MarkNativeAsOptional("MalletRemoveWeapon");
 	MarkNativeAsOptional("MalletGetWearableOwner");
+	MarkNativeAsOptional("MalletSwapWeapon");
+	MarkNativeAsOptional("MalletSwapWeaponAndPurge");
 
 	MarkNativeAsOptional("MalletGetAttributeClass");
 

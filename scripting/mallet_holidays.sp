@@ -54,7 +54,7 @@ public int Native_IsHolidayActive(Handle plugin, int numParams)
 
 	int holiday = GetNativeCell(1);
 
-	if (holiday < 0 || holiday >= kHolidayCount)
+	if (holiday < 0 || holiday >= view_as<int>(kHolidayCount))
 	{
 		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid holiday (%i)", holiday);
 	}

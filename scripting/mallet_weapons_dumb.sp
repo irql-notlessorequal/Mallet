@@ -114,9 +114,9 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 	GetEntityNetClass(weapon, entityClass, sizeof(entityClass));
 
 	/* Set up the entity. */
-	SetEntData(weapon, FindSendPropInfo(entityClass, "m_iItemDefinitionIndex"), weaponId);	
-	SetEntData(weapon, FindSendPropInfo(entityClass, "m_bInitialized"), true);
-	SetEntData(weapon, FindSendPropInfo(entityClass, "m_bValidatedAttachedEntity"), true);
+	SetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex", weaponId);	
+	SetEntProp(weapon, Prop_Send, "m_bInitialized", true);
+	SetEntProp(weapon, Prop_Send, "m_bValidatedAttachedEntity", true);
 
 	/* Apply misc. data */
 	int internal_level = 1;
@@ -132,8 +132,9 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 		internal_quality = quality;
 	}
 
-	SetEntData(weapon, FindSendPropInfo(entityClass, "m_iEntityLevel"), internal_level);
-	SetEntData(weapon, FindSendPropInfo(entityClass, "m_iEntityQuality"), internal_quality);
+	/* Apply levels. */
+	SetEntProp(weapon, Prop_Send, "m_iEntityLevel", internal_level);
+	SetEntProp(weapon, Prop_Send, "m_iEntityQuality", internal_quality);
 
 	switch (weaponId)
 	{
