@@ -10,7 +10,7 @@ Mallet has the following build-time defines available for users:
 - `_X64=1` enables 64-bit compilation, requires an implementation to be set.
 	- `_X64_IMPLEMENTATION_PORT64=1` uses [Port64](https://github.com/skial-com/port64) as the implementation for 64-bit memory pointers.
 		
-		Known limitations: Loadout API is not available due to GameData APIs not being covered.
+		Known limitations: None.
 	- `_X64_IMPLEMENTATION_MEMORY_POINTER=1` uses a [proposed merge request](https://github.com/alliedmodders/sourcemod/pull/2196) to implement 64-bit memory pointers.
 
 		Known limitations: Mallet's implementation is experimental and untested!
