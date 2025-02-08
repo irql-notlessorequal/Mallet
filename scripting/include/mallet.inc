@@ -59,7 +59,7 @@ native int MalletConvertTeamFromString(char[] strclass);
  * @param flags 		[OPTIONAL]
  * @return A entity index if successful, else a negative value which is mapped into a mallet error.
  */
-native int MalletCreateWeapon(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot, int flags);
+native int MalletCreateWeapon(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot, int flags=0);
 
 /**
  * Checks if a entity is a wearable.
