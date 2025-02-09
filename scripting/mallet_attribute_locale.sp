@@ -649,7 +649,6 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 	int key = GetNativeCell(1);
 	int valueSize = GetNativeCell(3);
 	MalletAttributeValueType type = view_as<MalletAttributeValueType>(GetNativeCell(4));
-	any attributeValue = GetNativeCell(5);
 
 	if (valueSize <= 0 || valueSize > 2048)
 	{
@@ -663,14 +662,20 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 	{
 		case mStringAttribute:
 		{
-			PopulateValueBufferStr(valueBuffer, attributeValue);
+			int len;
+			GetNativeStringLength(5, len);
+			char[] attributeStr = new char[len];
+			GetNativeString(5, attributeStr, len);
+			PopulateValueBufferStr(valueBuffer, attributeStr);
 		}
 		case mIntegerAttribute:
 		{
+			any attributeValue = GetNativeCell(5);
 			PopulateValueBufferInt(valueBuffer, attributeValue);
 		}
 		case mFloatAttribute:
 		{
+			any attributeValue = GetNativeCell(5);
 			PopulateValueBufferFloat(valueBuffer, attributeValue);
 		}
 		default:
