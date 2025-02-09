@@ -410,7 +410,7 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 
 bool InternalRemoveAttribute(int entity, int iDefIndex)
 {
-	if (!IsValidEntity(iEntity))
+	if (!IsValidEntity(entity))
 	{
 		return false;
 	}
@@ -418,17 +418,17 @@ bool InternalRemoveAttribute(int entity, int iDefIndex)
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEntAttributeList[2];
 
-	GetEntityAttributeList(pEntAttributeList, iEntity);
+	GetEntityAttributeList(pEntAttributeList, entity);
 
 	if (!pEntAttributeList[0])
 	{
 #elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEntAttributeList = GetEntityAttributeList(iEntity);
+	MemoryPointer pEntAttributeList = GetEntityAttributeList(entity);
 
 	if (!pEntAttributeList)
 	{
 #else
-	Address pEntAttributeList = GetEntityAttributeList(iEntity);
+	Address pEntAttributeList = GetEntityAttributeList(entity);
 	if (pEntAttributeList == Address_Null)
 	{
 #endif
@@ -448,14 +448,22 @@ bool InternalRemoveAttribute(int entity, int iDefIndex)
 	if (!pEconItemAttributeDefinition)
 	{
 #else
-	Address pAttribDef = GetAttributeDefinitionByID(iDefIndex);
-	if (pAttribDef == Address_Null)
+	Address pEconItemAttributeDefinition = GetAttributeDefinitionByID(iDefIndex);
+	if (pEconItemAttributeDefinition == Address_Null)
 	{
 #endif
 		return false;
 	}
 
-	SDKCall(hSDKRemoveAttribute, pEntAttributeList, null, pEconItemAttributeDefinition);
+#if defined(_X64_IMPLEMENTATION_PORT64)
+	int dummy[2];
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+	MemoryPointer dummy;
+#else
+	Address dummy;
+#endif
+
+	SDKCall(hSDKRemoveAttribute, pEntAttributeList, dummy, pEconItemAttributeDefinition);
 	return true;
 }
 

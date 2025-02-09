@@ -478,8 +478,8 @@ IntMap __GenerateAttributeDescriptionDB()
 	DB.SetString(694, "Increased Nostromo Napalmer damage taken from Isolated Merc Set");
 	DB.SetString(695, "Increased Nostromo Napalmer damage against Isolationist Pack Set");
 	DB.SetString(696, "Increased Melee damage taken from Isolationist Pack Set");
-	DB.SetString(701, "Duck XP Level : %s1");
-	DB.SetString(702, "Duck Power : %s1 / 5");
+	DB.SetString(701, "Duck XP Level: %s1");
+	DB.SetString(702, "Duck Power: %s1 / 5");
 	DB.SetString(703, "Early Supporter of End of the Line Community Update");
 	DB.SetString(705, "Duckstreaks Active");
 	DB.SetString(708, "Hold fire to load up to 4 shells");
@@ -502,7 +502,7 @@ IntMap __GenerateAttributeDescriptionDB()
 	DB.SetString(740, "%s1% less healing from Medic sources");
 	DB.SetString(741, "On Hit: Gain up to +%s1 health per attack");
 	DB.SetString(745, "Team Colored Decorated Weapon");
-	DB.SetString(748, "Items Traded in : %s1");
+	DB.SetString(748, "Items Traded in: %s1");
 	DB.SetString(772, "This weapon holsters %s1% slower");
 	DB.SetString(773, "This weapon deploys %s1% slower");
 	DB.SetString(774, "%s1 sec decrease in charge duration");
@@ -648,18 +648,32 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid valueSize (%i)", valueSize);
 	}
 
-	char[] strAttrib = new char[valueSize];
-	GetNativeString(2, strAttrib, valueSize);
-
-	char valueBuffer[8];
-	Format(valueBuffer, 8, "%s", attributeValue);
+	char strAttrib[valueSize];
+	char valueBuffer[16];
+	PopulateValueBuffer(valueBuffer, attributeValue);
 
 	if (!InternalGetRawAttributeDescription(key, strAttrib, valueSize))
 		return false;
 
-	ReplaceString(strAttrib, valueSize, "%s1", valueBuffer);
+	if (!ReplaceString(strAttrib, valueSize, "%s1", valueBuffer))
+		return false;
+
 	SetNativeString(2, strAttrib, valueSize);
 	return true;
 #endif
 }
 
+void PopulateValueBuffer(char valueBuffer[16], char[] value)
+{
+	strcopy(valueBuffer, 16, value);
+}
+
+void PopulateValueBuffer(char valueBuffer[16], int value)
+{
+	IntToString(value, valueBuffer, 16);
+}
+
+void PopulateValueBuffer(char valueBuffer[16], float value)
+{
+	FloatToString(value, valueBuffer, 16);
+}
