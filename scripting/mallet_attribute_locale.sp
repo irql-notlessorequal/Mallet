@@ -687,9 +687,8 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 	if (!InternalGetRawAttributeDescription(key, strAttrib, valueSize))
 		return false;
 
-	if (!ReplaceString(strAttrib, valueSize, "%s1", valueBuffer))
-		return false;
-
+	/* Ignore zero matches, we might not have an actual value to put in there. */
+	ReplaceString(strAttrib, valueSize, "%s1", valueBuffer);
 	SetNativeString(2, strAttrib, valueSize);
 	return true;
 #endif
