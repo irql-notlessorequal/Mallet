@@ -1,5 +1,4 @@
 
-#include "mallet_loadout.sp"
 #include "mallet_econ.sp"
 
 public bool InitializeWeaponsEcon()

@@ -108,6 +108,8 @@ native int MalletGetWearableOwner(int weapon, int client);
  * 
  * This function may return zero if there was no weapon previously equipped.
  * 
+ * @note Invoking this function on a wearable will crash the server.
+ * 
  * @param client 	index of the client
  * @param weaponEntity 	index of the weapon entity
  * @param slot		slot of the weapon
@@ -117,6 +119,8 @@ native int MalletSwapWeapon(int client, int weaponEntity, int slot);
 
 /**
  * Equips the weapon on a client's slot and deletes the previous weapon.
+ * 
+ * @note Invoking this function on a wearable will crash the server.
  * 
  * @param client 	index of the client
  * @param weaponEntity 	index of the weapon entity
@@ -152,9 +156,19 @@ native int MalletGetRandomAttribute(bool excludeBroken=false);
 
 /* AttributeLocale */
 
+/**
+ * I am so sorry for this.
+ */
+enum MalletAttributeValueType
+{
+	mStringAttribute = 0,
+	mFloatAttribute,
+	mIntegerAttribute
+}
+
 native int MalletGetRawAttributeDescription(int key, char[] value, int valueSize);
 
-native int MalletGetAttributeDescription(int key, char[] value, int valueSize, any attributeValue);
+native int MalletGetAttributeDescription(int key, char[] value, int valueSize, MalletAttributeValueType attributeType, any attributeValue);
 
 /* Attributes */
 

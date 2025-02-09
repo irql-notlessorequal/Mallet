@@ -10,7 +10,7 @@ public bool InitializeWeapons()
 	IsEconAvailable = InitializeWeaponsEcon();
 	if (!IsEconAvailable)
 	{
-		PrintToServer("[Mallet] [WARNING] Failed to initialize the TF2Econ weapon spawning path!\nThings are about to break.");
+		PrintToServer("[Mallet] [WARNING] Failed to initialize the Pallet weapon spawning path.");
 	}
 
 	return InitializeWeaponsDumb() && InitializeWeaponsWearable() && InitializeWeaponsMisc();

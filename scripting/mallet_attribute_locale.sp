@@ -1,5 +1,12 @@
 #include "mallet_int_map.sp"
 
+enum MalletAttributeValueType
+{
+	mStringAttribute = 0,
+	mFloatAttribute,
+	mIntegerAttribute
+}
+
 /**
  * There used to be a nicer implementation here.
  * It was so """fast""" that Mallet would timeout on load, and if you bypassed that, the server's watchdog would trigger.
@@ -628,20 +635,21 @@ public int Native_GetRawAttributeDescription(Handle plugin, int numParams)
 #endif
 }
 
-/* native bool MalletGetAttributeDescription(int key, char[] value, int valueSize, any attributeValue) */
+/* native bool MalletGetAttributeDescription(int key, char[] value, int valueSize, MalletAttributeValueType type, any attributeValue) */
 public int Native_GetAttributeDescription(Handle plugin, int numParams)
 {
 #if defined(MALLET_DISABLE_ATTRIBUTE_LOCALE)
 	return ThrowNativeError(SP_ERROR_NATIVE, "GetAttributeDescription is unavailable in this Mallet build.");
 #else
-	if (numParams != 4)
+	if (numParams != 5)
 	{
 		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
 	}
 
 	int key = GetNativeCell(1);
 	int valueSize = GetNativeCell(3);
-	any attributeValue = GetNativeCell(4);
+	MalletAttributeValueType type = view_as<MalletAttributeValueType>(GetNativeCell(4));
+	any attributeValue = GetNativeCell(5);
 
 	if (valueSize <= 0 || valueSize > 2048)
 	{
@@ -650,7 +658,26 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 
 	char strAttrib[valueSize];
 	char valueBuffer[16];
-	PopulateValueBuffer(valueBuffer, attributeValue);
+	
+	switch (type)
+	{
+		case mStringAttribute:
+		{
+			PopulateValueBufferStr(valueBuffer, attributeValue);
+		}
+		case mIntegerAttribute:
+		{
+			PopulateValueBufferInt(valueBuffer, attributeValue);
+		}
+		case mFloatAttribute:
+		{
+			PopulateValueBufferFloat(valueBuffer, attributeValue);
+		}
+		default:
+		{
+			return ThrowNativeError(SP_ERROR_NATIVE, "Invalid attribute type!");
+		}
+	}
 
 	if (!InternalGetRawAttributeDescription(key, strAttrib, valueSize))
 		return false;
@@ -663,17 +690,17 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 #endif
 }
 
-void PopulateValueBuffer(char valueBuffer[16], char[] value)
+void PopulateValueBufferStr(char valueBuffer[16], char[] value)
 {
 	strcopy(valueBuffer, 16, value);
 }
 
-void PopulateValueBuffer(char valueBuffer[16], int value)
+void PopulateValueBufferInt(char valueBuffer[16], int value)
 {
 	IntToString(value, valueBuffer, 16);
 }
 
-void PopulateValueBuffer(char valueBuffer[16], float value)
+void PopulateValueBufferFloat(char valueBuffer[16], float value)
 {
 	FloatToString(value, valueBuffer, 16);
 }

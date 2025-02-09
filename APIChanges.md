@@ -72,3 +72,18 @@ Initial release.
 - Removed the Loadout API.
 
 	This has no purpose as Pallet (once it's ready) will likely take over any functionality.
+
+### version 6 (2025-02-09)
+
+- AttributeLocale:
+
+	The layout of `MalletGetAttributeDescription` has been changed in order to workaround
+	SourcePawn limitations.
+
+	The function is now:
+
+	```
+	native int MalletGetAttributeDescription(int key, char[] value, int valueSize, MalletAttributeValueType attributeType, any attributeValue);
+	```
+
+	All users MUST switch to the new version.
