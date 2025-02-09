@@ -656,7 +656,7 @@ public int Native_GetAttributeDescription(Handle plugin, int numParams)
 		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid valueSize (%i)", valueSize);
 	}
 
-	char strAttrib[valueSize];
+	char[] strAttrib = new char[valueSize];
 	char valueBuffer[16];
 	
 	switch (type)

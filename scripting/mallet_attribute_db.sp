@@ -943,7 +943,7 @@ public int Native_AttributeFromName(Handle plugin, int numParams)
 		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid string size parameter (%i)", stringSize);
 	}
 
-	char str[stringSize];
+	char[] str = new char[stringSize];
 	GetNativeString(2, str, stringSize);
 
 	char temp[PLATFORM_MAX_PATH];
