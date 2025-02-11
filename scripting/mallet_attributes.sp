@@ -14,6 +14,7 @@
 Handle hSDKSetRuntimeValue = INVALID_HANDLE;
 Handle hSDKGetAttributeDef = INVALID_HANDLE;
 Handle hSDKGetAttributeDefByName = INVALID_HANDLE;
+Handle hSDKGetAttributeListForPlayer = INVALID_HANDLE;
 Handle hSDKGetAttributeList = INVALID_HANDLE;
 Handle hSDKRemoveAttribute = INVALID_HANDLE;
 Handle hSDKDestroyAllAttributes = INVALID_HANDLE;
@@ -145,6 +146,29 @@ public bool InitializeAttributes()
 		PrintToServer("[Mallet] Failed to hook into CEconItemSchema::GetAttributeDefinitionByName");
 		return false;
 	}
+
+#if defined(_X64_IMPLEMENTATION_PORT64)
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
+	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);
+	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
+#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
+	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);
+	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
+#else
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
+	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
+#endif
+
+	if (hSDKGetAttributeListForPlayer == INVALID_HANDLE)
+	{
+		PrintToServer("[Mallet] Failed to hook into CTFPlayer::GetAttributeList!")
+		return false;
+	}
 	
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	StartPrepSDKCall(SDKCall_Raw);
@@ -201,6 +225,17 @@ static void GetItemSchema(any pSchema[2]) {
 	SDKCall(hSDKSchema, pSchema);
 }
 
+void GetEntityAttributeListForPlayer(any list[2], int entity)
+{
+	int address[2];
+
+	/* Get our entity address. */
+	Port64_GetEntityAddress(entity, address, 0);
+
+	/* Call CTFPlayer::GetAttributeList() and store the offset. */
+	SDKCall(hSDKGetAttributeListForPlayer, address, list);	
+}
+
 /**
  * Sets this to entity address + the m_AttributeList offset.  This does not correspond to the CUtlVector instance
  * (which is offset by 0x08).
@@ -209,26 +244,11 @@ void GetEntityAttributeList(any list[2], int entity)
 {
 	int address[2];
 
-	if (1 <= entity <= MaxClients)
-	{
-		/* The Mallet Way(TM) doesn't work here, fallback to using the net_prop offset. */
-		int offsAttributeList = GetEntSendPropOffs(entity, "m_AttributeList", true);
+	/* Get our entity address. */
+	Port64_GetEntityAddress(entity, address, 0);
 
-		if (offsAttributeList <= 0)
-		{
-			return;
-		}
-
-		Port64_GetEntityAddress(entity, address, offsAttributeList);
-	}
-	else
-	{
-		/* Get our entity address. */
-		Port64_GetEntityAddress(entity, address, 0);
-
-		/* Call CEconEntity::GetAttributeList() and store the offset. */
-		SDKCall(hSDKGetAttributeList, address, list);	
-	}
+	/* Call CEconEntity::GetAttributeList() and store the offset. */
+	SDKCall(hSDKGetAttributeList, address, list);	
 }
 
 void GetByID(any econ[2], int id)
@@ -246,29 +266,20 @@ static MemoryPointer GetItemSchema() {
 	return SDKCall(hSDKSchema);
 }
 
+MemoryPointer GetEntityAttributeListForPlayer(int entity)
+{
+	/* Call CTFPlayer::GetAttributeList() and store the offset. */
+	return SDKCall(hSDKGetAttributeListForPlayer, GetEntityMemoryPointer(entity));	
+}
+
 /**
  * Sets this to entity address + the m_AttributeList offset.  This does not correspond to the CUtlVector instance
  * (which is offset by 0x08).
  */
 MemoryPointer GetEntityAttributeList(int entity)
 {
-	if (1 <= entity <= MaxClients)
-	{
-		/* The Mallet Way(TM) doesn't work here, fallback to using the net_prop offset. */
-		int offsAttributeList = GetEntSendPropOffs(entity, "m_AttributeList", true);
-
-		if (offsAttributeList <= 0)
-		{
-			return null;
-		}
-
-		return GetEntityMemoryPointer(entity).Offset(offsAttributeList);
-	}
-	else
-	{
-		/* Call CEconEntity::GetAttributeList() and store the offset. */
-		return SDKCall(hSDKGetAttributeList, GetEntityMemoryPointer(entity));	
-	}
+	/* Call CEconEntity::GetAttributeList() and store the offset. */
+	return SDKCall(hSDKGetAttributeList, GetEntityMemoryPointer(entity));	
 }
 
 MemoryPointer GetByID(int id)
@@ -296,6 +307,12 @@ static Address GetAttributeDefinitionByID(int id) {
 		return SDKCall(hSDKGetAttributeDef, pSchema, id);
 	}	
 }
+
+static Address GetEntityAttributeListForPlayer(int entity)
+{
+	return SDKCall(hSDKGetAttributeListForPlayer, GetEntityAddress(entity));
+}
+
 /**
  * Returns the m_AttributeList offset.  This does not correspond to the CUtlVector instance
  * (which is offset by 0x04).
@@ -325,8 +342,15 @@ bool InternalDeleteAllAttributes(int iEntity)
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEntAttributeList[2];
+	if (1 <= iEntity <= MaxClients)
+	{
+		GetEntityAttributeListForPlayer(pEntAttributeList, iEntity);
+	}
+	else
+	{
+		GetEntityAttributeList(pEntAttributeList, iEntity);
+	}
 
-	GetEntityAttributeList(pEntAttributeList, iEntity);
 	if (!pEntAttributeList[0])
 	{
 		return false;
@@ -334,7 +358,15 @@ bool InternalDeleteAllAttributes(int iEntity)
 
 	SDKCall(hSDKDestroyAllAttributes, pEntAttributeList);
 #elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEntAttributeList = GetEntityAttributeList(iEntity);
+	MemoryPointer pEntAttributeList;
+	if (1 <= iEntity <= MaxClients)
+	{
+		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
+	}
+	else
+	{
+		pEntAttributeList = GetEntityAttributeList(iEntity);
+	}
 
 	if (!pEntAttributeList)
 	{
@@ -343,7 +375,16 @@ bool InternalDeleteAllAttributes(int iEntity)
 
 	SDKCall(hSDKDestroyAllAttributes, pEntAttributeList);
 #else
-	Address pEntAttributeList = GetEntityAttributeList(iEntity);
+	Address pEntAttributeList;
+	if (1 <= iEntity <= MaxClients)
+	{
+		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
+	}
+	else
+	{
+		pEntAttributeList = GetEntityAttributeList(iEntity);
+	}
+
 	if (pEntAttributeList == Address_Null)
 	{
 		return false;
@@ -366,18 +407,41 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEntAttributeList[2];
-
-	GetEntityAttributeList(pEntAttributeList, iEntity);
+	if (1 <= iEntity <= MaxClients)
+	{
+		GetEntityAttributeListForPlayer(pEntAttributeList, iEntity);
+	}
+	else
+	{
+		GetEntityAttributeList(pEntAttributeList, iEntity);
+	}
 
 	if (!pEntAttributeList[0])
 	{
 #elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEntAttributeList = GetEntityAttributeList(iEntity);
+	MemoryPointer pEntAttributeList;
+	if (1 <= iEntity <= MaxClients)
+	{
+		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
+	}
+	else
+	{
+		pEntAttributeList = GetEntityAttributeList(iEntity);
+	}
 
 	if (!pEntAttributeList)
 	{
 #else
-	Address pEntAttributeList = GetEntityAttributeList(iEntity);
+	Address pEntAttributeList;
+	if (1 <= iEntity <= MaxClients)
+	{
+		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
+	}
+	else
+	{
+		pEntAttributeList = GetEntityAttributeList(iEntity);
+	}
+
 	if (pEntAttributeList == Address_Null)
 	{
 #endif
@@ -432,18 +496,41 @@ bool InternalRemoveAttribute(int entity, int iDefIndex)
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEntAttributeList[2];
-
-	GetEntityAttributeList(pEntAttributeList, entity);
+	if (1 <= iEntity <= MaxClients)
+	{
+		GetEntityAttributeListForPlayer(pEntAttributeList, iEntity);
+	}
+	else
+	{
+		GetEntityAttributeList(pEntAttributeList, iEntity);
+	}
 
 	if (!pEntAttributeList[0])
 	{
 #elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEntAttributeList = GetEntityAttributeList(entity);
+	MemoryPointer pEntAttributeList;
+	if (1 <= iEntity <= MaxClients)
+	{
+		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
+	}
+	else
+	{
+		pEntAttributeList = GetEntityAttributeList(iEntity);
+	}
 
 	if (!pEntAttributeList)
 	{
 #else
-	Address pEntAttributeList = GetEntityAttributeList(entity);
+	Address pEntAttributeList;
+	if (1 <= iEntity <= MaxClients)
+	{
+		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
+	}
+	else
+	{
+		pEntAttributeList = GetEntityAttributeList(iEntity);
+	}
+
 	if (pEntAttributeList == Address_Null)
 	{
 #endif

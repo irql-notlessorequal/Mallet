@@ -31,25 +31,6 @@ public bool InitializeWeaponsMisc()
 	return true;
 }
 
-int InternalRemoveItem(int client, int entity)
-{
-	if (Internal_IsWeapon(entity))
-	{
-		if (!RemovePlayerItem(client, entity))
-		{
-			return 0;
-		}
-
-	}
-	else if (Internal_IsWearable(entity))
-	{
-		TF2_RemoveWearable(client, entity);
-	}
-
-	RemoveEntity(entity);
-	return 1;
-}
-
 /* native int MalletSwapWeapon(int client, int weaponEntity, int slot) */
 public int Native_SwapWeapon(Handle plugin, int numParams)
 {
@@ -130,6 +111,42 @@ bool InternalSwapWeaponAndPurge(int client, int weaponEntity, int slot)
 	if (oldWeapon)
 	{
 		RemoveEntity(oldWeapon);
+	}
+
+	return true;
+}
+
+int InternalRemoveItem(int client, int entity)
+{
+	if (Internal_IsWeapon(entity))
+	{
+		if (!RemovePlayerItem(client, entity))
+		{
+			return 0;
+		}
+
+	}
+	else if (Internal_IsWearable(entity))
+	{
+		TF2_RemoveWearable(client, entity);
+	}
+
+	RemoveEntity(entity);
+	return 1;
+}
+
+int InternalRemoveAllWeapons(int client)
+{
+	for (int i = 0; i < GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons"); ++i)
+	{
+		int weaponEntity = GetEntProp(client, Prop_Send, "m_hMyWeapons", _, i);
+
+		if (weaponEntity == -1)
+		{
+			continue;
+		}
+
+		InternalRemoveItem(client, weaponEntity);
 	}
 
 	return true;

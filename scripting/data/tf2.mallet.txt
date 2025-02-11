@@ -138,6 +138,13 @@
 				"linux"				"@_ZN14CAttributeList20DestroyAllAttributesEv"
 				"linux64"			"@_ZN14CAttributeList20DestroyAllAttributesEv"
 			}
+			"CTFPlayer::GetAttributeList"
+			{
+				"library"		"server"
+				// TODO: Get the Windows signature, since there is no offset available, thanks MSVC.
+				"linux"			"@_ZN9CTFPlayer16GetAttributeListEv"
+				"linux64"		"@_ZN9CTFPlayer16GetAttributeListEv"
+			}
 		}
 	}
 }
