@@ -118,7 +118,7 @@ public int Native_IsX64(Handle plugin, int numParams)
 public int Native_APIVersion(Handle plugin, int numParams)
 {
 	/* This value should be bumped every time a breaking change or major change is introduced... */
-	return 5;
+	return 6;
 }
 
 public void OnPluginStart()

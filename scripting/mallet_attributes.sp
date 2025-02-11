@@ -317,6 +317,9 @@ bool InternalDeleteAllAttributes(int iEntity)
 {
 	if (!IsValidEntity(iEntity))
 	{
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalDeleteAllAttributes: Rejecting call due to invalid entity %i.", iEntity);
+#endif
 		return false;
 	}
 
@@ -355,6 +358,9 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 {
 	if (!IsValidEntity(iEntity))
 	{
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalSetAttribute: Rejecting call due to invalid entity %i.", iEntity);
+#endif
 		return false;
 	}
 
@@ -374,6 +380,9 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 	Address pEntAttributeList = GetEntityAttributeList(iEntity);
 	if (pEntAttributeList == Address_Null)
 	{
+#endif
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalSetAttribute: GetEntityAttributeList returned NULL.");
 #endif
 		return false;
 	}
@@ -395,6 +404,9 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 	if (pAttribDef == Address_Null)
 	{
 #endif
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalSetAttribute: GetAttributeDefinitionByID returned NULL.");
+#endif
 		return false;
 	}
 
@@ -412,6 +424,9 @@ bool InternalRemoveAttribute(int entity, int iDefIndex)
 {
 	if (!IsValidEntity(entity))
 	{
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalRemoveAttribute: Rejecting call due to invalid entity %i.", entity);
+#endif
 		return false;
 	}
 
