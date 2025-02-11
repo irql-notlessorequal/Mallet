@@ -72,4 +72,3 @@ void ReadMemoryString(Address addr, char[] buffer, int size)
 	buffer[i] = '\0';
 }
 #endif
-

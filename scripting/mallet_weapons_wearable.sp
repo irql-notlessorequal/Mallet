@@ -1,6 +1,8 @@
 #include <tf2>
 #include <tf2_stocks>
 
+#include "mallet_utils.sp"
+
 static Handle hSDKEquipWearable = INVALID_HANDLE;
 static Handle hSDKRemoveWearable = INVALID_HANDLE;
 static Handle hSDKIsWearable = INVALID_HANDLE;
@@ -58,7 +60,7 @@ public bool InitializeWeaponsWearable()
 int GiveWearable(int clientIdx, int weaponId, const char[] weaponName)
 {
 	int ent = CreateEntityByName(weaponName);
-	if (ent == -1)
+	if (!IsValidEntity(ent))
 	{
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
@@ -72,15 +74,17 @@ int GiveWearable(int clientIdx, int weaponId, const char[] weaponName)
 	{
 		return MALLET_ERROR_FAILED_TO_SPAWN;
 	}
-
-	SDKCall(hSDKEquipWearable, clientIdx, ent);
-	return ent;
+	else
+	{
+		SDKCall(hSDKEquipWearable, clientIdx, ent);
+		return ent;
+	}
 }
 
 int InternalCreateWearable(int client, int weaponId, const char[] weaponName)
 {
 	int ent = CreateEntityByName(weaponName);
-	if (ent == -1)
+	if (!IsValidEntity(ent))
 	{
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
@@ -88,13 +92,16 @@ int InternalCreateWearable(int client, int weaponId, const char[] weaponName)
 	SetEntProp(ent, Prop_Send, "m_hOwnerEntity", client);
 	SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/weapons/c_models/c_persian_shield/c_persian_shield_all.mdl"));
 	SetEntProp(ent, Prop_Send, "m_iItemDefinitionIndex", weaponId);
+	SetEntProp(ent, Prop_Send, "m_bInitialized", true);
 	
 	if (!DispatchSpawn(ent))
 	{
 		return MALLET_ERROR_FAILED_TO_SPAWN;
 	}
-
-	return ent;
+	else
+	{
+		return ent;
+	}
 }
 
 int InternalEquipWearable(int client, int entity)
@@ -106,35 +113,6 @@ int InternalEquipWearable(int client, int entity)
 
 	SDKCall(hSDKEquipWearable, client, entity);
 	return 1;
-}
-
-void InternalRemoveExtraWearables(int weaponEntity)
-{
-	int hExtraWearable = GetEntPropEnt(weaponEntity, Prop_Send, "m_hExtraWearable");
-
-	if (hExtraWearable != -1)
-	{
-		TF2_RemoveWearable(GetEntPropEnt(hExtraWearable, Prop_Send, "m_hOwnerEntity"), hExtraWearable);
-		SetEntPropEnt(weaponEntity, Prop_Send, "m_hExtraWearable", -1);
-	}
-
-	int hExtraWearableViewModel = GetEntPropEnt(weaponEntity, Prop_Send, "m_hExtraWearableViewModel");
-
-	if (hExtraWearableViewModel != -1)
-	{
-		TF2_RemoveWearable(GetEntPropEnt(hExtraWearableViewModel, Prop_Send, "m_hOwnerEntity"), hExtraWearableViewModel);
-		SetEntPropEnt(weaponEntity, Prop_Send, "m_hExtraWearableViewModel", -1);
-	}
-}
-
-int InternalGetPlayerWearable(int client, int index)
-{
-	return -1;
-}
-
-int InternalGetWearableCount(int client)
-{
-	return 0;
 }
 
 bool TypeIsWearable(const char[] name)

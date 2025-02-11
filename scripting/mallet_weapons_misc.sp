@@ -40,7 +40,6 @@ int InternalRemoveItem(int client, int entity)
 			return 0;
 		}
 
-		InternalRemoveExtraWearables(entity);
 	}
 	else if (Internal_IsWearable(entity))
 	{
@@ -48,35 +47,6 @@ int InternalRemoveItem(int client, int entity)
 	}
 
 	RemoveEntity(entity);
-	return 1;
-}
-
-public int InternalRemoveAllWeapons(int client)
-{
-	for (int i = 0; i < GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons"); ++i)
-	{
-		int weaponEntity = GetEntProp(client, Prop_Send, "m_hMyWeapons", _, i);
-
-		if (weaponEntity == -1)
-		{
-			continue;
-		}
-
-		InternalRemoveItem(client, weaponEntity);
-	}
-
-	for (int i = InternalGetWearableCount(client) - 1; i >= 0; i--)
-	{
-		int wearableEntity = InternalGetPlayerWearable(client, i);
-
-		if (wearableEntity == -1)
-		{
-			continue;
-		}
-
-		InternalRemoveItem(client, wearableEntity);
-	}
-
 	return 1;
 }
 
