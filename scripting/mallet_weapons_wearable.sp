@@ -66,6 +66,7 @@ int GiveWearable(int clientIdx, int weaponId, const char[] weaponName)
 	SetEntProp(ent, Prop_Send, "m_hOwnerEntity", clientIdx);
 	SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/weapons/c_models/c_persian_shield/c_persian_shield_all.mdl"));
 	SetEntProp(ent, Prop_Send, "m_iItemDefinitionIndex", weaponId);
+	SetEntProp(ent, Prop_Send, "m_bInitialized", true);
 	
 	if (!DispatchSpawn(ent))
 	{
@@ -134,6 +135,12 @@ int InternalGetPlayerWearable(int client, int index)
 int InternalGetWearableCount(int client)
 {
 	return 0;
+}
+
+bool TypeIsWearable(const char[] name)
+{
+	return StrEqual(name, "tf_wearable") || StrEqual(name, "tf_wearable_demoshield")
+		|| StrEqual(name, "tf_wearable_razorback") || StrEqual(name, "tf_powerup_bottle");
 }
 
 /* native int MalletIsWearable(int entity) */
