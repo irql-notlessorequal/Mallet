@@ -9,6 +9,8 @@ Mallet has the following build-time defines available for users:
 - `MALLET_DEBUG=1` enables additional runtime logging into the server console.
 - `_X64=1` enables 64-bit compilation, requires an implementation to be set.
 	- `_X64_IMPLEMENTATION_PORT64=1` uses [Port64](https://github.com/skial-com/port64) as the implementation for 64-bit memory pointers.
+
+		**Requires the [following patch](https://github.com/alliedmodders/sourcemod/pull/2159) to be applied on top of SourceMod.**
 		
 		Known limitations: None.
 	- `_X64_IMPLEMENTATION_MEMORY_POINTER=1` uses a [proposed merge request](https://github.com/alliedmodders/sourcemod/pull/2196) to implement 64-bit memory pointers.
