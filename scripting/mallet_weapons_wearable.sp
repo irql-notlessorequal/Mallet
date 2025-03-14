@@ -1,6 +1,7 @@
 #include <tf2>
 #include <tf2_stocks>
 
+#include "mallet_defines.sp"
 #include "mallet_utils.sp"
 
 static Handle hSDKEquipWearable = INVALID_HANDLE;
@@ -57,28 +58,16 @@ public bool InitializeWeaponsWearable()
 	return true;
 }
 
-int GiveWearable(int clientIdx, int weaponId, const char[] weaponName)
+public int GiveWearable(int clientIdx, int weaponId, const char[] weaponName)
 {
-	int ent = CreateEntityByName(weaponName);
+	int ent = InternalCreateWearable(clientIdx, weaponId, weaponName);
 	if (!IsValidEntity(ent))
 	{
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
 
-	SetEntProp(ent, Prop_Send, "m_hOwnerEntity", clientIdx);
-	SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/weapons/c_models/c_persian_shield/c_persian_shield_all.mdl"));
-	SetEntProp(ent, Prop_Send, "m_iItemDefinitionIndex", weaponId);
-	SetEntProp(ent, Prop_Send, "m_bInitialized", true);
-	
-	if (!DispatchSpawn(ent))
-	{
-		return MALLET_ERROR_FAILED_TO_SPAWN;
-	}
-	else
-	{
-		SDKCall(hSDKEquipWearable, clientIdx, ent);
-		return ent;
-	}
+	SDKCall(hSDKEquipWearable, clientIdx, ent);
+	return ent;
 }
 
 int InternalCreateWearable(int client, int weaponId, const char[] weaponName)
@@ -89,10 +78,39 @@ int InternalCreateWearable(int client, int weaponId, const char[] weaponName)
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
 
-	SetEntProp(ent, Prop_Send, "m_hOwnerEntity", client);
-	SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/weapons/c_models/c_persian_shield/c_persian_shield_all.mdl"));
 	SetEntProp(ent, Prop_Send, "m_iItemDefinitionIndex", weaponId);
+
+	/**
+	 * Workaround for tf_wearable_demoshield.
+	 */
+	switch (weaponId)
+	{
+		/* The Chargin' Targe */
+		case 131:
+		{
+			SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/weapons/c_models/c_targe/c_targe.mdl"));
+		}
+		/* The Splendid Screen */
+		case 406:
+		{
+			SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/weapons/c_models/c_persian_shield/c_persian_shield_all.mdl"));
+		}
+		/* The Tide Turner */
+		case 1099:
+		{
+			SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/workshop/weapons/c_models/c_wheel_shield/c_wheel_shield.mdl"));
+		}
+		/* Festive Targe */
+		case 1044:
+		{
+			SetEntProp(ent, Prop_Send, "m_nModelIndexOverrides", PrecacheModel("models/weapons/c_models/c_targe/c_targe_xmas.mdl"));
+		}
+	}
+
+
+	SetEntProp(ent, Prop_Send, "m_hOwnerEntity", client);
 	SetEntProp(ent, Prop_Send, "m_bInitialized", true);
+	SetEntProp(ent, Prop_Send, "m_bValidatedAttachedEntity", true);
 	
 	if (!DispatchSpawn(ent))
 	{
@@ -115,7 +133,7 @@ int InternalEquipWearable(int client, int entity)
 	return 1;
 }
 
-bool TypeIsWearable(const char[] name)
+public bool TypeIsWearable(const char[] name)
 {
 	return StrEqual(name, "tf_wearable") || StrEqual(name, "tf_wearable_demoshield")
 		|| StrEqual(name, "tf_wearable_razorback") || StrEqual(name, "tf_powerup_bottle");
