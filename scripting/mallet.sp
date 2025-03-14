@@ -29,7 +29,7 @@ public Plugin myinfo = {
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2025-02-09",
+	version	= "2025-03-14",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 
@@ -74,6 +74,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MalletEquipWearable", Native_EquipWearable);
 	CreateNative("MalletIsWearable", Native_IsWearable);
 	CreateNative("MalletRemoveWearable", Native_RemoveWearable);
+	CreateNative("MalletRemoveAllWearables", Native_RemoveAllWearables);
 
 	/* WeaponsDB */
 	CreateNative("MalletGetWeaponIndex", Native_GetWeaponIndex);

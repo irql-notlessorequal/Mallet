@@ -139,6 +139,63 @@ bool Internal_IsWearable(int entity)
 	return SDKCall(hSDKIsWearable, entity);
 }
 
+void InternalRemoveWearable(int client, int wearable)
+{
+	SDKCall(hSDKRemoveWearable, client, wearable);
+}
+
+bool InternalRemoveAllWearables(int client)
+{
+	/**
+	 * Apparently AcceptEntityInput(KILL) on tf_wearable shouldn't work
+	 * but it does?
+	 * 
+	 * /shrug
+	 */
+
+	int wearable = -1;
+	while ((wearable = FindEntityByClassname(wearable, "tf_wearable*")) != -1)
+	{
+		if (IsValidEntity(wearable))
+		{
+			int player = GetEntPropEnt(wearable, Prop_Send, "m_hOwnerEntity");
+			if (client == player)
+			{
+				InternalRemoveWearable(client, wearable);
+				AcceptEntityInput(wearable, "Kill");
+			}
+		}
+	}
+
+	while ((wearable = FindEntityByClassname(wearable, "tf_powerup_bottle")) != -1)
+	{
+		if (IsValidEntity(wearable))
+		{
+			int player = GetEntPropEnt(wearable, Prop_Send, "m_hOwnerEntity");
+			if (client == player)
+			{
+				InternalRemoveWearable(client, wearable);
+				AcceptEntityInput(wearable, "Kill");
+			}
+		}
+	}
+
+	while ((wearable = FindEntityByClassname(wearable, "tf_weapon_spellbook")) != -1)
+	{
+		if (IsValidEntity(wearable))
+		{
+			int player = GetEntPropEnt(wearable, Prop_Send, "m_hOwnerEntity");
+			if (client == player)
+			{
+				InternalRemoveWearable(client, wearable);
+				AcceptEntityInput(wearable, "Kill");
+			}
+		}
+	}
+
+	return true;
+}
+
 /* native int MalletRemoveWearable(int client, int wearable) */
 public int Native_RemoveWearable(Handle plugin, int numParams)
 {
@@ -150,13 +207,12 @@ public int Native_RemoveWearable(Handle plugin, int numParams)
 	}
 	
 	int wearable = GetNativeCell(2);
-
 	if (!Internal_IsWearable(wearable))
 	{
 		ThrowNativeError(SP_ERROR_NATIVE, "%d is not a wearable", wearable);
 	}
 	
-	SDKCall(hSDKRemoveWearable, client, wearable);
+	InternalRemoveWearable(client, wearable);
 	return 1;
 }
 
@@ -211,4 +267,16 @@ public int Native_GetWearableOwner(Handle plugin, int numParams)
 	}
 
 	return -1;	
+}
+
+/* native int MalletRemoveAllWearables(int client) */
+public int Native_RemoveAllWearables(Handle plugin, int numParams)
+{
+	if (numParams != 1)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
+	}
+
+	int client = GetNativeCell(1);
+	return InternalRemoveAllWearables(client);
 }

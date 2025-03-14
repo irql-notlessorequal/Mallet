@@ -99,6 +99,8 @@ native int MalletEquipWearable(int client, int entity);
 
 native int MalletRemoveWearable(int client, int wearable);
 
+native int MalletRemoveAllWearables(int client);
+
 native int MalletRemoveWeapon(int client, int weapon);
 
 native int MalletGetWearableOwner(int weapon, int client);
