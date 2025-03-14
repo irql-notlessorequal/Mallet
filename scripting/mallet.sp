@@ -64,7 +64,6 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	/* Weapons */
 	CreateNative("MalletCreateWeapon", Native_CreateWeapon);
 	CreateNative("MalletRemoveWeapon", Native_RemoveWeapon);
-	CreateNative("MalletGetWearableOwner", Native_GetWearableOwner);
 	CreateNative("MalletIsWeapon", Native_IsWeapon);
 	CreateNative("MalletSwapWeapon", Native_SwapWeapon);
 	CreateNative("MalletSwapWeaponAndPurge", Native_SwapWeaponAndPurge);
@@ -75,6 +74,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MalletIsWearable", Native_IsWearable);
 	CreateNative("MalletRemoveWearable", Native_RemoveWearable);
 	CreateNative("MalletRemoveAllWearables", Native_RemoveAllWearables);
+
+	/* Weapons (Misc.) */
+	CreateNative("MalletGetItemOwner", Native_GetItemOwner);
 
 	/* WeaponsDB */
 	CreateNative("MalletGetWeaponIndex", Native_GetWeaponIndex);
@@ -119,7 +121,7 @@ public int Native_IsX64(Handle plugin, int numParams)
 public int Native_APIVersion(Handle plugin, int numParams)
 {
 	/* This value should be bumped every time a breaking change or major change is introduced... */
-	return 6;
+	return 7;
 }
 
 public void OnPluginStart()

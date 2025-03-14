@@ -264,29 +264,6 @@ public int Native_EquipWearable(Handle plugin, int numParams)
 	return InternalEquipWearable(client, entity);
 }
 
-/* native int MalletGetWearableOwner(int weapon, int client) */
-public int Native_GetWearableOwner(Handle plugin, int numParams)
-{
-	if (numParams != 2)
-	{
-		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
-	}
-
-	int weapon = GetNativeCell(1);
-	int client = GetNativeCell(2);
-
-	int iEntity = -1;
-	while ((iEntity = FindEntityByClassname(iEntity, "tf_wearable_demoshield")) != -1)
-	{
-		if (client == GetEntPropEnt(iEntity, Prop_Data, "m_hOwnerEntity"))
-		{
-			return iEntity;
-		}
-	}
-
-	return -1;	
-}
-
 /* native int MalletRemoveAllWearables(int client) */
 public int Native_RemoveAllWearables(Handle plugin, int numParams)
 {

@@ -87,3 +87,15 @@ Initial release.
 	```
 
 	All users MUST switch to the new version.
+
+### version 7 (2025-03-14)
+
+- Wearables:
+
+	Renamed `MalletGetWearableOwner` into `MalletGetItemOwner`
+
+	I have no clue why I added this one in, either way, takes only one argument now which is the entity.
+
+	Supports both dropped weapons and wearables.
+
+	All users MUST switch to the new version.

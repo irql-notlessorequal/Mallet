@@ -103,7 +103,7 @@ native int MalletRemoveAllWearables(int client);
 
 native int MalletRemoveWeapon(int client, int weapon);
 
-native int MalletGetWearableOwner(int weapon, int client);
+native int MalletGetItemOwner(int item);
 
 /**
  * Equips the weapon on a client's slot.
@@ -271,7 +271,7 @@ public void __pl_mallet_SetNTVOptional()
 	MarkNativeAsOptional("MalletIsWeapon");
 	MarkNativeAsOptional("MalletRemoveWearable");
 	MarkNativeAsOptional("MalletRemoveWeapon");
-	MarkNativeAsOptional("MalletGetWearableOwner");
+	MarkNativeAsOptional("MalletGetItemOwner");
 	MarkNativeAsOptional("MalletSwapWeapon");
 	MarkNativeAsOptional("MalletSwapWeaponAndPurge");
 

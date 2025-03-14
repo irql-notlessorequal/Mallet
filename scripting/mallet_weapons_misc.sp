@@ -197,3 +197,38 @@ bool Internal_IsWeapon(int entity)
 
 	return SDKCall(hSDKIsWeapon, entity);
 }
+
+/* native int MalletGetItemOwner(int item) */
+public int Native_GetItemOwner(Handle plugin, int numParams)
+{
+	if (numParams != 1)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
+	}
+
+	int item = GetNativeCell(1);
+	if (Internal_IsWearable(item))
+	{
+		return GetEntPropEnt(item, Prop_Data, "m_hOwnerEntity");
+	}
+	else
+	{
+		int id = GetEntProp(item, Prop_Send, "m_iAccountID");
+
+		if (id)
+		{
+			/**
+			 * Fugly user lookup.
+			 */
+			for (int i = 1; i <= MaxClients; i++)
+			{
+				if (IsClientInGame(i) && GetSteamAccountID(i) == id)
+				{
+					return i;
+				}
+			}
+		}
+
+		return -1;
+	}
+}
