@@ -484,12 +484,12 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 	return true;
 }
 
-bool InternalRemoveAttribute(int entity, int iDefIndex)
+bool InternalRemoveAttribute(int iEntity, int iDefIndex)
 {
-	if (!IsValidEntity(entity))
+	if (!IsValidEntity(iEntity))
 	{
 #if defined MALLET_DEBUG
-		PrintToServer("[Mallet->Attributes] InternalRemoveAttribute: Rejecting call due to invalid entity %i.", entity);
+		PrintToServer("[Mallet->Attributes] InternalRemoveAttribute: Rejecting call due to invalid entity %i.", iEntity);
 #endif
 		return false;
 	}
