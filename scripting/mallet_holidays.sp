@@ -11,7 +11,7 @@ public bool InitializeHolidays()
 		return false;
 	}
 
-	StartPrepSDKCall(SDKCall_Raw);
+	StartPrepSDKCall(SDKCall_GameRules);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CTFGameRules::IsHolidayActive");
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);

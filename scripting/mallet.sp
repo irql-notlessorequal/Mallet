@@ -29,7 +29,7 @@ public Plugin myinfo = {
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2025-03-14",
+	version	= "2025-04-03",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 

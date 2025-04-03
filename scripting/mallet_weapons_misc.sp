@@ -108,7 +108,7 @@ bool InternalSwapWeaponAndPurge(int client, int weaponEntity, int slot)
 	int oldWeapon = InternalSwapWeapon(client, weaponEntity, slot);
 
 	/* Sometimes we can *not* have a weapon, don't return false. */
-	if (IsValidEntity(oldWeapon))
+	if (oldWeapon && IsValidEntity(oldWeapon))
 	{
 		RemoveEntity(oldWeapon);
 	}
