@@ -1,15 +1,17 @@
 //
 // Created by rake on 22.04.25.
 //
-#include <cstdint>
+#include "MalletUtils.h"
 
-#include "baseentity.h"
 #include "IHandleSys.h"
+#include <utlvector.h>
 
 class CBasePlayer;
 class CEconItem;
 class ITexture;
 class ITextureCompositor;
+
+SH_DECL_MANUALHOOK4(MHook_GiveNamedItem, 0, 0, 0, CBaseEntity *, char const *, int, CEconItemView *, bool);
 
 template< class T, class I = int >
 class CUtlMemoryTF2Items : public CUtlMemory< T, I >
@@ -27,9 +29,6 @@ public:
 			if (CUtlMemory< T, I >::m_pMemory)
 			{
 				UTLMEMORY_TRACK_FREE();
-#ifdef TF2ITEMS_DEBUG_ITEMS
-				META_CONPRINTF("CUtlMemory tried to be freed!\n");
-#endif
 				CUtlMemory< T, I >::m_pMemory = 0;
 			}
 			CUtlMemory< T, I >::m_nAllocationCount = 0;
@@ -74,7 +73,6 @@ public:
 
 		m_Attributes = other.m_Attributes;
 		m_pAttributeManager = other.m_pAttributeManager;
-
 
 		return *this;
 	}
@@ -146,12 +144,42 @@ public:
 	void OnHandleDestroy(HandleType_t type, void *object);
 };
 
-static cell_t Internal_MalletCreateWeapon_Econ(IPluginContext *pContext, int client, int weaponId, const char weaponName[], int level, int quality, int weaponSlot, int flags)
+inline CBaseEntity *GetCBaseEntityFromIndex(int p_iEntity, bool p_bOnlyPlayers)
+{
+	edict_t *edtEdict = engine->PEntityOfEntIndex(p_iEntity);
+	if (!edtEdict || edtEdict->IsFree())
+	{
+		return NULL;
+	}
+	
+	if (p_iEntity > 0 && p_iEntity <= playerhelpers->GetMaxClients())
+	{
+		IGamePlayer *pPlayer = playerhelpers->GetGamePlayer(edtEdict);
+
+		if (!pPlayer || !pPlayer->IsConnected())
+		{
+			return NULL;
+		}
+	} else if (p_bOnlyPlayers) {
+		return NULL;
+	}
+
+	IServerUnknown *pUnk = edtEdict->GetUnknown();
+	if (pUnk == NULL)
+	{
+		return NULL;
+	}
+
+	return pUnk->GetBaseEntity();
+}
+
+static cell_t Internal_MalletCreateWeapon_Econ(SourcePawn::IPluginContext *pContext,
+	int client, int weaponId, const char* weaponName, int level, int quality, int weaponSlot, int flags)
 {
 	CBaseEntity *pEntity;
 	if ((pEntity = GetCBaseEntityFromIndex(client, true)) == nullptr)
 	{
-		return pContext->ThrowNativeError("Client index %d is not valid", params[1]);
+		return pContext->ThrowNativeError("Client index %d is not valid", client);
 	}
 
 	TScriptedItemOverride *pScriptedItemOverride = GetScriptedItemOverrideFromHandle(params[2], pContext);
@@ -164,4 +192,23 @@ static cell_t Internal_MalletCreateWeapon_Econ(IPluginContext *pContext, int cli
 	memset(&hCreatedItem, 0, sizeof(CEconItemView));
 
 	hCreatedItem.m_iItemDefinitionIndex = weaponId;
+	hCreatedItem.m_iEntityLevel = level;
+	hCreatedItem.m_iEntityQuality = quality;
+	hCreatedItem.m_bInitialized = true;
+
+	if ((flags & MALLET_WEAPON_FLAG_PRESERVE_ATTRIBUTES))
+	{
+		hCreatedItem.m_bDoNotIterateStaticAttributes = true;
+	}
+
+	CBaseEntity *ret = SH_MCALL(pEntity, MHook_GiveNamedItem)
+		(weaponName, 0, &hCreatedItem, (flags & MALLET_WEAPON_FLAG_FORCE_GENERATION));
+	if (!ret)
+	{
+		return MALLET_ERROR_FAILED_TO_SPAWN;
+	}
+	else
+	{
+		return gamehelpers->EntityToBCompatRef(ret);
+	}
 }

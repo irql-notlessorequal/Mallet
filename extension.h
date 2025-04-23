@@ -7,10 +7,8 @@
 class Mallet : public SDKExtension
 {
 public:
-	/**
-	 * @brief This is called once all known extensions have been loaded.
-	 * Note: It is a good idea to add natives here, if any are provided.
-	 */
+	virtual bool OnExtensionLoad(IExtension *me, IShareSys *sys, char *error, size_t maxlength, bool late);
+
 	virtual void SDK_OnAllLoaded();
 
 	virtual bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, bool late);

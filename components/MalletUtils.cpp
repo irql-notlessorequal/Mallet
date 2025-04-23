@@ -3,9 +3,10 @@
 //
 
 #include "MalletUtils.h"
+
 #include <cassert>
 
-static uint32_t getCPUFlags()
+uint32_t MalletUtils::getCPUFlags()
 {
 	static int cpu_flags = -1;
 
@@ -53,7 +54,7 @@ static uint32_t getCPUFlags()
 	}
 }
 
-static void Load()
+void MalletUtils::load()
 {
 	uint32_t flags = getCPUFlags();
 
@@ -73,4 +74,53 @@ static void Load()
 	{
 		assert(!"Unsupported CPU hardware");
 	}
+}
+
+void MalletUtils::SetEntData(CBaseEntity* entity, int offset, int value, int size = 4)
+{
+	switch (size)
+	{
+		case 4:
+		{
+			*(int *)((uint8_t *)entity + offset) = value;
+			break;
+		}
+		case 2:
+		{
+			*(short *)((uint8_t *)entity + offset) = value;
+			break;
+		}
+		case 1:
+		{
+			*((uint8_t *)entity + offset) = value;
+			break;
+		}
+	
+		default:
+		{
+			assert(!"Invalid size in SetEntData!");
+			break;
+		}
+	}
+}
+
+void *MalletUtils::FindPatternOrSymbol(IServerGameDLL* server, const char* patternOrSymbol)
+{
+#if !defined(LINUX)
+	return memutils->ResolvePattern(server, patternOrSymbol);
+#else
+	Dl_info info;
+	if (dladdr(server, &info) == 0)
+	{
+		return nullptr;
+	}
+
+	void *handle = dlopen(info.dli_fname, RTLD_NOW);
+	if (!handle)
+	{
+		return nullptr;
+	}
+
+	return memutils->ResolveSymbol(handle, patternOrSymbol);
+#endif
 }

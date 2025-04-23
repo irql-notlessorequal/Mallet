@@ -6,6 +6,7 @@
 
 #include "components/MalletUtils.h"
 #include "components/mallet_weapons_fallback.h"
+#include "components/mallet_holidays.h"
 
 static Mallet mallet;
 SMEXT_LINK(&mallet);
@@ -24,7 +25,16 @@ void Mallet::SDK_OnAllLoaded()
 
 bool Mallet::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, bool late)
 {
+	GET_IFACE_REQUIRED(Server,	gamedll,		INTERFACEVERSION_SERVERGAMEDLL);
 	GET_IFACE_REQUIRED(Server,	servertools,	VSERVERTOOLS_INTERFACE_VERSION);
+
+	return true;
+}
+
+bool Mallet::OnExtensionLoad(IExtension *me, IShareSys *sys, char *error, size_t maxlength, bool late)
+{
+	sharesys = sys;
+	myself = me;
 
 	return true;
 }
@@ -58,5 +68,9 @@ sp_nativeinfo_t MalletNatives[] =
 	 */
 	{ "MalletGetType", MalletGetType },
 	{ "MalletIsReady", MalletIsReady },
-	{ "MalletIsX64", MalletIsX64 }
+	{ "MalletIsX64", MalletIsX64 },
+	/**
+	 * Holidays.
+	 */
+	{ "MalletIsHolidayActive", MalletIsHolidayActive }
 };
