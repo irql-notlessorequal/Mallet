@@ -1,0 +1,17 @@
+# vim: set sts=2 ts=8 sw=2 tw=99 et ft=python:
+import os
+
+projectName = 'mallet'
+
+sourceFiles = [
+  'extension.cpp',
+  os.path.join(Extension.sm_root, 'public', 'smsdk_ext.cpp')
+]
+
+project = builder.LibraryProject(projectName)
+project.sources += sourceFiles
+
+for compiler in Extension.all_targets:
+  Extension.ExtLibrary(project, builder, compiler, projectName + '.ext')
+
+Extension.extensions += builder.Add(project)
