@@ -1,0 +1,7 @@
+[submodule "hl2sdk"]
+	path = hl2sdk
+	url = https://github.com/alliedmodders/hl2sdk.git
+	branch = tf2_sdk2013
+[submodule "sourcemod"]
+	path = sourcemod
+	url = https://github.com/alliedmodders/sourcemod.git
