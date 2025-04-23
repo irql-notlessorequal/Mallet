@@ -2,6 +2,7 @@
 #define _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_
 
 #include "smsdk_ext.h"
+#include "extension_misc.h"
 
 class Mallet : public SDKExtension
 {
@@ -11,6 +12,8 @@ public:
 	 * Note: It is a good idea to add natives here, if any are provided.
 	 */
 	virtual void SDK_OnAllLoaded();
+
+	virtual bool SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, bool late);
 };
 
 #endif // _INCLUDE_SOURCEMOD_EXTENSION_PROPER_H_

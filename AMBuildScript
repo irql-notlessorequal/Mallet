@@ -26,6 +26,7 @@ class ExtensionConfig(object):
   def __init__(self):
     self.extensions = []
     self.sm_root = None
+    self.mms_root = None
     self.all_targets = []
     self.target_archs = set()
 
@@ -71,6 +72,19 @@ class ExtensionConfig(object):
     if not self.sm_root or not os.path.isdir(self.sm_root):
       raise Exception('Could not find a source copy of SourceMod')
     self.sm_root = Normalize(self.sm_root)
+
+    if builder.options.mms_path:
+      self.mms_root = builder.options.mms_path
+    else:
+      self.mms_root = ResolveEnvPath('MMSOURCE110', 'mmsource-1.10')
+      if not self.mms_root:
+        self.mms_root = ResolveEnvPath('MMSOURCE', 'metamod-source')
+      if not self.mms_root:
+        self.mms_root = ResolveEnvPath('MMSOURCE_DEV', 'mmsource-central')
+
+    if not self.mms_root or not os.path.isdir(self.mms_root):
+      raise Exception('Could not find a source copy of Metamod:Source')
+    self.mms_root = Normalize(self.mms_root)
 
   def configure(self):
 
@@ -126,6 +140,7 @@ class ExtensionConfig(object):
     ]
     cxx.cflags += [
       '-pipe',
+	  '-std=c17',
       '-fno-strict-aliasing',
       '-Wall',
       #'-Werror',
@@ -144,7 +159,7 @@ class ExtensionConfig(object):
       '-Wno-overloaded-virtual',
       '-Wno-register',
       '-fvisibility-inlines-hidden',
-      '-std=c++20',
+      '-std=c++17',
       '-flto',
     ]
 
@@ -175,6 +190,7 @@ class ExtensionConfig(object):
     ]
     cxx.cflags += [
       '/W3',
+	  '/std:c17'
     ]
     cxx.cxxflags += [
       '/EHsc',
@@ -241,6 +257,27 @@ class ExtensionConfig(object):
     return binary
 
   def ConfigureForExtension(self, context, compiler):
+    paths = [
+      ['public'],
+      ['public', 'engine'],
+      ['public', 'mathlib'],
+      ['public', 'vstdlib'],
+      ['public', 'tier0'],
+      ['public', 'tier1']
+    ]
+
+    paths.append(['public', 'game', 'server'])
+    paths.append(['public', 'toolframework'])
+    paths.append(['game', 'shared'])
+    paths.append(['common'])
+
+    mms_path = os.path.join(self.mms_root, 'core')
+
+    compiler.includes += [
+      os.path.join(mms_path),
+      os.path.join(mms_path, 'sourcehook'),
+    ]
+
     compiler.cxxincludes += [
       os.path.join(context.currentSourcePath),
       os.path.join(context.currentSourcePath, 'sdk'),
@@ -250,6 +287,13 @@ class ExtensionConfig(object):
       os.path.join(self.sm_root, 'public', 'amtl', 'amtl'),
       os.path.join(self.sm_root, 'public', 'amtl'),
     ]
+
+    # super fugly temporary hack
+    current_dir = "/home/rake/github/Mallet/hl2sdk/"
+
+    for path in paths:
+      compiler.includes += [os.path.join(current_dir, *path)]
+
     return compiler
 
   def ExtLibrary(self, project, context, compiler, name):

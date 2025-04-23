@@ -5,8 +5,9 @@
 #include "extension.h"
 
 #include "components/MalletUtils.h"
+#include "components/mallet_weapons_fallback.h"
 
-const Mallet mallet;
+static Mallet mallet;
 SMEXT_LINK(&mallet);
 
 extern sp_nativeinfo_t MalletNatives[];
@@ -17,9 +18,45 @@ void Mallet::SDK_OnAllLoaded()
 	sharesys->AddNatives(myself, MalletNatives);
 
 	MalletUtils::load();
+
+	g_SMAPI->ConPrint("Loaded Mallet successfully.");
 }
 
-const sp_nativeinfo_t MalletNatives[] =
+bool Mallet::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, bool late)
 {
-	{ nullptr, nullptr }
+	GET_IFACE_REQUIRED(Server,	servertools,	VSERVERTOOLS_INTERFACE_VERSION);
+
+	return true;
+}
+
+cell_t MalletIsReady(IPluginContext *pContext, const cell_t *params)
+{
+	/**
+	 * Always ready in the extension version
+	 * since we setup during extension load.
+	 */
+	return 1;
+}
+
+cell_t MalletIsX64(IPluginContext *pContext, const cell_t *params)
+{
+	return MALLET_IS_64_BIT;
+}
+
+cell_t MalletGetType(IPluginContext *pContext, const cell_t *params)
+{
+	/**
+	 * Equivalent to MALLET_TYPE_EXTENSION.
+	 */
+	return 0xAAAAA;
+}
+
+sp_nativeinfo_t MalletNatives[] =
+{
+	/**
+	 * Core.
+	 */
+	{ "MalletGetType", MalletGetType },
+	{ "MalletIsReady", MalletIsReady },
+	{ "MalletIsX64", MalletIsX64 }
 };
