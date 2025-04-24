@@ -5,7 +5,7 @@
 #include "extension.h"
 
 #include "components/MalletUtils.h"
-#include "components/mallet_weapons_fallback.h"
+#include "components/mallet_weapons.h"
 #include "components/mallet_holidays.h"
 
 IServerTools *servertools = nullptr;
@@ -25,7 +25,8 @@ bool Mallet::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, boo
 {
 	MalletUtils::load();
 
-	g_SMAPI->ConPrint("Loaded Mallet successfully.");
+	g_SMAPI->ConPrintf("Mallet running on %s was loaded successfully.\n", 
+		MALLET_IS_64_BIT ? "x64" : "x86");
 
 //	GET_IFACE_REQUIRED(Server,	gamedll,		INTERFACEVERSION_SERVERGAMEDLL);
 	GET_IFACE_REQUIRED(Server,	servertools,	VSERVERTOOLS_INTERFACE_VERSION);
@@ -74,5 +75,9 @@ sp_nativeinfo_t MalletNatives[] =
 	/**
 	 * Holidays.
 	 */
-	{ "MalletIsHolidayActive", MalletIsHolidayActive }
+	{ "MalletIsHolidayActive", MalletIsHolidayActive },
+	/**
+	 * Weapons
+	 */
+	{ "MalletCreateWeapon", MalletCreateWeapon }
 };

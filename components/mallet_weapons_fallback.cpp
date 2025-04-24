@@ -1,12 +1,13 @@
 #include "MalletUtils.h"
+#include "mallet_weapons.h"
 
 /**
  * Not really needed with native Mallet but might as well keep it
  * for compatibility purposes.
  */
 
-static cell_t Internal_MalletCreateWeapon_Econ(SourcePawn::IPluginContext *pContext, int client,
-	 int weaponId, const char weaponName[], int level,
+cell_t MalletWeapons::Internal_MalletCreateWeapon_Dumb(IPluginContext *pContext, int client,
+	 int weaponId, const char* weaponName, int level,
 	 int quality, int weaponSlot, int flags)
 {
 	CBaseEntity* entity = servertools->CreateEntityByName(weaponName);

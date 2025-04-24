@@ -60,15 +60,15 @@ void MalletUtils::load()
 
 	if (flags & MalletUtils::CPU_CAPABILITY_SSE42)
 	{
-		ConMsg("[Mallet] Checking for CPU capabilities...SSE4.2 SSSE3 SSE2");
+		ConMsg("[Mallet] Checking for CPU capabilities...SSE4.2 SSSE3 SSE2\n");
 	}
 	else if (flags & MalletUtils::CPU_CAPABILITY_SSSE3)
 	{
-		ConMsg("[Mallet] Checking for CPU capabilities...SSSE3 SSE2");
+		ConMsg("[Mallet] Checking for CPU capabilities...SSSE3 SSE2\n");
 	}
 	else if (flags & MalletUtils::CPU_CAPABILITY_SSE2)
 	{
-		ConMsg("[Mallet] Checking for CPU capabilities...SSE2");
+		ConMsg("[Mallet] Checking for CPU capabilities...SSE2\n");
 	}
 	else
 	{
