@@ -1,2 +1,3 @@
+build/
 objdir/
 cmake-build-debug/

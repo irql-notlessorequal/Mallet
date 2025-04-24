@@ -8,6 +8,8 @@
 #include "components/mallet_weapons_fallback.h"
 #include "components/mallet_holidays.h"
 
+IServerTools *servertools = nullptr;
+
 static Mallet mallet;
 SMEXT_LINK(&mallet);
 
@@ -17,15 +19,15 @@ void Mallet::SDK_OnAllLoaded()
 {
 	sharesys->RegisterLibrary(myself, "mallet");
 	sharesys->AddNatives(myself, MalletNatives);
-
-	MalletUtils::load();
-
-	g_SMAPI->ConPrint("Loaded Mallet successfully.");
 }
 
 bool Mallet::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, bool late)
 {
-	GET_IFACE_REQUIRED(Server,	gamedll,		INTERFACEVERSION_SERVERGAMEDLL);
+	MalletUtils::load();
+
+	g_SMAPI->ConPrint("Loaded Mallet successfully.");
+
+//	GET_IFACE_REQUIRED(Server,	gamedll,		INTERFACEVERSION_SERVERGAMEDLL);
 	GET_IFACE_REQUIRED(Server,	servertools,	VSERVERTOOLS_INTERFACE_VERSION);
 
 	return true;

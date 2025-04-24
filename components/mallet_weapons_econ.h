@@ -182,7 +182,7 @@ static cell_t Internal_MalletCreateWeapon_Econ(SourcePawn::IPluginContext *pCont
 		return pContext->ThrowNativeError("Client index %d is not valid", client);
 	}
 
-	TScriptedItemOverride *pScriptedItemOverride = GetScriptedItemOverrideFromHandle(params[2], pContext);
+	TScriptedItemOverride *pScriptedItemOverride = nullptr;
 	if (pScriptedItemOverride == nullptr)
 	{
 		return -1;

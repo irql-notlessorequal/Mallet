@@ -76,7 +76,7 @@ void MalletUtils::load()
 	}
 }
 
-void MalletUtils::SetEntData(CBaseEntity* entity, int offset, int value, int size = 4)
+void MalletUtils::SetEntData(CBaseEntity* entity, int offset, int value, int size)
 {
 	switch (size)
 	{

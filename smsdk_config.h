@@ -32,7 +32,11 @@
 #define SMEXT_ENABLE_HANDLESYS
 #define SMEXT_ENABLE_PLAYERHELPERS
 //#define SMEXT_ENABLE_DBMANAGER
-//#define SMEXT_ENABLE_GAMECONF
+/**
+ * If I uncomment this, shit doesn't build...
+ * wtf
+ */
+#define SMEXT_ENABLE_GAMECONF
 #define SMEXT_ENABLE_MEMUTILS
 #define SMEXT_ENABLE_GAMEHELPERS
 //#define SMEXT_ENABLE_TIMERSYS

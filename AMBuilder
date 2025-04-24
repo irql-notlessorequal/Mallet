@@ -1,33 +1,40 @@
 # vim: set sts=2 ts=8 sw=2 tw=99 et ft=python:
-import os, sys
+import os
 
-project = builder.LibraryProject('mallet.ext')
-project.sources = [
+projectName = 'mallet'
+extName = projectName + '.ext.'
+
+# smsdk_ext.cpp will be automatically added later
+sourceFiles = [
+  'components/MalletUtils.cpp',
   'extension.cpp',
-  os.path.join(Extension.sm_root, 'public', 'smsdk_ext.cpp')
 ]
+
+project = builder.LibraryProject(extName)
+
+if os.path.isfile(os.path.join(builder.currentSourcePath, 'sdk', 'smsdk_ext.cpp')):
+  # Use the copy included in the project
+  project.sources += [os.path.join('sdk', 'smsdk_ext.cpp')]
+else:
+  # Use the copy included with SM 1.6 and newer
+  project.sources += [os.path.join(Extension.sm_root, 'public', 'smsdk_ext.cpp')]
+
+project.sources += sourceFiles
 
 for sdk_name in Extension.sdks:
   sdk = Extension.sdks[sdk_name]
+  if sdk['name'] in ['mock']:
+    continue
 
   for cxx in builder.targets:
-    if not cxx.target.arch in sdk.platformSpec[cxx.target.platform]:
+    if not cxx.target.arch in sdk['platforms'][cxx.target.platform]:
       continue
-  
-    binary = Extension.HL2ExtConfig(project, builder, cxx, 'mallet.ext.' + sdk.ext, sdk)
-    Extension.AddCDetour(binary)
-    binary.compiler.cxxincludes += [
-      os.path.join(builder.currentSourcePath, 'sourcesdk'),
-      os.path.join(builder.currentSourcePath, 'sourcesdk/NextBot'),
-      os.path.join(builder.currentSourcePath, 'sourcesdk/NextBot/Path'),
-      os.path.join(builder.currentSourcePath, 'natives'),
-      os.path.join(builder.currentSourcePath, 'shared'),
-      os.path.join(builder.currentSourcePath, ''),
-      os.path.join(sdk.path, 'game', 'shared'),
-      os.path.join(sdk.path, 'game', 'server')
-    ]
-    if binary.compiler.behavior == 'gcc' or binary.compiler.behavior == 'clang':
-      binary.compiler.cxxflags += ['-Wno-invalid-offsetof']
-#     binary.sources += ['linux/glibc_compat.cpp']
 
-Extension.extensions = builder.Add(project)
+    # hack to use bcompat filenames
+    # I don't want to have to deal with complaints of people forgetting to delete the original
+    ext_or_tf = '2.ep2v' if sdk_name == 'tf2' else sdk['extension']
+
+    binary = Extension.HL2ExtConfig(project, builder, cxx, extName + ext_or_tf, sdk)
+    Extension.AddCDetour(binary)
+
+Extension.extensions += builder.Add(project)

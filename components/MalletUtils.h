@@ -9,9 +9,10 @@
 
 #include <eiface.h>
 #include <smsdk_ext.h>
+#include <IGameConfigs.h>
 #include <IGameHelpers.h>
+#include <toolframework/ienginetool.h>
 #include <toolframework/itoolentity.h>
-#include <gameinterface.h>
 
 #define MALLET_IS_64_BIT (INTPTR_MAX == INT64_MAX)
 
@@ -27,6 +28,7 @@
 #define PARAM_COUNT(params) params[0]
 
 class IServerTools;
+extern IServerTools *servertools;
 
 class MalletUtils
 {
@@ -65,6 +67,4 @@ public:
 	 */
 	static void* FindPatternOrSymbol(IServerGameDLL* server, const char* patternOrSymbol);
 };
-
-extern IServerTools *servertools;
 #endif //MALLETUTILS_H
