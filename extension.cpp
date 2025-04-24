@@ -5,9 +5,12 @@
 #include "extension.h"
 
 #include "components/MalletUtils.h"
+#include "components/mallet_conversions.h"
 #include "components/mallet_weapons.h"
 #include "components/mallet_holidays.h"
+#include "components/mallet_random.h"
 
+SourceMod::IGameConfig *g_pGameConf = NULL;
 IServerTools *servertools = nullptr;
 
 static Mallet mallet;
@@ -15,10 +18,28 @@ SMEXT_LINK(&mallet);
 
 extern sp_nativeinfo_t MalletNatives[];
 
-void Mallet::SDK_OnAllLoaded()
+bool Mallet::SDK_OnLoad(char *error, size_t maxlength, bool late)
 {
+	char conf_error[255] = "";
+	if (!gameconfs->LoadGameConfigFile("tf2.mallet", &g_pGameConf, conf_error, sizeof(conf_error)))
+	{
+		if (conf_error[0])
+		{
+			snprintf(error, maxlength, "Could not read tf2.mallet.txt: %s\n", conf_error);
+		}
+
+		return false;
+	}
+
+	if (!MalletWeapons::loadEcon(g_pGameConf))
+	{
+		return false;
+	}
+
 	sharesys->RegisterLibrary(myself, "mallet");
 	sharesys->AddNatives(myself, MalletNatives);
+
+	return true;
 }
 
 bool Mallet::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, bool late)
@@ -64,6 +85,11 @@ cell_t MalletGetType(IPluginContext *pContext, const cell_t *params)
 	return 0xAAAAA;
 }
 
+cell_t MalletAPIVersion(IPluginContext *pContext, const cell_t *params)
+{
+	return 7;
+}
+
 sp_nativeinfo_t MalletNatives[] =
 {
 	/**
@@ -72,12 +98,24 @@ sp_nativeinfo_t MalletNatives[] =
 	{ "MalletGetType", MalletGetType },
 	{ "MalletIsReady", MalletIsReady },
 	{ "MalletIsX64", MalletIsX64 },
+	{ "MalletAPIVersion", MalletAPIVersion },
+	/**
+	 * Conversions
+	 */
+	{ "MalletConvertClassFromString", MalletConversions::MalletConvertClassFromString },
+	{ "MalletConvertSlotFromString", MalletConversions::MalletConvertSlotFromString },
+	{ "MalletConvertTeamFromString", MalletConversions::MalletConvertTeamFromString },
+	/**
+	 * Random API
+	 * (highly experimental)
+	 */
+	{ "MalletGetRand", MalletRandom::MalletGetRand },
 	/**
 	 * Holidays.
 	 */
-	{ "MalletIsHolidayActive", MalletIsHolidayActive },
+	{ "MalletIsHolidayActive", MalletHolidays::MalletIsHolidayActive },
 	/**
 	 * Weapons
 	 */
-	{ "MalletCreateWeapon", MalletCreateWeapon }
+	{ "MalletCreateWeapon", MalletWeapons::MalletCreateWeapon },
 };

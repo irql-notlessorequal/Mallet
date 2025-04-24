@@ -1,6 +1,10 @@
 #include "mallet_weapons_econ.h"
 
+int iGiveNamedItem = -1;
 SH_DECL_MANUALHOOK4(MHook_GiveNamedItem, 0, 0, 0, CBaseEntity *, char const *, int, CEconItemView *, bool);
+
+void *g_pVTable = nullptr;
+void *g_pVTable_Attributes = nullptr;
 
 inline CBaseEntity *GetCBaseEntityFromIndex(int p_iEntity, bool p_bOnlyPlayers)
 {
@@ -18,7 +22,9 @@ inline CBaseEntity *GetCBaseEntityFromIndex(int p_iEntity, bool p_bOnlyPlayers)
 		{
 			return NULL;
 		}
-	} else if (p_bOnlyPlayers) {
+	}
+	else if (p_bOnlyPlayers)
+	{
 		return NULL;
 	}
 
@@ -31,6 +37,18 @@ inline CBaseEntity *GetCBaseEntityFromIndex(int p_iEntity, bool p_bOnlyPlayers)
 	return pUnk->GetBaseEntity();
 }
 
+bool MalletWeapons::loadEcon(SourceMod::IGameConfig *g_pGameConf)
+{
+	if (!g_pGameConf->GetOffset("GiveNamedItem", &iGiveNamedItem))
+	{
+		g_pSM->LogMessage(myself, "\"GiveNamedItem\" couldn't be found!");
+		return false;
+	} else {
+		SH_MANUALHOOK_RECONFIGURE(MHook_GiveNamedItem, iGiveNamedItem, 0, 0);
+		g_pSM->LogMessage(myself, "\"GiveNamedItem\" offset = %d", iGiveNamedItem);
+	}
+}
+
 cell_t MalletWeapons::Internal_MalletCreateWeapon_Econ(IPluginContext *pContext,
 	int client, int weaponId, const char* weaponName, int level, int quality, int weaponSlot, int flags)
 {
@@ -40,15 +58,19 @@ cell_t MalletWeapons::Internal_MalletCreateWeapon_Econ(IPluginContext *pContext,
 		return pContext->ThrowNativeError("Client index %d is not valid", client);
 	}
 
-	TScriptedItemOverride *pScriptedItemOverride = nullptr;
-	if (pScriptedItemOverride == nullptr)
-	{
-		return -1;
-	}
-
 	CEconItemView hCreatedItem;
 	memset(&hCreatedItem, 0, sizeof(CEconItemView));
 
+	/**
+	 * Initialize the vtable pointers
+	 */
+	hCreatedItem.m_pVTable = g_pVTable;
+	hCreatedItem.m_AttributeList.m_pVTable = g_pVTable_Attributes;
+	hCreatedItem.m_NetworkedDynamicAttributesForDemos.m_pVTable = g_pVTable_Attributes;
+
+	/**
+	 * Configure the item.
+	 */
 	hCreatedItem.m_iItemDefinitionIndex = weaponId;
 	hCreatedItem.m_iEntityLevel = level;
 	hCreatedItem.m_iEntityQuality = quality;
@@ -67,6 +89,9 @@ cell_t MalletWeapons::Internal_MalletCreateWeapon_Econ(IPluginContext *pContext,
 	}
 	else
 	{
+		/**
+		 * TODO: Equip the weapon onto the player.
+		 */
 		return gamehelpers->EntityToBCompatRef(ret);
 	}
 }

@@ -1,3 +1,5 @@
+#include <IGameConfigs.h>
+
 inline CreateInterfaceFn ServerFactory()     { return g_SMAPI->GetServerFactory    (false); }
 
 #define GET_IFACE_OPTIONAL(factory, var, name) \

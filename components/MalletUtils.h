@@ -27,7 +27,10 @@
 
 #define PARAM_COUNT(params) params[0]
 
+class IGameConfig;
 class IServerTools;
+
+extern SourceMod::IGameConfig *g_pGameConf;
 extern IServerTools *servertools;
 
 class MalletUtils
@@ -39,9 +42,20 @@ public:
 		Prop_Data = 2
 	};
 
-	static const int CPU_CAPABILITY_SSE2 = (1 << 1);
-	static const int CPU_CAPABILITY_SSSE3 = (1 << 2);
-	static const int CPU_CAPABILITY_SSE42 = (1 << 3);
+	/**
+	 * Core instruction sets.
+	 */
+
+	static const int CPU_CAPABILITY_SSE		= (1 << 0);
+	static const int CPU_CAPABILITY_SSE2	= (1 << 1);
+	static const int CPU_CAPABILITY_SSSE3	= (1 << 2);
+	static const int CPU_CAPABILITY_SSE42	= (1 << 3);
+
+	/**
+	 * Optional instruction sets.
+	 */
+
+	static const int CPU_CAPABILITY_RDRAND	= (1 << 10);
 
 	static uint32_t getCPUFlags();
 

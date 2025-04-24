@@ -23,24 +23,44 @@ uint32_t MalletUtils::getCPUFlags()
 			: "a"(eax)
 		);
 
-		// Check for SSE2 (Bit 26 in EDX)
+		/**
+		 * Check for SSE (bit 25 in the EDX register)
+		 */
+		if (edx & (1 << 25))
+		{
+			cpuFlags |= MalletUtils::CPU_CAPABILITY_SSE;
+		}
+
+		/**
+		 * Check for SSE2 (bit 26 in the EDX register)
+		 */
 		if (edx & (1 << 26))
 		{
 			cpuFlags |= MalletUtils::CPU_CAPABILITY_SSE2;
 		}
 
-		// Check for SSSE3 (Bit 9 in ECX)
+		/**
+		 * Check for SSSE3 (bit 9 in the ECX register)
+		 */
 		if (ecx & (1 << 9))
 		{
 			cpuFlags |= MalletUtils::CPU_CAPABILITY_SSSE3;
 		}
 
 		/**
-		 * Check for SSE4.2 (bit 20 in ECX register)
+		 * Check for SSE4.2 (bit 20 in the ECX register)
 		 */
 		if (ecx & (1 << 20))
 		{
 			cpuFlags |= MalletUtils::CPU_CAPABILITY_SSE42;
+		}
+
+		/**
+		 * Check for RDRAND (bit 30 in the ECX register)
+		 */
+		if (ecx & (1 << 30))
+		{
+			cpuFlags |= MalletUtils::CPU_CAPABILITY_RDRAND;
 		}
 
 		/**
@@ -56,23 +76,44 @@ uint32_t MalletUtils::getCPUFlags()
 
 void MalletUtils::load()
 {
+	ConMsg("[Mallet] Checking for CPU capabilities...\n");
+
 	uint32_t flags = getCPUFlags();
+	char capabilities[64];
 
 	if (flags & MalletUtils::CPU_CAPABILITY_SSE42)
 	{
-		ConMsg("[Mallet] Checking for CPU capabilities...SSE4.2 SSSE3 SSE2\n");
+		strcat(capabilities, "SSE4.2 ");
 	}
-	else if (flags & MalletUtils::CPU_CAPABILITY_SSSE3)
+	
+	if (flags & MalletUtils::CPU_CAPABILITY_SSSE3)
 	{
-		ConMsg("[Mallet] Checking for CPU capabilities...SSSE3 SSE2\n");
+		strcat(capabilities, "SSSE3 ");
 	}
-	else if (flags & MalletUtils::CPU_CAPABILITY_SSE2)
+
+	if (flags & MalletUtils::CPU_CAPABILITY_SSE2)
 	{
-		ConMsg("[Mallet] Checking for CPU capabilities...SSE2\n");
+		strcat(capabilities, "SSE2 ");
 	}
-	else
+
+	if (flags & MalletUtils::CPU_CAPABILITY_SSE)
 	{
-		assert(!"Unsupported CPU hardware");
+		strcat(capabilities, "SSE ");
+	}
+
+	if (flags & MalletUtils::CPU_CAPABILITY_RDRAND)
+	{
+		strcat(capabilities, "(RDRAND) ");
+	}
+
+	ConMsg("[Mallet] Supported CPU extensions: %s\n", capabilities);
+
+	/**
+	 * This should absolutely NEVER EVER EVER happen.
+	 */
+	if (!(flags & MalletUtils::CPU_CAPABILITY_SSE2) && MALLET_IS_64_BIT)
+	{
+		assert(!"Missing SSE2 support on a 64-bit environment");
 	}
 }
 

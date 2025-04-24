@@ -7,6 +7,9 @@ extName = projectName + '.ext.'
 # smsdk_ext.cpp will be automatically added later
 sourceFiles = [
   'components/MalletUtils.cpp',
+  'components/mallet_conversions.cpp',
+  'components/mallet_holidays.cpp',
+  'components/mallet_random.cpp',
   'components/mallet_weapons_fallback.cpp',
   'components/mallet_weapons_econ.cpp',
   'extension.cpp',
