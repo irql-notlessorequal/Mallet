@@ -39,11 +39,13 @@ inline CBaseEntity *GetCBaseEntityFromIndex(int p_iEntity, bool p_bOnlyPlayers)
 
 bool MalletWeapons::loadEcon(SourceMod::IGameConfig *g_pGameConf)
 {
-	if (!g_pGameConf->GetOffset("GiveNamedItem", &iGiveNamedItem))
+	if (!g_pGameConf->GetOffset("CTFPlayer::GiveNamedItem", &iGiveNamedItem))
 	{
-		g_pSM->LogMessage(myself, "\"GiveNamedItem\" couldn't be found!");
+		ConMsg("\"GiveNamedItem\" couldn't be found!\n");
 		return false;
-	} else {
+	}
+	else
+	{
 		SH_MANUALHOOK_RECONFIGURE(MHook_GiveNamedItem, iGiveNamedItem, 0, 0);
 		g_pSM->LogMessage(myself, "\"GiveNamedItem\" offset = %d", iGiveNamedItem);
 	}

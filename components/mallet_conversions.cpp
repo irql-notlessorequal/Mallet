@@ -19,7 +19,7 @@ static const InternalLookUp CLASS_VALUES[] =
 	{ "spy", TFClass_Spy }
 };
 
-static const InternalLookUp SLOT_VALUES[] = 
+static const InternalLookUp SLOT_VALUES[] =
 {
 	{ "primary", TFWeaponSlot_Primary },
 	{ "secondary", TFWeaponSlot_Secondary },
@@ -52,7 +52,7 @@ cell_t MalletConversions::MalletConvertClassFromString(IPluginContext *pContext,
 
 	char* className;
 	int err;
-	if (pContext->LocalToString(params[1], &className) != SP_ERROR_NONE)
+	if ((err = pContext->LocalToString(params[1], &className)) != SP_ERROR_NONE)
 	{
 		return pContext->ThrowNativeErrorEx(err, NULL);
 	}
@@ -80,7 +80,7 @@ cell_t MalletConversions::MalletConvertSlotFromString(IPluginContext *pContext, 
 
 	char* className;
 	int err;
-	if (pContext->LocalToString(params[1], &className) != SP_ERROR_NONE)
+	if ((err = pContext->LocalToString(params[1], &className)) != SP_ERROR_NONE)
 	{
 		return pContext->ThrowNativeErrorEx(err, NULL);
 	}
@@ -108,7 +108,7 @@ cell_t MalletConversions::MalletConvertTeamFromString(IPluginContext *pContext, 
 
 	char* className;
 	int err;
-	if (pContext->LocalToString(params[1], &className) != SP_ERROR_NONE)
+	if ((err = pContext->LocalToString(params[1], &className)) != SP_ERROR_NONE)
 	{
 		return pContext->ThrowNativeErrorEx(err, NULL);
 	}

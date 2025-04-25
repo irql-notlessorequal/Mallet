@@ -1,3 +1,4 @@
+.cache/
 build/
 objdir/
 cmake-build-debug/
