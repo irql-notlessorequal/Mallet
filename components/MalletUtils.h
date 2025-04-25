@@ -74,11 +74,17 @@ public:
 
 	/**
 	 * Platform specific handler.
-	 * 
+	 *
 	 * On Windows will use a pattern while on Linux will use a symbol.
-	 * 
+	 *
 	 * Otherwise use the provided methods in `sm_memutils`
 	 */
 	static void* FindPatternOrSymbol(IServerGameDLL* server, const char* patternOrSymbol);
+
+	static bool IsValidEntity(int reference);
+
+	static bool GetAndCheckValidClient(int reference, CBaseEntity **pEntity);
+
+	static bool GetAndCheckValidEntity(int reference, CBaseEntity **pEntity);
 };
 #endif //MALLETUTILS_H

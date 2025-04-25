@@ -8,6 +8,7 @@
 #include "components/mallet_conversions.h"
 #include "components/mallet_weapons.h"
 #include "components/mallet_holidays.h"
+#include "components/mallet_wearables.h"
 #include "components/mallet_random.h"
 
 SourceMod::IGameConfig *g_pGameConf = NULL;
@@ -36,6 +37,11 @@ bool Mallet::SDK_OnLoad(char *error, size_t maxlength, bool late)
 		return false;
 	}
 
+	if (!MalletHolidays::load(g_pGameConf))
+	{
+		return false;
+	}
+
 	sharesys->RegisterLibrary(myself, "mallet");
 	sharesys->AddNatives(myself, MalletNatives);
 
@@ -46,7 +52,7 @@ bool Mallet::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, boo
 {
 	MalletUtils::load();
 
-	g_SMAPI->ConPrintf("Mallet running on %s was loaded successfully.\n", 
+	g_SMAPI->ConPrintf("Mallet running on %s was loaded successfully.\n",
 		MALLET_IS_64_BIT ? "x64" : "x86");
 
 //	GET_IFACE_REQUIRED(Server,	gamedll,		INTERFACEVERSION_SERVERGAMEDLL);
@@ -118,4 +124,12 @@ sp_nativeinfo_t MalletNatives[] =
 	 * Weapons
 	 */
 	{ "MalletCreateWeapon", MalletWeapons::MalletCreateWeapon },
+	/**
+	 * Wearables
+	 */
+	{ "MalletCreateWearable", MalletWearables::MalletCreateWearable },
+	{ "MalletEquipWearable", MalletWearables::MalletEquipWearable },
+	{ "MalletIsWearable", MalletWearables::MalletIsWearable },
+	{ "MalletRemoveWearable", MalletWearables::MalletRemoveWearable },
+	{ "MalletRemoveAllWearables", MalletWearables::MalletRemoveAllWearables },
 };

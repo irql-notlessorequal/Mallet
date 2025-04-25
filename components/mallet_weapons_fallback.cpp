@@ -13,12 +13,12 @@ cell_t MalletWeapons::Internal_MalletCreateWeapon_Dumb(IPluginContext *pContext,
 	CBaseEntity* entity = servertools->CreateEntityByName(weaponName);
 	if (!entity)
 	{
-		return MALLET_ERROR_GENERAL_ERROR;
+		return MALLET_ERROR_FAILED_TO_SPAWN;
 	}
 
 	servertools->SetKeyValue(entity, "m_iItemDefinitionIndex", weaponId);
-	servertools->SetKeyValue(entity, "m_bInitialized", 1);
-	servertools->SetKeyValue(entity, "m_bValidatedAttachedEntity", 1);
+	servertools->SetKeyValue(entity, "m_bInitialized", true);
+	servertools->SetKeyValue(entity, "m_bValidatedAttachedEntity", true);
 
 	servertools->SetKeyValue(entity, "m_iEntityLevel", level);
 	servertools->SetKeyValue(entity, "m_iEntityQuality", quality);
@@ -55,7 +55,7 @@ cell_t MalletWeapons::Internal_MalletCreateWeapon_Dumb(IPluginContext *pContext,
 			{
 				return MALLET_ERROR_GENERAL_ERROR;
 			}
-			
+
 			int iOffset = tdt->fieldOffset[0] * 4;
 			if (iOffset == -1)
 			{
@@ -90,7 +90,7 @@ cell_t MalletWeapons::Internal_MalletCreateWeapon_Dumb(IPluginContext *pContext,
 			{
 				return MALLET_ERROR_GENERAL_ERROR;
 			}
-			
+
 			int iOffset = tdt->fieldOffset[0] * 4;
 			if (iOffset == -1)
 			{
@@ -104,7 +104,7 @@ cell_t MalletWeapons::Internal_MalletCreateWeapon_Dumb(IPluginContext *pContext,
 			}
 
 			MalletUtils::SetEntData(entity, iAmmoTable->actual_offset + iOffset, 16, 4);
-			break;	
+			break;
 		}
 
 		/* Gas Passer */

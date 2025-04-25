@@ -3,6 +3,7 @@
 //
 
 #include "MalletUtils.h"
+#include "smsdk_ext.h"
 
 #include <cassert>
 
@@ -79,13 +80,13 @@ void MalletUtils::load()
 	ConMsg("[Mallet] Checking for CPU capabilities...\n");
 
 	uint32_t flags = getCPUFlags();
-	char capabilities[64];
+	char capabilities[48];
 
 	if (flags & MalletUtils::CPU_CAPABILITY_SSE42)
 	{
 		strcat(capabilities, "SSE4.2 ");
 	}
-	
+
 	if (flags & MalletUtils::CPU_CAPABILITY_SSSE3)
 	{
 		strcat(capabilities, "SSSE3 ");
@@ -136,7 +137,7 @@ void MalletUtils::SetEntData(CBaseEntity* entity, int offset, int value, int siz
 			*((uint8_t *)entity + offset) = value;
 			break;
 		}
-	
+
 		default:
 		{
 			assert(!"Invalid size in SetEntData!");
@@ -164,4 +165,37 @@ void *MalletUtils::FindPatternOrSymbol(IServerGameDLL* server, const char* patte
 
 	return memutils->ResolveSymbol(handle, patternOrSymbol);
 #endif
+}
+
+bool MalletUtils::IsValidEntity(int reference)
+{
+	CBaseEntity *pEntity = gamehelpers->ReferenceToEntity(reference);
+	return (pEntity != nullptr);
+}
+
+bool MalletUtils::GetAndCheckValidClient(int reference, CBaseEntity **pEntity)
+{
+	/**
+	 * TODO:
+	 * Add a MaxClients and IsClientInGame() equivalent check.
+	 */
+	if (reference <= 0 || reference >= 101)
+	{
+		return false;
+	}
+
+	*pEntity = gamehelpers->ReferenceToEntity(reference);
+	if (!pEntity)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+bool MalletUtils::GetAndCheckValidEntity(int reference, CBaseEntity **pEntity)
+{
+	*pEntity = gamehelpers->ReferenceToEntity(reference);
+	return (pEntity != nullptr);
 }
