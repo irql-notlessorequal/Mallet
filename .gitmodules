@@ -13,8 +13,4 @@
 [submodule "hl2sdk-tf2"]
 	path = hl2sdk-tf2
 	url = https://github.com/alliedmodders/hl2sdk.git
-        branch = tf2_sdk2013
-
-[submodule "safetyhook"]
-	path = safetyhook
-	url = https://github.com/alliedmodders/safetyhook.git
+	branch = tf2_sdk2013
