@@ -5,6 +5,7 @@
 #include "extension.h"
 
 #include "components/MalletUtils.h"
+#include "components/mallet_attributes.h"
 #include "components/mallet_conversions.h"
 #include "components/mallet_weapons.h"
 #include "components/mallet_holidays.h"
@@ -32,12 +33,17 @@ bool Mallet::SDK_OnLoad(char *error, size_t maxlength, bool late)
 		return false;
 	}
 
-	if (!MalletWeapons::loadEcon(g_pGameConf))
+	if (!MalletAttributes::load(g_pGameConf))
 	{
 		return false;
 	}
 
 	if (!MalletHolidays::load(g_pGameConf))
+	{
+		return false;
+	}
+
+	if (!MalletWeapons::loadEcon(g_pGameConf))
 	{
 		return false;
 	}
@@ -75,7 +81,7 @@ cell_t MalletIsReady(IPluginContext *pContext, const cell_t *params)
 	 * Always ready in the extension version
 	 * since we setup during extension load.
 	 */
-	return 1;
+	return true;
 }
 
 cell_t MalletIsX64(IPluginContext *pContext, const cell_t *params)
@@ -105,6 +111,12 @@ sp_nativeinfo_t MalletNatives[] =
 	{ "MalletIsReady", MalletIsReady },
 	{ "MalletIsX64", MalletIsX64 },
 	{ "MalletAPIVersion", MalletAPIVersion },
+	/**
+	 * Attributes
+	 */
+	{ "MalletSetAttribute" , MalletAttributes::MalletSetAttribute },
+	{ "MalletRemoveAttribute", MalletAttributes::MalletRemoveAttribute },
+	{ "MalletDeleteAllAttributes", MalletAttributes::MalletDeleteAllAttributes },
 	/**
 	 * Conversions
 	 */

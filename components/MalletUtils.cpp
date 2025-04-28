@@ -3,6 +3,7 @@
 //
 
 #include "MalletUtils.h"
+#include "IPlayerHelpers.h"
 #include "smsdk_ext.h"
 
 #include <cassert>
@@ -14,10 +15,8 @@ uint32_t MalletUtils::getCPUFlags()
 	if (cpu_flags == -1)
 	{
 		uint32_t cpuFlags = 0;
-		int eax, ebx, ecx, edx;
+		int eax = 1, ebx, ecx, edx;
 
-		// Call CPUID with EAX=1 to get feature information in ECX and EDX
-		eax = 1;
 		__asm__ __volatile__(
 			"cpuid"
 			: "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
@@ -175,22 +174,13 @@ bool MalletUtils::IsValidEntity(int reference)
 
 bool MalletUtils::GetAndCheckValidClient(int reference, CBaseEntity **pEntity)
 {
-	/**
-	 * TODO:
-	 * Add a MaxClients and IsClientInGame() equivalent check.
-	 */
-	if (reference <= 0 || reference >= 101)
+	if (reference <= 0 || reference >= playerhelpers->GetMaxClients())
 	{
 		return false;
 	}
 
-	*pEntity = gamehelpers->ReferenceToEntity(reference);
-	if (!pEntity)
-	{
-		return false;
-	}
-
-	return true;
+	IGamePlayer* player = playerhelpers->GetGamePlayer(reference);
+	return player != nullptr && player->IsInGame();
 }
 
 bool MalletUtils::GetAndCheckValidEntity(int reference, CBaseEntity **pEntity)

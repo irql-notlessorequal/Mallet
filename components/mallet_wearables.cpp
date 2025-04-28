@@ -1,10 +1,11 @@
 #include "mallet_wearables.h"
 #include "MalletUtils.h"
+#include "edict.h"
 #include "smsdk_ext.h"
 #include "sourcehook.h"
 #include "hl2sdk-tf2/public/server_class.h"
 
-variant_t g_Variant_t;
+variant_t g_Variant_t = {};
 int iAcceptInput = -1;
 int iRemoveWearable = -1;
 int iEquipWearable = -1;
@@ -46,13 +47,13 @@ cell_t MalletWearables::MalletIsWearable(IPluginContext *pContext, const cell_t 
 		return pContext->ThrowNativeError("Invalid parameter count (%i)", PARAM_COUNT(params));
 	}
 
-	int entity = params[1];
-	if (!MalletUtils::IsValidEntity(entity))
+	CBaseEntity* weapon;
+	if (!MalletUtils::GetAndCheckValidEntity(params[1], &weapon))
 	{
 		return pContext->ThrowNativeError("Got an invalid entity...");
 	}
 
-	return SH_MCALL(gamehelpers->ReferenceToEntity(entity), MHook_IsWearable)();
+	return SH_MCALL(weapon, MHook_IsWearable)();
 }
 
 static inline CBaseEntity* InternalCreateWearable(int client, int weaponId, const char* weaponName)
