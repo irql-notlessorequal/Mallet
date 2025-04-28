@@ -86,5 +86,7 @@ public:
 	static bool GetAndCheckValidClient(int reference, CBaseEntity **pEntity);
 
 	static bool GetAndCheckValidEntity(int reference, CBaseEntity **pEntity);
+
+	static void* GetGameRules();
 };
 #endif //MALLETUTILS_H

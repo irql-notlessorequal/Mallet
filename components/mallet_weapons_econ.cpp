@@ -13,7 +13,7 @@ inline CBaseEntity *GetCBaseEntityFromIndex(int p_iEntity, bool p_bOnlyPlayers)
 	{
 		return NULL;
 	}
-	
+
 	if (p_iEntity > 0 && p_iEntity <= playerhelpers->GetMaxClients())
 	{
 		IGamePlayer *pPlayer = playerhelpers->GetGamePlayer(edtEdict);
@@ -91,9 +91,8 @@ cell_t MalletWeapons::Internal_MalletCreateWeapon_Econ(IPluginContext *pContext,
 	}
 	else
 	{
-		/**
-		 * TODO: Equip the weapon onto the player.
-		 */
+		MalletWeapons::MalletEquipWeapon(pEntity, ret);
+
 		return gamehelpers->EntityToBCompatRef(ret);
 	}
 }

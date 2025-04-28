@@ -1,5 +1,3 @@
-#include "mallet_cgamerules.h"
-
 #include "MalletUtils.h"
 
 class MalletHolidays

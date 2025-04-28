@@ -193,9 +193,13 @@ bool MalletUtils::GetAndCheckValidClient(int reference, CBaseEntity **pEntity)
 	return true;
 }
 
-
 bool MalletUtils::GetAndCheckValidEntity(int reference, CBaseEntity **pEntity)
 {
 	*pEntity = gamehelpers->ReferenceToEntity(reference);
 	return (pEntity != nullptr);
+}
+
+void* MalletUtils::GetGameRules()
+{
+	return nullptr;
 }

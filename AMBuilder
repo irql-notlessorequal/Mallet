@@ -12,6 +12,8 @@ sourceFiles = [
   'components/mallet_random.cpp',
   'components/mallet_weapons_fallback.cpp',
   'components/mallet_weapons_econ.cpp',
+  'components/mallet_weapons.cpp',
+  'components/mallet_wearables.cpp',
   'extension.cpp',
 ]
 

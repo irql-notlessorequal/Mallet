@@ -124,6 +124,9 @@ sp_nativeinfo_t MalletNatives[] =
 	 * Weapons
 	 */
 	{ "MalletCreateWeapon", MalletWeapons::MalletCreateWeapon },
+	{ "MalletIsWeapon", MalletWeapons::MalletIsWeapon },
+	{ "MalletSwapWeapon", MalletWeapons::MalletSwapWeapon },
+	{ "MalletSwapWeaponAndPurge", MalletWeapons::MalletSwapWeaponAndPurge },
 	/**
 	 * Wearables
 	 */

@@ -1,7 +1,8 @@
 #include "mallet_wearables.h"
-#include "components/MalletUtils.h"
+#include "MalletUtils.h"
 #include "smsdk_ext.h"
 #include "sourcehook.h"
+#include "hl2sdk-tf2/public/server_class.h"
 
 variant_t g_Variant_t;
 int iAcceptInput = -1;
@@ -138,7 +139,10 @@ cell_t MalletWearables::MalletCreateWearable(IPluginContext *pContext, const cel
 		return MALLET_ERROR_GENERAL_ERROR;
 	}
 
-	SH_MCALL(gamehelpers->ReferenceToEntity(client), MHook_EquipWearable)(wearable);
+	/**
+	 * Do NOT equip the wearable, we require the user to
+	 * call `MalletEquipWearable` if they wish to do so.
+	 */
 	return gamehelpers->EntityToReference(wearable);
 }
 

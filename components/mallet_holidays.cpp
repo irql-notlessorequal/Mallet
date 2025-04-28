@@ -15,6 +15,8 @@ bool MalletHolidays::load(SourceMod::IGameConfig *g_pGameConf)
 		SH_MANUALHOOK_RECONFIGURE(MHook_IsHolidayActive, iIsHolidayActive, 0, 0);
 		g_pSM->LogMessage(myself, "\"CTFGameRules::IsHolidayActive\" offset = %d", iIsHolidayActive);
 	}
+
+	return true;
 }
 
 cell_t MalletHolidays::MalletIsHolidayActive(IPluginContext *pContext, const cell_t *params)
@@ -23,6 +25,6 @@ cell_t MalletHolidays::MalletIsHolidayActive(IPluginContext *pContext, const cel
 	{
 		return pContext->ThrowNativeError("Invalid parameter count (%i)", PARAM_COUNT(params));
 	}
-	
-	return SH_MCALL(TFGameRules(), MHook_IsHolidayActive)(params[1]);
+
+	return SH_MCALL(MalletUtils::GetGameRules(), MHook_IsHolidayActive)(params[1]);
 }
