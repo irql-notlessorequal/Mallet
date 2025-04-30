@@ -22,4 +22,6 @@ public:
 	static cell_t MalletSwapWeapon(IPluginContext *pContext, const cell_t *params);
 
 	static cell_t MalletSwapWeaponAndPurge(IPluginContext *pContext, const cell_t *params);
+
+	static cell_t MalletGetItemOwner(IPluginContext *pContext, const cell_t *params);
 };

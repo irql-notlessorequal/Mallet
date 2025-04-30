@@ -103,3 +103,8 @@ cell_t MalletWeapons::MalletSwapWeapon(IPluginContext *pContext, const cell_t *p
 
 	return hndl->GetEntryIndex();
 }
+
+cell_t MalletWeapons::MalletGetItemOwner(IPluginContext *pContext, const cell_t *params)
+{
+	return pContext->ThrowNativeError("TODO");
+}

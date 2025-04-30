@@ -6,7 +6,14 @@
 class CEconItemSchema;
 typedef CEconItemSchema* (*FUNC_GET_ECON_ITEM_SCHEMA)(void);
 
+int iCEconEntity_GetAttributeList = -1;
+int iCTFPlayer_GetAttributeList = -1;
+
+static void* pCTFPlayer_GetAttributeList = nullptr;
+static void* pSDKGetAttributeDef = nullptr;
+static void* pMHook_SetRuntimeAttributeValue = nullptr;
 static void* GEconItemSchema = nullptr;
+
 SH_DECL_MANUALHOOK0(CEconEntity_GetAttributeList, 0, 0, 0, void*);
 SH_DECL_MANUALHOOK0(CTFPlayer_GetAttributeList, 0, 0, 0, void*);
 /* */
@@ -15,6 +22,22 @@ SH_DECL_MANUALHOOK2_void(MHook_SetRuntimeAttributeValue, 0, 0, 0, void*, float);
 
 bool MalletAttributes::load(SourceMod::IGameConfig *g_pGameConf)
 {
+	if (!g_pGameConf->GetOffset("CEconEntity::GetAttributeList", &iCEconEntity_GetAttributeList))
+	{
+		ConMsg("\"CEconEntity::GetAttributeList\" couldn't be found!\n");
+		return false;
+	}
+	else
+	{
+		SH_MANUALHOOK_RECONFIGURE(CEconEntity_GetAttributeList, iCEconEntity_GetAttributeList, 0, 0);
+	}
+
+	if (!g_pGameConf->GetMemSig("CTFPlayer::GetAttributeList", &pCTFPlayer_GetAttributeList))
+	{
+		ConMsg("\"CTFPlayer::GetAttributeList\" couldn't be found!\n");
+		return false;
+	}
+
 	/* TODO */
 	return false;
 }
@@ -90,4 +113,14 @@ cell_t MalletAttributes::MalletSetAttribute(IPluginContext *pContext, const cell
 
 	SH_MCALL(pEntAttributeList, MHook_SetRuntimeAttributeValue)(pAttribDef, flValue);
 	return true;
+}
+
+cell_t MalletAttributes::MalletRemoveAttribute(IPluginContext *pContext, const cell_t *params)
+{
+	return pContext->ThrowNativeError("TODO");
+}
+
+cell_t MalletAttributes::MalletDeleteAllAttributes(IPluginContext *pContext, const cell_t *params)
+{
+	return pContext->ThrowNativeError("TODO");
 }
