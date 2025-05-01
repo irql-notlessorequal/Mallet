@@ -43,20 +43,20 @@
 			}
 			"CEconEntity::GetAttributeList"
 			{
-				"linux"		"232"
-				"linux64"	"232"
+				"linux"		"233"
+				"linux64"	"233"
 			}
 			"CBaseEntity::IsWearable"
+			{
+				"windows"	"93"
+				"linux"		"94"
+				"linux64"	"94"
+			}
+			"CBaseEntity::IsBaseCombatWeapon"
 			{
 				"windows"	"92"
 				"linux"		"93"
 				"linux64"	"93"
-			}
-			"CBaseEntity::IsBaseCombatWeapon"
-			{
-				"windows"	"91"
-				"linux"		"92"
-				"linux64"	"92"
 			}
 			"CTFGameRules::IsHolidayActive"
 			{
