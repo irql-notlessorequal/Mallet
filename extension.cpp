@@ -57,6 +57,7 @@ bool Mallet::SDK_OnLoad(char *error, size_t maxlength, bool late)
 bool Mallet::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength, bool late)
 {
 	MalletUtils::load();
+	MalletRandom::init();
 
 	g_SMAPI->ConPrintf("Mallet running on %s was loaded successfully.\n",
 		MALLET_IS_64_BIT ? "x64" : "x86");
