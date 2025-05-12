@@ -86,7 +86,7 @@ cell_t MalletWeapons::MalletSwapWeapon(IPluginContext *pContext, const cell_t *p
 	}
 
 	MalletWeapons::MalletEquipWeapon(client, weapon);
-	/* TODO: SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weaponEntity); */
+	/* [TODO]: SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weaponEntity); */
 
 	return hndl->GetEntryIndex();
 }

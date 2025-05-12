@@ -9,7 +9,6 @@ typedef CEconItemSchema* (*FUNC_GET_ECON_ITEM_SCHEMA)(void);
 int iCEconEntity_GetAttributeList = -1;
 int iCTFPlayer_GetAttributeList = -1;
 
-static void* pCTFPlayer_GetAttributeList = nullptr;
 static void* pSDKGetAttributeDef = nullptr;
 static void* pMHook_SetRuntimeAttributeValue = nullptr;
 static void* GEconItemSchema = nullptr;
@@ -34,10 +33,14 @@ bool MalletAttributes::load(SourceMod::IGameConfig *g_pGameConf)
 		SH_MANUALHOOK_RECONFIGURE(CEconEntity_GetAttributeList, iCEconEntity_GetAttributeList, 0, 0);
 	}
 
-	if (!g_pGameConf->GetMemSig("CTFPlayer::GetAttributeList", &pCTFPlayer_GetAttributeList))
+	if (!g_pGameConf->GetOffset("CTFPlayer::GetAttributeList", &iCTFPlayer_GetAttributeList))
 	{
-		ConMsg("\"CTFPlayer::GetAttributeList\" couldn't be found!\n");
+		ConMsg("\"CEconEntity::GetAttributeList\" couldn't be found!\n");
 		return false;
+	}
+	else
+	{
+		SH_MANUALHOOK_RECONFIGURE(CTFPlayer_GetAttributeList, iCTFPlayer_GetAttributeList, 0, 0);
 	}
 
 	/* TODO */
