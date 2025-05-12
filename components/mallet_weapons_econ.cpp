@@ -49,6 +49,8 @@ bool MalletWeapons::loadEcon(SourceMod::IGameConfig *g_pGameConf)
 		SH_MANUALHOOK_RECONFIGURE(MHook_GiveNamedItem, iGiveNamedItem, 0, 0);
 		g_pSM->LogMessage(myself, "\"GiveNamedItem\" offset = %d", iGiveNamedItem);
 	}
+
+	return true;
 }
 
 cell_t MalletWeapons::Internal_MalletCreateWeapon_Econ(IPluginContext *pContext,

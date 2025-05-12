@@ -128,7 +128,8 @@ sp_nativeinfo_t MalletNatives[] =
 	 * Random API
 	 * (highly experimental)
 	 */
-	{ "MalletGetRand", MalletRandom::MalletGetRand },
+	{ "MalletGetRand32", MalletRandom::MalletGetRand },
+	{ "MalletGetRand64", MalletRandom::MalletGetRand },
 	/**
 	 * Holidays.
 	 */

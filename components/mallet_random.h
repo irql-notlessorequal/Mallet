@@ -8,7 +8,7 @@ public:
 	static cell_t MalletGetRand(IPluginContext *pContext, const cell_t *params);
 
 private:
-	static int MalletGetRandGeneric();
+	static uint64_t MalletGetRandGeneric();
 
-	static int MalletGetRandRDRAND();
+	static uint64_t MalletGetRandRDRAND();
 };

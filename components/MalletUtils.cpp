@@ -15,6 +15,8 @@ uint32_t MalletUtils::getCPUFlags()
 	if (cpu_flags == -1)
 	{
 		uint32_t cpuFlags = 0;
+
+		/* "CPUID EAX=1: Feature Information in EDX and ECX" */
 		int eax = 1, ebx, ecx, edx;
 
 		__asm__ __volatile__(

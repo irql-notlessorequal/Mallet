@@ -40,19 +40,6 @@ cell_t MalletWeapons::MalletCreateWeapon(IPluginContext *pContext, const cell_t 
 	}
 }
 
-cell_t MalletWeapons::MalletIsWeapon(IPluginContext *pContext, const cell_t *params)
-{
-	if (PARAM_COUNT(params) != 1)
-	{
-		return pContext->ThrowNativeError("Invalid parameter count (%i)", PARAM_COUNT(params));
-	}
-
-	/**
-     * TODO
-     */
-	return MALLET_ERROR_GENERAL_ERROR;
-}
-
 cell_t MalletWeapons::MalletSwapWeapon(IPluginContext *pContext, const cell_t *params)
 {
 	if (PARAM_COUNT(params) != 3)
@@ -102,9 +89,4 @@ cell_t MalletWeapons::MalletSwapWeapon(IPluginContext *pContext, const cell_t *p
 	/* TODO: SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weaponEntity); */
 
 	return hndl->GetEntryIndex();
-}
-
-cell_t MalletWeapons::MalletGetItemOwner(IPluginContext *pContext, const cell_t *params)
-{
-	return pContext->ThrowNativeError("TODO");
 }

@@ -230,9 +230,16 @@ native int MalletIsHolidayActive(int holiday);
  *
  * THIS FUNCTION IS NOT CRYPTOGRAPHICALLY SECURE!!!!!!!!
  *
- * @return A 64-bit unsigned integer casted down to 32-bits
+ * @return	A 64-bit unsigned integer casted down to 32-bits
  */
-native int MalletGetRand();
+native int MalletGetRand32();
+
+/**
+ * Puts a random number into an integer array, backed by either a PRNG or RDRAND.
+ *
+ * THIS FUNCTION IS NOT CRYPTOGRAPHICALLY SECURE!!!!!!!!
+ */
+native void MalletGetRand64(any a[2]);
 
 /* */
 
