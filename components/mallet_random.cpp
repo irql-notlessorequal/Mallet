@@ -13,26 +13,18 @@
  */
 static uint64_t (*FUNC_GET_RANDOM_RAW)(void);
 
+/**
+ * FIXME:
+ * This function will break horribly on MSVC since Microsoft
+ * doesn't like instruction attributes.
+ *
+ * Probably will need to use raw ASM so that both platforms are happy.
+ */
 [[gnu::target("rdrnd")]] inline uint64_t MalletRandom::MalletGetRandRDRAND()
 {
 	unsigned long long ret;
 	do {} while( !_rdrand64_step(&ret) );
 	return static_cast<uint64_t>(ret);
-}
-
-static inline bool IsIntelCPU()
-{
-	/* "EAX=0: Highest Function Parameter and Manufacturer ID" */
-	int eax = 0, ebx, ecx, edx;
-
-	__asm__ __volatile__(
-		"cpuid"
-		: "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-		: "a"(eax)
-	);
-
-	/* "GenuineIntel" */
-	return (ebx == 0x756e6547 && edx == 0x49656e69 && ecx == 0x6c65746e);
 }
 
 static inline bool IsRDRANDBenefical()
@@ -48,7 +40,7 @@ static inline bool IsRDRANDBenefical()
 	 * AMD technically had broken RDRAND in their Excavator CPUs
 	 * but who the hell is running Source Engine servers on them?
 	 */
-	if (!IsIntelCPU())
+	if (!(MalletUtils::getCPUFlags() & MalletUtils::CPU_VENDOR_INTEL))
 		return true;
 
 	/**
@@ -61,21 +53,12 @@ static inline bool IsRDRANDBenefical()
 	 * - 'AVX512VNNI' (Cascade Lake)
 	 */
 
-	/* "EAX=7, ECX=0: Extended Features" */
-	int eax = 7, ebx, ecx, edx;
-
-	__asm__ __volatile__(
-		"cpuid"
-		: "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-		: "a"(eax)
-	);
-
 	/* "VAES" */
-	if (ecx & (1 << 9))
+	if (MalletUtils::getCPUFlags() & MalletUtils::CPU_CAPABILITY_VAES)
 		return true;
 
 	/* "AVX512VNNI" */
-	if (ecx & (1 << 11))
+	if (MalletUtils::getCPUFlags() & MalletUtils::CPU_CAPABILITY_AVX512_VNNI)
 		return true;
 
 	return false;

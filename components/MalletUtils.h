@@ -42,20 +42,29 @@ public:
 		Prop_Data = 2
 	};
 
+	static const int CPU_VENDOR_INTEL			= (1 << 0);
+	/* reserved value (1 << 1) */
+	/* reserved value (1 << 2) */
+
 	/**
 	 * Core instruction sets.
 	 */
 
-	static const int CPU_CAPABILITY_SSE		= (1 << 0);
-	static const int CPU_CAPABILITY_SSE2	= (1 << 1);
-	static const int CPU_CAPABILITY_SSSE3	= (1 << 2);
-	static const int CPU_CAPABILITY_SSE42	= (1 << 3);
+	static const int CPU_CAPABILITY_SSE			= (1 << 3);
+	static const int CPU_CAPABILITY_SSE2		= (1 << 4);
+	static const int CPU_CAPABILITY_SSSE3		= (1 << 5);
+	static const int CPU_CAPABILITY_SSE42		= (1 << 6);
 
 	/**
 	 * Optional instruction sets.
+	 *
+	 * May only be used for detection and not actually taken
+	 * advantage of.
 	 */
 
-	static const int CPU_CAPABILITY_RDRAND	= (1 << 10);
+	static const int CPU_CAPABILITY_RDRAND		= (1 << 10);
+	static const int CPU_CAPABILITY_VAES		= (1 << 11);
+	static const int CPU_CAPABILITY_AVX512_VNNI = (1 << 12);
 
 	static uint32_t getCPUFlags();
 

@@ -35,7 +35,7 @@ bool MalletAttributes::load(SourceMod::IGameConfig *g_pGameConf)
 
 	if (!g_pGameConf->GetOffset("CTFPlayer::GetAttributeList", &iCTFPlayer_GetAttributeList))
 	{
-		ConMsg("\"CEconEntity::GetAttributeList\" couldn't be found!\n");
+		ConMsg("\"CTFPlayer::GetAttributeList\" couldn't be found!\n");
 		return false;
 	}
 	else

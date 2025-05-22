@@ -16,53 +16,95 @@ uint32_t MalletUtils::getCPUFlags()
 	{
 		uint32_t cpuFlags = 0;
 
-		/* "CPUID EAX=1: Feature Information in EDX and ECX" */
-		int eax = 1, ebx, ecx, edx;
-
-		__asm__ __volatile__(
-			"cpuid"
-			: "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-			: "a"(eax)
-		);
-
-		/**
-		 * Check for SSE (bit 25 in the EDX register)
-		 */
-		if (edx & (1 << 25))
 		{
-			cpuFlags |= MalletUtils::CPU_CAPABILITY_SSE;
+			/* "EAX=0: Highest Function Parameter and Manufacturer ID" */
+			int eax = 0, ebx, ecx, edx;
+
+			__asm__ __volatile__(
+				"cpuid"
+				: "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+				: "a"(eax)
+			);
+
+			/* "GenuineIntel" */
+			if (ebx == 0x756e6547 && edx == 0x49656e69 && ecx == 0x6c65746e)
+			{
+				cpuFlags |= MalletUtils::CPU_VENDOR_INTEL;
+			}
 		}
 
-		/**
-		 * Check for SSE2 (bit 26 in the EDX register)
-		 */
-		if (edx & (1 << 26))
 		{
-			cpuFlags |= MalletUtils::CPU_CAPABILITY_SSE2;
+			/* "CPUID EAX=1: Feature Information in EDX and ECX" */
+			int eax = 1, ebx, ecx, edx;
+
+			__asm__ __volatile__(
+				"cpuid"
+				: "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+				: "a"(eax)
+			);
+
+			/**
+			 * Check for SSE (bit 25 in the EDX register)
+			 */
+			if (edx & (1 << 25))
+			{
+				cpuFlags |= MalletUtils::CPU_CAPABILITY_SSE;
+			}
+
+			/**
+			 * Check for SSE2 (bit 26 in the EDX register)
+			 */
+			if (edx & (1 << 26))
+			{
+				cpuFlags |= MalletUtils::CPU_CAPABILITY_SSE2;
+			}
+
+			/**
+			 * Check for SSSE3 (bit 9 in the ECX register)
+			 */
+			if (ecx & (1 << 9))
+			{
+				cpuFlags |= MalletUtils::CPU_CAPABILITY_SSSE3;
+			}
+
+			/**
+			 * Check for SSE4.2 (bit 20 in the ECX register)
+			 */
+			if (ecx & (1 << 20))
+			{
+				cpuFlags |= MalletUtils::CPU_CAPABILITY_SSE42;
+			}
+
+			/**
+			 * Check for RDRAND (bit 30 in the ECX register)
+			 */
+			if (ecx & (1 << 30))
+			{
+				cpuFlags |= MalletUtils::CPU_CAPABILITY_RDRAND;
+			}
 		}
 
-		/**
-		 * Check for SSSE3 (bit 9 in the ECX register)
-		 */
-		if (ecx & (1 << 9))
 		{
-			cpuFlags |= MalletUtils::CPU_CAPABILITY_SSSE3;
-		}
+			/* "EAX=7, ECX=0: Extended Features" */
+			int eax = 7, ebx, ecx, edx;
 
-		/**
-		 * Check for SSE4.2 (bit 20 in the ECX register)
-		 */
-		if (ecx & (1 << 20))
-		{
-			cpuFlags |= MalletUtils::CPU_CAPABILITY_SSE42;
-		}
+			__asm__ __volatile__(
+				"cpuid"
+				: "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+				: "a"(eax)
+			);
 
-		/**
-		 * Check for RDRAND (bit 30 in the ECX register)
-		 */
-		if (ecx & (1 << 30))
-		{
-			cpuFlags |= MalletUtils::CPU_CAPABILITY_RDRAND;
+			/* "VAES" */
+			if (ecx & (1 << 9))
+			{
+				cpuFlags |= MalletUtils::CPU_CAPABILITY_VAES;
+			}
+
+			/* "AVX512VNNI" */
+			if (ecx & (1 << 11))
+			{
+				cpuFlags |= MalletUtils::CPU_CAPABILITY_AVX512_VNNI;
+			}
 		}
 
 		/**
