@@ -45,15 +45,18 @@ public:
 	static const int CPU_VENDOR_INTEL			= (1 << 0);
 	/* reserved value (1 << 1) */
 	/* reserved value (1 << 2) */
+	/* reserved value (1 << 3) */
 
 	/**
 	 * Core instruction sets.
 	 */
 
-	static const int CPU_CAPABILITY_SSE			= (1 << 3);
-	static const int CPU_CAPABILITY_SSE2		= (1 << 4);
-	static const int CPU_CAPABILITY_SSSE3		= (1 << 5);
-	static const int CPU_CAPABILITY_SSE42		= (1 << 6);
+	static const int CPU_CAPABILITY_SSE			= (1 << 4);
+	static const int CPU_CAPABILITY_SSE2		= (1 << 5);
+	static const int CPU_CAPABILITY_SSSE3		= (1 << 6);
+	static const int CPU_CAPABILITY_SSE42		= (1 << 7);
+	/* reserved value (1 << 8) */
+	/* reserved value (1 << 9) */
 
 	/**
 	 * Optional instruction sets.
