@@ -100,7 +100,7 @@ cell_t MalletGetType(IPluginContext *pContext, const cell_t *params)
 
 cell_t MalletAPIVersion(IPluginContext *pContext, const cell_t *params)
 {
-	return 7;
+	return 8;
 }
 
 sp_nativeinfo_t MalletNatives[] =
@@ -130,6 +130,7 @@ sp_nativeinfo_t MalletNatives[] =
 	 */
 	{ "MalletGetRand32", MalletRandom::MalletGetRand },
 	{ "MalletGetRand64", MalletRandom::MalletGetRand },
+	{ "MalletGetRandomInt", MalletRandom::MalletGetRandomInt },
 	/**
 	 * Holidays.
 	 */

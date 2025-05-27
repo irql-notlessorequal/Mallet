@@ -7,6 +7,8 @@ public:
 
 	static cell_t MalletGetRand(IPluginContext *pContext, const cell_t *params);
 
+	static cell_t MalletGetRandomInt(IPluginContext *pContext, const cell_t *params);
+
 private:
 	static uint64_t MalletGetRandGeneric();
 

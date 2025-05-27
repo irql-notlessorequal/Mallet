@@ -8,7 +8,10 @@
 /**
  * TODO:
  *
- * - Add a MalletGetRandomInt(min, max) implementation
+ * - Make sure that 32-bit land is ok with uint64_t existing,
+ * 	 we might need to use the `MALLET_IS_64_BIT` ifdef to switch
+ *   between typedefs
+ *
  * - Add a MalletGetRandomFloat(min, max) implementation
  */
 static uint64_t (*FUNC_GET_RANDOM_RAW)(void);
@@ -94,4 +97,21 @@ cell_t MalletRandom::MalletGetRand(IPluginContext *pContext, const cell_t *param
 		/* Convert uint64_t to a signed integer, thanks Source. */
 		return static_cast<int>(FUNC_GET_RANDOM_RAW());
 	}
+}
+
+cell_t MalletRandom::MalletGetRandomInt(IPluginContext *pContext, const cell_t *params)
+{
+	if (PARAM_COUNT(params) != 2)
+	{
+		return pContext->ThrowNativeError("Invalid parameter count (%i)", PARAM_COUNT(params));
+	}
+
+	int min = params[1];
+	int max = params[2];
+
+#if defined(MALLET_IS_64_BIT)
+	return (min + FUNC_GET_RANDOM_RAW() / (INT64_MAX / (max - min + 1) + 1));
+#else
+	return (min + FUNC_GET_RANDOM_RAW() / (INT32_MAX / (max - min + 1) + 1));
+#endif
 }

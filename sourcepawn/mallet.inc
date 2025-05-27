@@ -241,6 +241,11 @@ native int MalletGetRand32();
  */
 native void MalletGetRand64(any a[2]);
 
+/**
+ * Returns a random number between two bounds (inclusive) using `MalletGetRand__()`.
+ */
+native int MalletGetRandomInt(int min, int max);
+
 /* */
 
 #if !defined(_MALLET_WEAPONS_FLAGS)
