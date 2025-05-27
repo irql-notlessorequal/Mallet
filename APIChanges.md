@@ -99,3 +99,19 @@ Initial release.
 	Supports both dropped weapons and wearables.
 
 	All users MUST switch to the new version.
+
+### version 8 (2025-05-27)
+
+- Random API:
+
+	Initial introduction of the API.
+
+	This is **very** experimental and subject to change between builds.
+
+	The following functions are available:
+
+	```
+	native int MalletGetRand32();
+	native void MalletGetRand64(int array[2]);
+	native int MalletGetRandomInt(int min, int max);
+	```

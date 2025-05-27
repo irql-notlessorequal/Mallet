@@ -10,6 +10,7 @@
 #include "mallet_players.sp"
 #include "mallet_econ.sp"
 #include "mallet_holidays.sp"
+#include "mallet_random.sp"
 
 #if defined _X64
 
@@ -25,11 +26,12 @@
 
 #endif
 
-public Plugin myinfo = {
+public Plugin myinfo =
+{
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2025-04-03",
+	version	= "2025-05-27",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 
@@ -100,12 +102,18 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 	/* Holidays */
 	CreateNative("MalletIsHolidayActive", Native_IsHolidayActive);
+
+	/* Random (candidate 1) */
+	CreateNative("MalletGetRand32", Native_GetRand32);
+	CreateNative("MalletGetRand64", Native_GetRand64);
+	CreateNative("MalletGetRandomInt", Native_GetRandomInt);
 	
 	RegPluginLibrary("mallet");
 	return APLRes_Success;
 }
 
-public int Native_IsReady(Handle plugin, int numParams) {
+public int Native_IsReady(Handle plugin, int numParams)
+{
 	return MALLET_IS_READY;
 }
 
@@ -121,7 +129,7 @@ public int Native_IsX64(Handle plugin, int numParams)
 public int Native_APIVersion(Handle plugin, int numParams)
 {
 	/* This value should be bumped every time a breaking change or major change is introduced... */
-	return 7;
+	return 8;
 }
 
 public void OnPluginStart()
@@ -129,6 +137,8 @@ public void OnPluginStart()
 #if defined MALLET_DEBUG
 	PrintToServer("[Mallet] [OnPluginStart] Initializing...");
 #endif
+
+	MalletInitRand();
 
 	if (!InitializeAttributes())
 	{
