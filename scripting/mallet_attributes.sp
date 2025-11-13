@@ -20,6 +20,12 @@ Handle hSDKRemoveAttribute = INVALID_HANDLE;
 Handle hSDKDestroyAllAttributes = INVALID_HANDLE;
 Handle hSDKSchema = INVALID_HANDLE;
 
+#if defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
+#define SDKCallLikelyRaw SDKCall_VirtualAddress
+#else
+#define SDKCallLikelyRaw SDKCall_Raw
+#endif
+
 #if defined(_X64_IMPLEMENTATION_PORT64)
 #include <port64>
 
@@ -69,6 +75,11 @@ public bool InitializeAttributes()
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of CEconItemSchema
 	hSDKSchema = EndPrepSDKCall();
+#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
+	StartPrepSDKCall(SDKCall_Static);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
+	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);	// Returns address of CEconItemSchema
+	hSDKSchema = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Static);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
@@ -81,10 +92,19 @@ public bool InitializeAttributes()
 		return false;
 	}
 
-    /* This one is immune to x64 changes. */
-    StartPrepSDKCall(SDKCall_Raw);
+    /**
+	 * This one was immune to x64 changes,
+	 * however SourceMod is deathly afraid of introducing
+	 * new interfaces to handle 64-bit addresses, 
+	 * so now it's my fucking problem.
+	 */
+	StartPrepSDKCall(SDKCallLikelyRaw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CAttributeList::SetRuntimeAttributeValue");
+#if defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
+	PrepSDKCall_AddParameter(SDKType_VirtualAddress, SDKPass_Plain);
+#else
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+#endif
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	hSDKSetRuntimeValue = EndPrepSDKCall();
 	
@@ -101,6 +121,12 @@ public bool InitializeAttributes()
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 	hSDKGetAttributeDef = EndPrepSDKCall();
+#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
+	StartPrepSDKCall(SDKCall_VirtualAddress);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinition");
+	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
+	hSDKGetAttributeDef = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinition");
@@ -115,12 +141,19 @@ public bool InitializeAttributes()
 		return false;
 	}
 
+#if defined(_X64_IMPLEMENTATION_PORT64)
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinitionByName");
-#if defined(_X64_IMPLEMENTATION_PORT64)
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
+#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
+	StartPrepSDKCall(SDKCall_VirtualAddress);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinitionByName");
+	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
+	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #else
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinitionByName");
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #endif
@@ -136,6 +169,11 @@ public bool InitializeAttributes()
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);
+	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
+#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
+	StartPrepSDKCall(SDKCall_VirtualAddress);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
+	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);
 	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Raw);
@@ -155,6 +193,11 @@ public bool InitializeAttributes()
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CEconEntity::GetAttributeList");
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);
 	hSDKGetAttributeList = EndPrepSDKCall();
+#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
+	StartPrepSDKCall(SDKCall_VirtualAddress);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CEconEntity::GetAttributeList");
+	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);
+	hSDKGetAttributeList = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CEconEntity::GetAttributeList");
@@ -168,7 +211,7 @@ public bool InitializeAttributes()
 		return false;
 	}
 
-	StartPrepSDKCall(SDKCall_Raw);
+	StartPrepSDKCall(SDKCallLikelyRaw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CAttributeList::RemoveAttribute");
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
@@ -180,7 +223,7 @@ public bool InitializeAttributes()
 		return false;
 	}
 
-	StartPrepSDKCall(SDKCall_Raw);
+	StartPrepSDKCall(SDKCallLikelyRaw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CAttributeList::DestroyAllAttributes");
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 	hSDKDestroyAllAttributes = EndPrepSDKCall();
@@ -196,7 +239,8 @@ public bool InitializeAttributes()
 }
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
-static void GetItemSchema(any pSchema[2]) {
+static void GetItemSchema(any pSchema[2])
+{
 	SDKCall(hSDKSchema, pSchema);
 }
 
@@ -237,11 +281,13 @@ void GetByID(any econ[2], int id)
 	SDKCall(hSDKGetAttributeDef, pSchema, econ, id);
 }
 #else
-static Address GetItemSchema() {
+static Address GetItemSchema()
+{
 	return SDKCall(hSDKSchema);
 }
 
-static Address GetAttributeDefinitionByID(int id) {
+static Address GetAttributeDefinitionByID(int id)
+{
 	Address pSchema = GetItemSchema();
 
 	if (pSchema == Address_Null)
@@ -263,7 +309,8 @@ static Address GetEntityAttributeListForPlayer(int entity)
  * Returns the m_AttributeList offset.  This does not correspond to the CUtlVector instance
  * (which is offset by 0x04).
  */
-static Address GetEntityAttributeList(int entity) {
+static Address GetEntityAttributeList(int entity)
+{
 	int offsAttributeList = GetEntSendPropOffs(entity, "m_AttributeList", true);
 	if (offsAttributeList != -1)
 	{

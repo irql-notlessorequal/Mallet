@@ -1,4 +1,5 @@
 # Mallet 🔨
+
 A general purpose library for making SourceMod plugins for Team Fortress 2.
 
 *We take no responsibility in the hammer emoji not being a Mallet.*
@@ -15,7 +16,9 @@ Mallet has the following build-time defines available for users:
 		
 		*Deprecated.*
 
-	- `_X64_IMPLEMENTATION_VIRTUAL_ADDRESS=1` is the official solution from SourceMod for 64-bit.
+	- `_X64_IMPLEMENTATION_VIRTUAL_ADDRESS=1` is the official solution from SourceMod.
+
+		**Requires SourceMod 1.13.7278 or newer**
 
 		*Experimental, will become the default in the near future.*
 

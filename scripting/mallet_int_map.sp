@@ -1,4 +1,10 @@
+#if SOURCEMOD_V_MAJOR >= 1 && SOURCEMOD_V_MINOR >= 13
+#define MALLET_HAS_INT_MAP 1
+#include <adt_trie>
+#endif
 
+
+#if !defined(MALLET_HAS_INT_MAP)
 methodmap IntMapSnapshot < Handle
 {
 	// Returns the number of keys in the map snapshot.
@@ -151,3 +157,4 @@ methodmap IntMap < Handle
 		}
 	}
 }
+#endif

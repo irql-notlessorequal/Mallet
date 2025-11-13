@@ -19,7 +19,9 @@
 #elseif defined _X64_IMPLEMENTATION_MEMORY_POINTER
 #error "Memory Pointer support was removed in 2025.11"
 #elseif defined _X64_IMPLEMENTATION_VIRTUAL_ADDRESS
-#error "This implementation is currently not supported."
+#include <virtual_address>
+#warning "VirtualAddress support is deemed experimental!"
+#define _X64_OK 1
 #else
 #error "No x64 implementation set! Set either _X64_IMPLEMENTATION_PORT64 or _X64_IMPLEMENTATION_VIRTUAL_ADDRESS as a build time macro!"
 #endif

@@ -115,3 +115,11 @@ Initial release.
 	native void MalletGetRand64(int array[2]);
 	native int MalletGetRandomInt(int min, int max);
 	```
+
+### version 8.1 (2025-11-13)
+
+No functional changes, therefore no actual ABI version bump.
+
+- Removed Memory Pointer implementation for x64.
+- Updated Mallet's random implementation.
+- Mallet's IntMap implementation is no longer required as of SourceMod 1.13.
