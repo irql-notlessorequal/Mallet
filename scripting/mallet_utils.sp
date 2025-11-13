@@ -33,29 +33,6 @@ void ReadMemoryString(any addr[2], char[] buffer, int size)
 
 	buffer[i] = '\0';
 }
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-bool MalletNotEqualAddresses(MemoryPointer first, MemoryPointer second)
-{
-	return first != second;
-}
-
-void ReadMemoryString(MemoryPointer addr, char[] buffer, int size)
-{
-	int max = size - 1;
-
-	int i = 0;
-	for( ; i < max; i++ )
-	{
-		int data = addr.Load(NumberType_Int8, i);
-#if defined(MALLET_DEBUG_READ_MEMORY_STRING)
-		PrintToServer("[Mallet::ReadMemoryString] idx=%i, addr={%i}", i, addr);
-#endif
-		if( (buffer[i] = view_as<char>(data)) == '\0' )
-			return;
-	}
-
-	buffer[i] = '\0';
-}
 #else
 void ReadMemoryString(Address addr, char[] buffer, int size)
 {

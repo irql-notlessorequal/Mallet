@@ -6,24 +6,24 @@ A general purpose library for making SourceMod plugins for Team Fortress 2.
 ## Compiling Mallet.
 
 Mallet has the following build-time defines available for users:
+
 - `MALLET_DEBUG=1` enables additional runtime logging into the server console.
 - `_X64=1` enables 64-bit compilation, requires an implementation to be set.
 	- `_X64_IMPLEMENTATION_PORT64=1` uses [Port64](https://github.com/skial-com/port64) as the implementation for 64-bit memory pointers.
 
 		**Requires the [following patch](https://github.com/alliedmodders/sourcemod/pull/2159) to be applied on top of SourceMod.**
 		
-		Known limitations: None.
-	- `_X64_IMPLEMENTATION_MEMORY_POINTER=1` uses a [proposed merge request](https://github.com/alliedmodders/sourcemod/pull/2196) to implement 64-bit memory pointers.
+		*Deprecated.*
 
-		Known limitations: Mallet's implementation is experimental and untested!
-	- `_X64_IMPLEMENTATION_VIRTUAL_ADDRESS=1` is a placeholder for a future implementation.
+	- `_X64_IMPLEMENTATION_VIRTUAL_ADDRESS=1` is the official solution from SourceMod for 64-bit.
 
-		Does not compile.
+		*Experimental, will become the default in the near future.*
+
 - `MALLET_DISABLE_ATTRIBUTE_LOCALE=1` disables the AttributeLocale interface.
 
 Compiling for 64-bit:
 ```
-./spcomp64 _X64=1 _X64_IMPLEMENTATION_PORT64=1 mallet.sp
+./spcomp64 _X64=1 _X64_IMPLEMENTATION_VIRTUAL_ADDRESS=1 mallet.sp
 ```
 
 Compiling for 32-bit

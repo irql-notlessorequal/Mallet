@@ -69,11 +69,6 @@ public bool InitializeAttributes()
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of CEconItemSchema
 	hSDKSchema = EndPrepSDKCall();
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	StartPrepSDKCall(SDKCall_Static);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
-	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);
-	hSDKSchema = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Static);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
@@ -106,12 +101,6 @@ public bool InitializeAttributes()
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 	hSDKGetAttributeDef = EndPrepSDKCall();
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinition");
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);
-	hSDKGetAttributeDef = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinition");
@@ -131,10 +120,6 @@ public bool InitializeAttributes()
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-#warning "Should AddParameter be SDKPass_Pointer in MP?"
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #else
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
@@ -151,11 +136,6 @@ public bool InitializeAttributes()
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);
-	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
-	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);
 	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Raw);
@@ -174,11 +154,6 @@ public bool InitializeAttributes()
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CEconEntity::GetAttributeList");
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);
-	hSDKGetAttributeList = EndPrepSDKCall();
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CEconEntity::GetAttributeList");
-	PrepSDKCall_SetReturnInfo(SDKType_MemoryPointer, SDKPass_Plain);
 	hSDKGetAttributeList = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Raw);
@@ -261,35 +236,6 @@ void GetByID(any econ[2], int id)
 
 	SDKCall(hSDKGetAttributeDef, pSchema, econ, id);
 }
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-static MemoryPointer GetItemSchema() {
-	return SDKCall(hSDKSchema);
-}
-
-MemoryPointer GetEntityAttributeListForPlayer(int entity)
-{
-	/* Call CTFPlayer::GetAttributeList() and store the offset. */
-	return SDKCall(hSDKGetAttributeListForPlayer, GetEntityMemoryPointer(entity));	
-}
-
-/**
- * Sets this to entity address + the m_AttributeList offset.  This does not correspond to the CUtlVector instance
- * (which is offset by 0x08).
- */
-MemoryPointer GetEntityAttributeList(int entity)
-{
-	/* Call CEconEntity::GetAttributeList() and store the offset. */
-	return SDKCall(hSDKGetAttributeList, GetEntityMemoryPointer(entity));	
-}
-
-MemoryPointer GetByID(int id)
-{
-	MemoryPointer schema = GetItemSchema();
-	if (!schema)
-		return;
-
-	return SDKCall(hSDKGetAttributeDef, pSchema, id);
-}
 #else
 static Address GetItemSchema() {
 	return SDKCall(hSDKSchema);
@@ -357,23 +303,6 @@ bool InternalDeleteAllAttributes(int iEntity)
 	}
 
 	SDKCall(hSDKDestroyAllAttributes, pEntAttributeList);
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEntAttributeList;
-	if (1 <= iEntity <= MaxClients)
-	{
-		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
-	}
-	else
-	{
-		pEntAttributeList = GetEntityAttributeList(iEntity);
-	}
-
-	if (!pEntAttributeList)
-	{
-		return false;
-	}
-
-	SDKCall(hSDKDestroyAllAttributes, pEntAttributeList);
 #else
 	Address pEntAttributeList;
 	if (1 <= iEntity <= MaxClients)
@@ -418,19 +347,6 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 
 	if (!pEntAttributeList[0])
 	{
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEntAttributeList;
-	if (1 <= iEntity <= MaxClients)
-	{
-		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
-	}
-	else
-	{
-		pEntAttributeList = GetEntityAttributeList(iEntity);
-	}
-
-	if (!pEntAttributeList)
-	{
 #else
 	Address pEntAttributeList;
 	if (1 <= iEntity <= MaxClients)
@@ -458,11 +374,6 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 
 	if (!pEconItemAttributeDefinition[0])
 	{
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEconItemAttributeDefinition = GetByID(iDefIndex);
-
-	if (!pEconItemAttributeDefinition)
-	{
 #else
 	Address pAttribDef = GetAttributeDefinitionByID(iDefIndex);
 	if (pAttribDef == Address_Null)
@@ -475,8 +386,6 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 	}
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
-	SDKCall(hSDKSetRuntimeValue, pEntAttributeList, pEconItemAttributeDefinition, flValue);
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
 	SDKCall(hSDKSetRuntimeValue, pEntAttributeList, pEconItemAttributeDefinition, flValue);
 #else
 	SDKCall(hSDKSetRuntimeValue, pEntAttributeList, pAttribDef, flValue);
@@ -507,19 +416,6 @@ bool InternalRemoveAttribute(int iEntity, int iDefIndex)
 
 	if (!pEntAttributeList[0])
 	{
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEntAttributeList;
-	if (1 <= iEntity <= MaxClients)
-	{
-		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
-	}
-	else
-	{
-		pEntAttributeList = GetEntityAttributeList(iEntity);
-	}
-
-	if (!pEntAttributeList)
-	{
 #else
 	Address pEntAttributeList;
 	if (1 <= iEntity <= MaxClients)
@@ -544,11 +440,6 @@ bool InternalRemoveAttribute(int iEntity, int iDefIndex)
 
 	if (!pEconItemAttributeDefinition[0])
 	{
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer pEconItemAttributeDefinition = GetByID(iDefIndex);
-
-	if (!pEconItemAttributeDefinition)
-	{
 #else
 	Address pEconItemAttributeDefinition = GetAttributeDefinitionByID(iDefIndex);
 	if (pEconItemAttributeDefinition == Address_Null)
@@ -559,8 +450,6 @@ bool InternalRemoveAttribute(int iEntity, int iDefIndex)
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	int dummy[2];
-#elseif defined(_X64_IMPLEMENTATION_MEMORY_POINTER)
-	MemoryPointer dummy;
 #else
 	Address dummy;
 #endif
