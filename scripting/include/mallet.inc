@@ -236,6 +236,15 @@ native void MalletGetRand64(any a[2]);
  */
 native int MalletGetRandomInt(int min, int max);
 
+/**
+ * Returns a random float value between the following ranges:
+ * - [-1.0, 1.0 ] if positive is set to FALSE
+ * - [ 0.0, 1.0 ] if positive is set to TRUE
+ * 
+ * Users of this function MUST cast this to a float.
+ */
+native any MalletGetRandomFloat(bool positive);
+
 /* */
 
 #if !defined(_MALLET_WEAPONS_FLAGS)

@@ -33,7 +33,7 @@ public Plugin myinfo =
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2025-11-13",
+	version	= "2025-11-16",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 
@@ -109,6 +109,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MalletGetRand32", Native_GetRand32);
 	CreateNative("MalletGetRand64", Native_GetRand64);
 	CreateNative("MalletGetRandomInt", Native_GetRandomInt);
+	CreateNative("MalletGetRandomFloat", Native_GetRandomFloat);
 	
 	RegPluginLibrary("mallet");
 	return APLRes_Success;

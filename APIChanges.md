@@ -122,4 +122,16 @@ No functional changes, therefore no actual ABI version bump.
 
 - Removed Memory Pointer implementation for x64.
 - Updated Mallet's random implementation.
+
+	Now based upon RANROT-BI, an improved variant of RANROT type B.
+
 - Mallet's IntMap implementation is no longer required as of SourceMod 1.13.
+
+### version 9 (2025-11-16)
+
+- Random: Added `MalletGetRandomFloat`
+
+	This function returns a random float between 0.0 and 1.0
+
+- Clarification of Mallet's RNG implementation (see above)
+- Clean up some warnings.

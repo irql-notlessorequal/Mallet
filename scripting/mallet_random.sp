@@ -213,3 +213,29 @@ public int Native_GetRandomInt(Handle plugin, int numParams)
 	int val = int64_mod32(out, range);
 	return min + val;
 }
+
+/* public any MalletGetRandomFloat(bool) */
+public any Native_GetRandomFloat(Handle plugin, int numParams)
+{
+	if (numParams != 1)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%d)", numParams);
+	}
+
+	bool positive = GetNativeCell(1);
+
+	int array[2];
+	ranrot(array);
+
+	/* Ignore the upper 32-bits. */
+	if (positive)
+	{
+		int rand = array[1] & 0x7fffffff;
+		return view_as<float>(rand) / float(0x7fffffff);
+	}
+	else
+	{
+		int rand = array[1] & 0xffffffff;
+		return view_as<float>(rand) / float(0xffffffff);		
+	}
+}

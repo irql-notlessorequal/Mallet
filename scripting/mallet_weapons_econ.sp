@@ -8,6 +8,6 @@ public bool InitializeWeaponsEcon()
 
 int InternalCreateWeaponEcon(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot, int flags)
 {
-	SetFailState("unreachable: Requires Pallet.");
+	PrintToServer("[Mallet->Econ] InternalCreateWeaponEcon: Rejecting call.", client, weaponId, weaponName, level, quality, weaponSlot, flags);
 	return MALLET_ERROR_FAILED_TO_SPAWN;
 }
