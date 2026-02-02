@@ -5,6 +5,22 @@
 #endif
 #define _mallet_included
 
+enum MalletType
+{
+	MALLET_TYPE_SOURCEPAWN = 0,
+	MALLET_TYPE_EXTENSION  = 0xAAAAA
+};
+
+/**
+ * Returns the implementation type of Mallet as a integer.
+ * 
+ * Value will be one of the types within MalletType.
+ */
+native int MalletGetType();
+
+/**
+ * Returns TRUE if the loaded Mallet extension/plugin is ready for use.
+ */
 native int MalletIsReady();
 
 /**

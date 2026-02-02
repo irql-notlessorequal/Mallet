@@ -50,6 +50,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 		return APLRes_Failure;
 	}
 
+	CreateNative("MalletGetType", Native_GetType);
 	CreateNative("MalletIsReady", Native_IsReady);
 	CreateNative("MalletIsX64", Native_IsX64);
 	CreateNative("MalletAPIVersion", Native_APIVersion);
@@ -113,6 +114,12 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	
 	RegPluginLibrary("mallet");
 	return APLRes_Success;
+}
+
+public int Native_GetType(Handle plugin, int numParams)
+{
+	/* Equivalent to MALLET_TYPE_SOURCEPAWN. */
+	return 0;
 }
 
 public int Native_IsReady(Handle plugin, int numParams)
