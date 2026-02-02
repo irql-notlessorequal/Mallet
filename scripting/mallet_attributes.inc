@@ -8,8 +8,8 @@
 
 #include <sdktools>
 
-#include "mallet_defines.sp"
-#include "mallet_utils.sp"
+#include "mallet_defines.inc"
+#include "mallet_utils.inc"
 
 Handle hSDKSetRuntimeValue = INVALID_HANDLE;
 Handle hSDKGetAttributeDef = INVALID_HANDLE;

@@ -1,8 +1,8 @@
 #include <sdktools>
 #include <tf2>
 
-#include "mallet_defines.sp"
-#include "mallet_weapons_wearable.sp"
+#include "mallet_defines.inc"
+#include "mallet_weapons_wearable.inc"
 
 static Handle hSDKIsWeapon = INVALID_HANDLE;
 

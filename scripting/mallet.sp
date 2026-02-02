@@ -1,26 +1,26 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#include "mallet_conversions.sp"
-#include "mallet_weapons.sp"
-#include "mallet_weapons_db.sp"
-#include "mallet_attribute_db.sp"
-#include "mallet_attribute_locale.sp"
-#include "mallet_attributes.sp"
-#include "mallet_players.sp"
-#include "mallet_econ.sp"
-#include "mallet_holidays.sp"
-#include "mallet_random.sp"
+#include "mallet_conversions.inc"
+#include "mallet_weapons.inc"
+#include "mallet_weapons_db.inc"
+#include "mallet_attribute_db.inc"
+#include "mallet_attribute_locale.inc"
+#include "mallet_attributes.inc"
+#include "mallet_players.inc"
+#include "mallet_econ.inc"
+#include "mallet_holidays.inc"
+#include "mallet_random.inc"
 
 #if defined _X64
 
 #if defined _X64_IMPLEMENTATION_PORT64
+#warning "This implementation will be removed in Q4 of 2026."
 #define _X64_OK 1
 #elseif defined _X64_IMPLEMENTATION_MEMORY_POINTER
 #error "Memory Pointer support was removed in 2025.11"
 #elseif defined _X64_IMPLEMENTATION_VIRTUAL_ADDRESS
 #include <virtual_address>
-#warning "VirtualAddress support is deemed experimental!"
 #define _X64_OK 1
 #else
 #error "No x64 implementation set! Set either _X64_IMPLEMENTATION_PORT64 or _X64_IMPLEMENTATION_VIRTUAL_ADDRESS as a build time macro!"
@@ -33,7 +33,7 @@ public Plugin myinfo =
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2025-11-16",
+	version	= "2026-02-02",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 
@@ -132,7 +132,7 @@ public int Native_IsX64(Handle plugin, int numParams)
 public int Native_APIVersion(Handle plugin, int numParams)
 {
 	/* This value should be bumped every time a breaking change or major change is introduced... */
-	return 8;
+	return 9;
 }
 
 public void OnPluginStart()

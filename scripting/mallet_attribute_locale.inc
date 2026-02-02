@@ -1,4 +1,4 @@
-#include "mallet_int_map.sp"
+#include "mallet_int_map.inc"
 
 enum MalletAttributeValueType
 {

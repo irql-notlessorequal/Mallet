@@ -135,3 +135,16 @@ No functional changes, therefore no actual ABI version bump.
 
 - Clarification of Mallet's RNG implementation (see above)
 - Clean up some warnings.
+
+### version 9.1 (2026-02-02)
+
+- Weapons: Removed the placeholder Pallet backend.
+
+	This will be replaced in the future by the extension
+	rewrite of Mallet, aka Mallet2...once that is finished.
+
+- Switched all files that aren't the main `mallet.sp` file into a header file.
+
+- The VirtualAddress backend no longer prints a warning as it is deemed stable.
+
+- The legacy `port64` 64-bit implementation will be removed at the end of 2026.

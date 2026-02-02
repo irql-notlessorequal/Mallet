@@ -1,9 +1,9 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#include "mallet_defines.sp"
-#include "mallet_weapons_wearable.sp"
-#include "mallet_econ.sp"
+#include "mallet_defines.inc"
+#include "mallet_weapons_wearable.inc"
+#include "mallet_econ.inc"
 
 public bool InitializeWeaponsDumb()
 {
@@ -64,7 +64,8 @@ bool GetCompatibleSaxxyWeapon(const TFClassType type, char weaponName[24])
 	}
 }
 
-int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot)
+int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName,
+							 int level, int quality, int weaponSlot, int flags)
 {
 	if (TypeIsWearable(weaponName))
 	{
@@ -79,7 +80,8 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName, 
 		char newWeaponName[24];
 		GetCompatibleSaxxyWeapon(classType, newWeaponName);
 
-		return InternalCreateWeaponDumb(client, weaponId, newWeaponName, level, quality, weaponSlot);
+		return InternalCreateWeaponDumb(client, weaponId, newWeaponName, level,
+										quality, weaponSlot, flags);
 	}
 
 	int weapon = CreateEntityByName(weaponName);

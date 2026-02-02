@@ -1,18 +1,8 @@
-#include "mallet_weapons_dumb.sp"
-#include "mallet_weapons_econ.sp"
-#include "mallet_weapons_wearable.sp"
-#include "mallet_weapons_misc.sp"
-
-static bool IsEconAvailable = false;
+#include "mallet_weapons_dumb.inc"
+#include "mallet_weapons_misc.inc"
 
 public bool InitializeWeapons()
 {
-	IsEconAvailable = InitializeWeaponsEcon();
-	if (!IsEconAvailable)
-	{
-		PrintToServer("[Mallet] [WARNING] Failed to initialize the Pallet weapon spawning path.");
-	}
-
 	return InitializeWeaponsDumb() && InitializeWeaponsWearable() && InitializeWeaponsMisc();
 }
 
@@ -45,12 +35,5 @@ public int Native_CreateWeapon(Handle plugin, int numParams)
 
 int InternalCreateWeapon(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot, int flags)
 {
-	if (IsEconAvailable && !(flags & MALLET_WEAPON_FLAG_FORCE_DUMB))
-	{
-		return InternalCreateWeaponEcon(client, weaponId, weaponName, level, quality, weaponSlot, flags);
-	}
-	else
-	{
-		return InternalCreateWeaponDumb(client, weaponId, weaponName, level, quality, weaponSlot);
-	}
+	return InternalCreateWeaponDumb(client, weaponId, weaponName, level, quality, weaponSlot, flags);
 }

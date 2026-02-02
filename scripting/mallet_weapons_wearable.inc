@@ -1,8 +1,8 @@
 #include <tf2>
 #include <tf2_stocks>
 
-#include "mallet_defines.sp"
-#include "mallet_utils.sp"
+#include "mallet_defines.inc"
+#include "mallet_utils.inc"
 
 static Handle hSDKEquipWearable = INVALID_HANDLE;
 static Handle hSDKRemoveWearable = INVALID_HANDLE;

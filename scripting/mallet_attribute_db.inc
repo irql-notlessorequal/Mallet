@@ -1,7 +1,7 @@
 #define MAX_ATTRIBUTE_NAME_LENGTH 128
 #define MAX_ATTRIBUTE_VALUE_LENGTH PLATFORM_MAX_PATH
 
-#include "mallet_int_map.sp"
+#include "mallet_int_map.inc"
 
 IntMap __GenerateAttributeClassDB()
 {
