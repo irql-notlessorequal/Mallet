@@ -1,161 +1,91 @@
 #define INT32_MAX	0x7FFFFFFF
 #define INT32_MIN  -0x7FFFFFFF
 
-static int hi[2], lo[2];
+static int g_s0, g_s1, g_s2, g_s3;
 
-int int64_ge(int a[2], int b[2])
+int RotL32(int x, int k)
 {
-	if (a[1] != b[1])
-		return a[1] > b[1];
-	else
-		return a[0] >= b[0];
+	return (x << k) | (x >>> (32 - k));
 }
 
-void int64_sub(int r[2], int a[2], int b[2])
+int Xoshiro128Next()
 {
-	int alo = a[0], ahi = a[1];
-	int blo = b[0], bhi = b[1];
-	int borrow = alo < blo ? 1 : 0;
+	int result = RotL32(g_s1 * 5, 7) * 9;
+	int t = g_s1 << 9;
 
-	r[0] = alo - blo;
-	r[1] = ahi - bhi - borrow;
-}
+	g_s2 ^= g_s0;
+	g_s3 ^= g_s1;
+	g_s1 ^= g_s2;
+	g_s0 ^= g_s3;
+	g_s2 ^= t;
+	g_s3  = RotL32(g_s3, 11);
 
-int int64_mod32(int a[2], int m)
-{
-	int high = a[1] % m;
-	int low = a[0] % m;
-	int base = (1 << 32) % m;
-	int b = (65536 % m);
-
-	base = (b * b) % m;
-
-	int result = (high * base) % m;
-	result = (result + (low % m)) % m;
-
-	if (result < 0)
-		result += m;	
-	
 	return result;
 }
 
-void int64_not(const int s[2], int out[2])
+int SplitMix32(int &state)
 {
-	out[0] = ~s[0];
-	out[1] = ~s[1];
+	state += 0x9E3779B9;
+	int z = state;
+	z = (z ^ (z >>> 16)) * 0x85EBCA6B;
+	z = (z ^ (z >>> 13)) * 0xC2B2AE35;
+	return z ^ (z >>> 16);
 }
 
-void int64_shl(const int input[2], int shift, int out[2])
+bool U32Ge(int a, int b)
 {
-	if (shift == 0)
-	{
-		out[0] = input[0];
-		out[1] = input[1];
-	}
-	else if (shift < 32)
-	{
-		out[0] = (input[0] << shift) | ((input[1] >> (32 - shift)) & ((1 << shift) - 1));
-		out[1] = input[1] << shift;
-	}
-	else if (shift < 64)
-	{
-		out[0] = input[1] << (shift - 32);
-		out[1] = 0;
-	}
-	else
-	{
-		out[0] = 0;
-		out[1] = 0;
-	}
+	return (a ^ 0x80000000) >= (b ^ 0x80000000);
 }
 
-void int64_shr(const int input[2], int shift, int out[2])
+int U32Mod(int a, int m)
 {
-	if (shift == 0)
+	int rem = 0;
+	for (int i = 31; i >= 0; i--)
 	{
-		out[0] = input[0];
-		out[1] = input[1];
+		rem = (rem << 1) | ((a >>> i) & 1);
+		if (U32Ge(rem, m))
+			rem -= m;
 	}
-	else if (shift < 32)
-	{
-		out[1] = (input[1] >> shift) | (input[0] << (32 - shift));
-		out[0] = input[0] >> shift;
-	}
-	else if (shift < 64)
-	{
-		out[1] = input[0] >> (shift - 32);
-		out[0] = input[0] < 0 ? -1 : 0;
-	}
-	else
-	{
-		out[1] = input[0] < 0 ? -1 : 0;
-		out[0] = input[0] < 0 ? -1 : 0;
-	}
+	return rem;
 }
 
-void int64_add(const int a[2], const int b[2], int out[2])
+int U32Uniform(int range)
 {
-	int low	  = a[1] + b[1];
-	int carry = ((a[1] >= 0 && b[1] >= 0 && low < 0) || (a[1] < 0 && b[1] < 0 && low >= 0)) ? 1 : 0;
-	out[1]	  = low;
-	out[0]	  = a[0] + b[0] + carry;
-}
+	int threshold = U32Mod(-range, range);
 
-void ranrot_seed(const int s[2])
-{
-	int64_not(s, hi);
-	lo[0] = s[0];
-	lo[1] = s[1];
-}
+	int r;
+	do
+	{
+		r = Xoshiro128Next();
+	} while (!U32Ge(r, threshold));
 
-void ranrot(int out[2])
-{
-	int t1[2], t2[2];
-
-	// hi = (hi << 19) + (hi >> 23)
-	int64_shl(hi, 19, t1);
-	int64_shr(hi, 23, t2);
-	int64_add(t1, t2, hi);
-
-	// lo = (lo << 29) + (lo >> 31)
-	int64_shl(lo, 29, t1);
-	int64_shr(lo, 31, t2);
-	int64_add(t1, t2, lo);
-
-	// hi += lo
-	int64_add(hi, lo, hi);
-
-	// lo += hi
-	int64_add(lo, hi, lo);
-
-	// return hi
-	out[0] = hi[0];
-	out[1] = hi[1];
+	return U32Mod(r, range);
 }
 
 public void MalletInitRand()
 {
 	int seed[2];
-	
-	/* Use the current system time as the
-	 * base seed, this'll change soon. */
-	GetTime(seed);
-	
-	/* Offset the seed with the Valve RNG(tm) */
-	seed[0] &= GetURandomInt();
-	seed[1] &= GetURandomInt();
 
-	/* Initialize the PRNG. */
-	ranrot_seed(seed);
+	GetTime(seed);
+
+	seed[0] ^= GetURandomInt();
+	seed[1] ^= GetURandomInt();
+
+	int smLo = seed[0];
+	int smHi = seed[1];
+
+	g_s0 = SplitMix32(smLo);
+	g_s1 = SplitMix32(smLo);
+	g_s2 = SplitMix32(smHi);
+	g_s3 = SplitMix32(smHi);
+
+	if (g_s0 == 0 && g_s1 == 0 && g_s2 == 0 && g_s3 == 0)
+		g_s0 = 1;
 }
 
 static int MalletGetRand32()
 {
-	int array[2];
-	ranrot(array);
-
-	/* Ignore the upper 32-bits. */
-	return array[1] & 0xffffffff;
+	return Xoshiro128Next();
 }
 
 /* public int MalletGetRand32() */
@@ -174,12 +104,14 @@ public void Native_GetRand64(Handle plugin, int numParams)
 	}
 
 	int array[2];
-	ranrot(array);
+
+	array[0] = Xoshiro128Next();
+	array[1] = Xoshiro128Next();
 
 	SetNativeArray(1, array, 2);
 }
 
-/* public int MalletGetRandomInt(int data[2]) */
+/* public int MalletGetRandomInt(int min, int max) */
 public int Native_GetRandomInt(Handle plugin, int numParams)
 {
 	if (numParams != 2)
@@ -190,31 +122,14 @@ public int Native_GetRandomInt(Handle plugin, int numParams)
 	int min = GetNativeCell(1);
 	int max = GetNativeCell(2);
 
-	int out[2], range64[2], limit[2], tmp[2];
 	int range = max - min + 1;
 	if (range <= 0)
 		return min; // handle bad input
 
-	// range64 = {range, 0}
-	range64[0] = range;
-	range64[1] = 0;
-
-	// limit = {0xFFFFFFFF, 0x7FFFFFFF} - (limit % range)
-	limit[0] = -1;
-	limit[1] = 0x7FFFFFFF;
-	tmp[0] = int64_mod32(limit, range);
-	tmp[1] = 0;
-	int64_sub(limit, limit, tmp);
-
-	do {
-		ranrot(out);
-	} while (int64_ge(out, limit));
-
-	int val = int64_mod32(out, range);
-	return min + val;
+	return min + U32Uniform(range);
 }
 
-/* public any MalletGetRandomFloat(bool) */
+/* public any MalletGetRandomFloat(bool positive) */
 public any Native_GetRandomFloat(Handle plugin, int numParams)
 {
 	if (numParams != 1)
@@ -224,18 +139,15 @@ public any Native_GetRandomFloat(Handle plugin, int numParams)
 
 	bool positive = GetNativeCell(1);
 
-	int array[2];
-	ranrot(array);
+	int rand = Xoshiro128Next();
 
-	/* Ignore the upper 32-bits. */
 	if (positive)
 	{
-		int rand = array[1] & 0x7fffffff;
-		return view_as<float>(rand) / float(0x7fffffff);
+		// Clear the sign bit...
+		rand &= 0x7fffffff;
+		return float(rand) / float(0x7fffffff);
 	}
-	else
-	{
-		int rand = array[1] & 0xffffffff;
-		return view_as<float>(rand) / float(0xffffffff);		
-	}
+
+	float asFloat = (rand < 0) ? (4294967296.0 + float(rand)) : float(rand);
+	return asFloat / float(0xffffffff);
 }

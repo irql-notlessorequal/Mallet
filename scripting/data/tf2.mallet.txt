@@ -8,6 +8,7 @@
 			"CAttributeManager::OnAttributeValuesChanged"
 			{
 				"windows"	"13"
+				"windows64"	"13"
 				"linux"		"14"
 				"linux64"	"14"
 			}
@@ -69,10 +70,11 @@
 		{
 			"GEconItemSchema"	// static?
 			{
-				"library"			"server"
-				"windows"			"\xE8\x2A\x2A\x2A\x2A\x83\xC0\x04\xC3"
-				"linux"				"@_Z15GEconItemSchemav"
-				"linux64"			"@_Z15GEconItemSchemav"
+				"library"	"server"
+				"windows"	"\xE8\x2A\x2A\x2A\x2A\x83\xC0\x04\xC3"
+				"windows64"	"\x48\x83\xEC\x28\xE8\x2A\x2A\x2A\x2A\x48\x83\xC0\x08"
+				"linux"		"@_Z15GEconItemSchemav"
+				"linux64"	"@_Z15GEconItemSchemav"
 			}
 			"TranslateWeaponEntForClass()"
 			{

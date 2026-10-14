@@ -7,6 +7,7 @@
  */
 
 #include <sdktools>
+#include <sourcemod>
 
 #include "mallet_defines.inc"
 #include "mallet_utils.inc"
@@ -14,51 +15,22 @@
 Handle hSDKSetRuntimeValue = INVALID_HANDLE;
 Handle hSDKGetAttributeDef = INVALID_HANDLE;
 Handle hSDKGetAttributeDefByName = INVALID_HANDLE;
-Handle hSDKGetAttributeListForPlayer = INVALID_HANDLE;
 Handle hSDKGetAttributeList = INVALID_HANDLE;
 Handle hSDKRemoveAttribute = INVALID_HANDLE;
 Handle hSDKDestroyAllAttributes = INVALID_HANDLE;
+Handle hSDKOnAttributeValuesChanged = INVALID_HANDLE;
 Handle hSDKSchema = INVALID_HANDLE;
 
-#if defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
-#define SDKCallLikelyRaw SDKCall_VirtualAddress
+#define ATTRIBUTE_MANAGER (INTPTR_S + 3 * INTPTR_S + 8)
+
+#if defined(MALLET_HAS_VIRTUALADDRESS)
+#define SDKType_MalletPointer SDKType_Address
 #else
-#define SDKCallLikelyRaw SDKCall_Raw
+#define SDKType_MalletPointer SDKType_PlainOldData
 #endif
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
 #include <port64>
-
-// CUtlVector offsets
-enum m_Attributes_m_Memory // CUtlVector<CEconItemAttribute>
-{
-	Attributes_m_Memory_AttrIndex =	8,	// 0x08
-	Attributes_m_Memory_sizeof =	24,	// 0x18
-}
-
-enum static_attrib_t64
-{
-	StaticAttrib_m_iAttributeDefinitionIndex =	0,	// 0x00
-	StaticAttrib_m_flValue =					4,	// 0x04
-	StaticAttrib_sizeof =						16,	// 0x10
-}
-
-// CAttributeList offsets
-enum CAttributeList64
-{
-	AL_CUtlVector_m_Attributes_m_Memory = 	8,	// 0x08, CAttributeList.m_Attributes.m_Memory.m_pMemory
-	AL_CUtlVector_m_Size =					24,	// 0x18, 4 bytes padding after this
-	AL_CUtlVector_pAttrElement =			32,	// 0x20
-	AL_m_pAttributeManager =				40,	// 0x28
-}
-
-// CEconItemAttributeDefinition offsets
-enum CEconItemAttributeDefinition64
-{
-	AttrDef_m_nDefIndex =			8,	// 0x08
-	AttrDef_m_pAttrType =			16,	// 0x10
-	AttrDef_m_bStoredAsInteger =	26,	// 0x1A
-}
 #endif
 
 public bool InitializeAttributes()
@@ -75,15 +47,10 @@ public bool InitializeAttributes()
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of CEconItemSchema
 	hSDKSchema = EndPrepSDKCall();
-#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
-	StartPrepSDKCall(SDKCall_Static);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
-	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);	// Returns address of CEconItemSchema
-	hSDKSchema = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Static);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "GEconItemSchema");
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_MalletPointer, SDKPass_Plain); // Returns address of CEconItemSchema
 	hSDKSchema = EndPrepSDKCall();
 #endif	
 	if (hSDKSchema == INVALID_HANDLE)
@@ -94,17 +61,13 @@ public bool InitializeAttributes()
 
     /**
 	 * This one was immune to x64 changes,
-	 * however SourceMod is deathly afraid of introducing
+	 * however SourceMod was* deathly afraid of introducing
 	 * new interfaces to handle 64-bit addresses, 
 	 * so now it's my fucking problem.
 	 */
-	StartPrepSDKCall(SDKCallLikelyRaw);
+	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CAttributeList::SetRuntimeAttributeValue");
-#if defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
-	PrepSDKCall_AddParameter(SDKType_VirtualAddress, SDKPass_Plain);
-#else
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-#endif
+	PrepSDKCall_AddParameter(SDKType_MalletPointer, SDKPass_Plain);
 	PrepSDKCall_AddParameter(SDKType_Float, SDKPass_Plain);
 	hSDKSetRuntimeValue = EndPrepSDKCall();
 	
@@ -121,17 +84,11 @@ public bool InitializeAttributes()
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 	hSDKGetAttributeDef = EndPrepSDKCall();
-#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
-	StartPrepSDKCall(SDKCall_VirtualAddress);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinition");
-	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
-	hSDKGetAttributeDef = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinition");
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_MalletPointer, SDKPass_Plain);  // Returns address of a CEconItemAttributeDefinition
 	hSDKGetAttributeDef = EndPrepSDKCall();
 #endif
 	
@@ -146,16 +103,11 @@ public bool InitializeAttributes()
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinitionByName");
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
-#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
-	StartPrepSDKCall(SDKCall_VirtualAddress);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinitionByName");
-	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Pointer);
-	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #else
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CEconItemSchema::GetAttributeDefinitionByName");
 	PrepSDKCall_AddParameter(SDKType_String, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
+	PrepSDKCall_SetReturnInfo(SDKType_MalletPointer, SDKPass_Plain);	// Returns address of a CEconItemAttributeDefinition
 #endif
 	hSDKGetAttributeDefByName = EndPrepSDKCall();
 
@@ -164,44 +116,16 @@ public bool InitializeAttributes()
 		PrintToServer("[Mallet] Failed to hook into CEconItemSchema::GetAttributeDefinitionByName");
 		return false;
 	}
-
-#if defined(_X64_IMPLEMENTATION_PORT64)
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
-	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);
-	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
-#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
-	StartPrepSDKCall(SDKCall_VirtualAddress);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
-	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);
-	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
-#else
-	StartPrepSDKCall(SDKCall_Raw);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CTFPlayer::GetAttributeList");
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
-	hSDKGetAttributeListForPlayer = EndPrepSDKCall();
-#endif
-
-	if (hSDKGetAttributeListForPlayer == INVALID_HANDLE)
-	{
-		PrintToServer("[Mallet] Failed to hook into CTFPlayer::GetAttributeList!")
-		return false;
-	}
 	
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CEconEntity::GetAttributeList");
 	PrepSDKCall_SetReturnInfo(SDKType_Pointer, SDKPass_Plain);
 	hSDKGetAttributeList = EndPrepSDKCall();
-#elseif defined(_X64_IMPLEMENTATION_VIRTUAL_ADDRESS)
-	StartPrepSDKCall(SDKCall_VirtualAddress);
-	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CEconEntity::GetAttributeList");
-	PrepSDKCall_SetReturnInfo(SDKType_VirtualAddress, SDKPass_Plain);
-	hSDKGetAttributeList = EndPrepSDKCall();
 #else
 	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CEconEntity::GetAttributeList");
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
+	PrepSDKCall_SetReturnInfo(SDKType_MalletPointer, SDKPass_Plain);
 	hSDKGetAttributeList = EndPrepSDKCall();
 #endif
 
@@ -211,19 +135,18 @@ public bool InitializeAttributes()
 		return false;
 	}
 
-	StartPrepSDKCall(SDKCallLikelyRaw);
+	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CAttributeList::RemoveAttribute");
 	PrepSDKCall_AddParameter(SDKType_PlainOldData, SDKPass_Plain);
-	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 	hSDKRemoveAttribute = EndPrepSDKCall();
 
 	if (hSDKRemoveAttribute == INVALID_HANDLE)
 	{
-		PrintToServer("[Mallet] Failed to hook into CAttributeList::RemoveAttribute!")
+		PrintToServer("[Mallet] Failed to hook into CAttributeList::RemoveAttribute!");
 		return false;
 	}
 
-	StartPrepSDKCall(SDKCallLikelyRaw);
+	StartPrepSDKCall(SDKCall_Raw);
 	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Signature, "CAttributeList::DestroyAllAttributes");
 	PrepSDKCall_SetReturnInfo(SDKType_PlainOldData, SDKPass_Plain);
 	hSDKDestroyAllAttributes = EndPrepSDKCall();
@@ -231,6 +154,16 @@ public bool InitializeAttributes()
 	if (hSDKDestroyAllAttributes == INVALID_HANDLE)
 	{
 		PrintToServer("[Mallet] Failed to hook into CAttributeList::DestroyAllAttributes!")
+		return false;
+	}
+
+	StartPrepSDKCall(SDKCall_Raw);
+	PrepSDKCall_SetFromConf(hGameConf, SDKConf_Virtual, "CAttributeManager::OnAttributeValuesChanged");
+	hSDKOnAttributeValuesChanged = EndPrepSDKCall();
+
+	if (hSDKOnAttributeValuesChanged == INVALID_HANDLE)
+	{
+		PrintToServer("[Mallet] Failed to hook into CAttributeManager::OnAttributeValuesChanged!")
 		return false;
 	}
 
@@ -242,17 +175,6 @@ public bool InitializeAttributes()
 static void GetItemSchema(any pSchema[2])
 {
 	SDKCall(hSDKSchema, pSchema);
-}
-
-void GetEntityAttributeListForPlayer(any list[2], int entity)
-{
-	int address[2];
-
-	/* Get our entity address. */
-	Port64_GetEntityAddress(entity, address, 0);
-
-	/* Call CTFPlayer::GetAttributeList() and store the offset. */
-	SDKCall(hSDKGetAttributeListForPlayer, address, list);	
 }
 
 /**
@@ -280,15 +202,34 @@ void GetByID(any econ[2], int id)
 
 	SDKCall(hSDKGetAttributeDef, pSchema, econ, id);
 }
+
+static void GetAttributeManager(any manager[2], any pEntAttributeList[2])
+{
+	Port64_LoadFromAddress(pEntAttributeList, ATTRIBUTE_MANAGER, NumberType_Int64, manager);
+}
 #else
 static Address GetItemSchema()
 {
+#if defined(MALLET_HAS_VIRTUALADDRESS)
+	Address pSchema;
+	SDKCall(hSDKSchema, pSchema);
+	return pSchema;
+#else
 	return SDKCall(hSDKSchema);
+#endif
 }
 
 static Address GetAttributeDefinitionByID(int id)
 {
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] GetAttributeDefinitionByID(%d), fetching item schema...", id);
+#endif
+
 	Address pSchema = GetItemSchema();
+
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] hSDKGetAttributeDef(0x%08X, %d)", pSchema, id);
+#endif
 
 	if (pSchema == Address_Null)
 	{
@@ -296,13 +237,14 @@ static Address GetAttributeDefinitionByID(int id)
 	} 
 	else
 	{
+#if defined(MALLET_HAS_VIRTUALADDRESS)
+		Address pAttrDef;
+		SDKCall(hSDKGetAttributeDef, pSchema, pAttrDef, id);
+		return pAttrDef;
+#else
 		return SDKCall(hSDKGetAttributeDef, pSchema, id);
+#endif
 	}	
-}
-
-static Address GetEntityAttributeListForPlayer(int entity)
-{
-	return SDKCall(hSDKGetAttributeListForPlayer, GetEntityAddress(entity));
 }
 
 /**
@@ -311,8 +253,11 @@ static Address GetEntityAttributeListForPlayer(int entity)
  */
 static Address GetEntityAttributeList(int entity)
 {
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] GetEntityAttributeList(%d)", entity);
+#endif
 	int offsAttributeList = GetEntSendPropOffs(entity, "m_AttributeList", true);
-	if (offsAttributeList != -1)
+	if (offsAttributeList > 0)
 	{
 		return GetEntityAddress(entity) + view_as<Address>(offsAttributeList);
 	}
@@ -321,7 +266,45 @@ static Address GetEntityAttributeList(int entity)
 		return Address_Null;
 	}
 }
+
+static Address GetAttributeManager(Address pEntAttributeList)
+{
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet] GetAttributeManager(0x%08X)", pEntAttributeList);
 #endif
+	if (pEntAttributeList == Address_Null)
+	{
+		return Address_Null;
+	}
+	else
+	{
+#if defined(MALLET_HAS_VIRTUALADDRESS)
+		return LoadAddressFromAddress(pEntAttributeList + ATTRIBUTE_MANAGER);
+#else
+		return LoadFromAddress(pEntAttributeList + view_as<Address>(ATTRIBUTE_MANAGER), NumberType_Int32);
+#endif
+	}
+}
+#endif
+
+#if defined(_X64_IMPLEMENTATION_PORT64)
+void InternalFlushAttributes(int pEntAttributeList[2])
+#else
+void InternalFlushAttributes(Address pEntAttributeList)
+#endif
+{
+#if defined(_X64_IMPLEMENTATION_PORT64)
+	int pAttributeManager[2];
+	GetAttributeManager(pEntAttributeList, pAttributeManager);
+	if (pAttributeManager[0])
+#else
+	Address pAttributeManager = GetAttributeManager(pEntAttributeList);
+	if (pAttributeManager != Address_Null)
+#endif
+	{
+		SDKCall(hSDKOnAttributeValuesChanged, pAttributeManager);
+	}
+}
 
 bool InternalDeleteAllAttributes(int iEntity)
 {
@@ -335,34 +318,25 @@ bool InternalDeleteAllAttributes(int iEntity)
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEntAttributeList[2];
-	if (1 <= iEntity <= MaxClients)
-	{
-		GetEntityAttributeListForPlayer(pEntAttributeList, iEntity);
-	}
-	else
-	{
-		GetEntityAttributeList(pEntAttributeList, iEntity);
-	}
+	GetEntityAttributeList(pEntAttributeList, iEntity);
 
 	if (!pEntAttributeList[0])
 	{
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalDeleteAllAttributes: GetEntityAttributeList returned NULL.");
+#endif
 		return false;
 	}
 
 	SDKCall(hSDKDestroyAllAttributes, pEntAttributeList);
 #else
-	Address pEntAttributeList;
-	if (1 <= iEntity <= MaxClients)
-	{
-		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
-	}
-	else
-	{
-		pEntAttributeList = GetEntityAttributeList(iEntity);
-	}
+	Address pEntAttributeList = GetEntityAttributeList(iEntity);
 
 	if (pEntAttributeList == Address_Null)
 	{
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalDeleteAllAttributes: GetEntityAttributeList returned NULL.");
+#endif
 		return false;
 	}
 
@@ -383,27 +357,12 @@ bool InternalSetAttribute(int iEntity, int iDefIndex, float flValue)
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEntAttributeList[2];
-	if (1 <= iEntity <= MaxClients)
-	{
-		GetEntityAttributeListForPlayer(pEntAttributeList, iEntity);
-	}
-	else
-	{
-		GetEntityAttributeList(pEntAttributeList, iEntity);
-	}
+	GetEntityAttributeList(pEntAttributeList, iEntity);
 
 	if (!pEntAttributeList[0])
 	{
 #else
-	Address pEntAttributeList;
-	if (1 <= iEntity <= MaxClients)
-	{
-		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
-	}
-	else
-	{
-		pEntAttributeList = GetEntityAttributeList(iEntity);
-	}
+	Address pEntAttributeList = GetEntityAttributeList(iEntity);
 
 	if (pEntAttributeList == Address_Null)
 	{
@@ -452,30 +411,18 @@ bool InternalRemoveAttribute(int iEntity, int iDefIndex)
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
 	int pEntAttributeList[2];
-	if (1 <= iEntity <= MaxClients)
-	{
-		GetEntityAttributeListForPlayer(pEntAttributeList, iEntity);
-	}
-	else
-	{
-		GetEntityAttributeList(pEntAttributeList, iEntity);
-	}
+	GetEntityAttributeList(pEntAttributeList, iEntity);
 
 	if (!pEntAttributeList[0])
 	{
 #else
-	Address pEntAttributeList;
-	if (1 <= iEntity <= MaxClients)
-	{
-		pEntAttributeList = GetEntityAttributeListForPlayer(iEntity);
-	}
-	else
-	{
-		pEntAttributeList = GetEntityAttributeList(iEntity);
-	}
+	Address pEntAttributeList = GetEntityAttributeList(iEntity);
 
 	if (pEntAttributeList == Address_Null)
 	{
+#endif
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalRemoveAttribute: Rejecting call due to missing attribute list");
 #endif
 		return false;
 	}
@@ -492,16 +439,45 @@ bool InternalRemoveAttribute(int iEntity, int iDefIndex)
 	if (pEconItemAttributeDefinition == Address_Null)
 	{
 #endif
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalRemoveAttribute: Rejecting call due to missing attribute def.");
+#endif
+		return false;
+	}
+
+	SDKCall(hSDKRemoveAttribute, pEntAttributeList, pEconItemAttributeDefinition);
+	return true;
+}
+
+bool InternalTryFlushAttributes(int iEntity)
+{
+	if (!IsValidEntity(iEntity))
+	{
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalTryFlushAttributes: Rejecting call due to invalid entity %i.", iEntity);
+#endif
 		return false;
 	}
 
 #if defined(_X64_IMPLEMENTATION_PORT64)
-	int dummy[2];
-#else
-	Address dummy;
-#endif
+	int pEntAttributeList[2];
+	GetEntityAttributeList(pEntAttributeList, iEntity);
 
-	SDKCall(hSDKRemoveAttribute, pEntAttributeList, dummy, pEconItemAttributeDefinition);
+	if (!pEntAttributeList[0])
+	{
+#else
+	Address pEntAttributeList = GetEntityAttributeList(iEntity);
+
+	if (pEntAttributeList == Address_Null)
+	{
+#endif
+#if defined MALLET_DEBUG
+		PrintToServer("[Mallet->Attributes] InternalTryFlushAttributes: Rejecting call due to missing attribute list");
+#endif
+		return false;
+	}
+
+	InternalFlushAttributes(pEntAttributeList);
 	return true;
 }
 
@@ -521,7 +497,7 @@ public int Native_DeleteAllAttributes(Handle plugin, int numParams)
 	return InternalDeleteAllAttributes(iEntity);
 }
 
-/* native bool MalletRemoveAttribute(int iEntity, int iDefIndex) */
+/* native bool MalletRemoveAttribute(int iEntity, int iDefIndex, bool lazy=false) */
 public int Native_RemoveAttribute(Handle plugin, int numParams)
 {
 	if (numParams != 2)
@@ -554,4 +530,21 @@ public int Native_SetAttribute(Handle plugin, int numParams)
 	PrintToServer("[Mallet->Attributes] SetAttribute()={iEntity=%i, iDefIndex=%i, flValue=%f}", iEntity, iDefIndex, flValue);
 #endif
 	return InternalSetAttribute(iEntity, iDefIndex, flValue);
+}
+
+/* native bool MalletFlushAttributes(int iEntity) */
+public int Native_FlushAttributes(Handle plugin, int numParams)
+{
+	if (numParams != 1)
+	{
+		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid parameter count (%i)", numParams);
+	}
+
+	int iEntity = GetNativeCell(1);
+
+#if defined MALLET_DEBUG
+	PrintToServer("[Mallet->Attributes] FlushAttributes()={iEntity=%i}", iEntity);
+#endif
+
+	return InternalTryFlushAttributes(iEntity);
 }

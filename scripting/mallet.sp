@@ -1,6 +1,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#include "mallet_utils.inc"
 #include "mallet_conversions.inc"
 #include "mallet_weapons.inc"
 #include "mallet_weapons_db.inc"
@@ -20,8 +21,11 @@
 #elseif defined _X64_IMPLEMENTATION_MEMORY_POINTER
 #error "Memory Pointer support was removed in 2025.11"
 #elseif defined _X64_IMPLEMENTATION_VIRTUAL_ADDRESS
-#include <virtual_address>
-#define _X64_OK 1
+	#if defined MALLET_HAS_VIRTUALADDRESS
+		#define _X64_OK 1
+	#else
+		#error "Mallet requires SourceMod 1.13.7451 or higher in order to use VirtualAddress"
+	#endif
 #else
 #error "No x64 implementation set! Set either _X64_IMPLEMENTATION_PORT64 or _X64_IMPLEMENTATION_VIRTUAL_ADDRESS as a build time macro!"
 #endif
@@ -33,7 +37,7 @@ public Plugin myinfo =
 	name	= "Mallet",
 	author	= "IRQL_NOT_LESS_OR_EQUAL",
 	description	= "A general purpose utility library for Team Fortress 2",
-	version	= "2026-02-02",
+	version	= "2026-10-14",
 	url		= "https://github.com/irql-notlessorequal/Mallet"
 };
 
@@ -99,6 +103,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("MalletSetAttribute", Native_SetAttribute);
 	CreateNative("MalletRemoveAttribute", Native_RemoveAttribute);
 	CreateNative("MalletDeleteAllAttributes", Native_DeleteAllAttributes);
+	CreateNative("MalletFlushAttributes", Native_FlushAttributes);
 
 	/* Players */
 	CreateNative("MalletIsValidPlayer", Native_IsValidPlayer);
@@ -118,8 +123,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public int Native_GetType(Handle plugin, int numParams)
 {
-	/* Equivalent to MALLET_TYPE_SOURCEPAWN. */
-	return 0;
+	return 0; /* MALLET_TYPE_SOURCEPAWN */
 }
 
 public int Native_IsReady(Handle plugin, int numParams)
@@ -139,7 +143,7 @@ public int Native_IsX64(Handle plugin, int numParams)
 public int Native_APIVersion(Handle plugin, int numParams)
 {
 	/* This value should be bumped every time a breaking change or major change is introduced... */
-	return 9;
+	return 10;
 }
 
 public void OnPluginStart()

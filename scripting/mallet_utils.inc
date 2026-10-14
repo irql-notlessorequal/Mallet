@@ -1,5 +1,20 @@
 /* Utility functions for handling 64-bit, etc. */
 
+#if SOURCEMOD_V_MAJOR > 1 || \
+    (SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR > 13) || \
+    (SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 13 && SOURCEMOD_V_RELEASE > 0) || \
+    (SOURCEMOD_V_MAJOR == 1 && SOURCEMOD_V_MINOR == 13 && SOURCEMOD_V_RELEASE == 0 && SOURCEMOD_V_REV >= 7308)
+#define MALLET_HAS_VIRTUALADDRESS 1
+#endif
+
+#if defined __sourcepawn2
+	#define INTPTR_S Address_PointerSize
+#elseif defined(_X64)
+	#define INTPTR_S 8
+#else
+	#define INTPTR_S 4
+#endif
+
 #if defined(_X64_IMPLEMENTATION_PORT64)
 bool MalletNotEqualAddresses(any first[2], any second[2])
 {

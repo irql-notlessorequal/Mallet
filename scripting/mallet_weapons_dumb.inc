@@ -78,10 +78,15 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName,
 		TFClassType classType = TF2_GetPlayerClass(client);
 
 		char newWeaponName[24];
-		GetCompatibleSaxxyWeapon(classType, newWeaponName);
-
-		return InternalCreateWeaponDumb(client, weaponId, newWeaponName, level,
-										quality, weaponSlot, flags);
+		if (GetCompatibleSaxxyWeapon(classType, newWeaponName))
+		{
+			return InternalCreateWeaponDumb(client, weaponId, newWeaponName,
+											level, quality, weaponSlot, flags);
+		}
+		else
+		{
+			return MALLET_ERROR_INVALID_ENTITY_CLASS;			
+		}
 	}
 
 	int weapon = CreateEntityByName(weaponName);
@@ -95,7 +100,6 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName,
 
 	/* Set up the entity. */
 	SetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex", weaponId);	
-	SetEntProp(weapon, Prop_Send, "m_bInitialized", true);
 	SetEntProp(weapon, Prop_Send, "m_bValidatedAttachedEntity", true);
 
 	/* Apply misc. data */
@@ -118,6 +122,31 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName,
 
 	switch (weaponId)
 	{
+		/* Scout Weapons */
+		case 44, 648:
+		{
+			SetEntPropFloat(weapon, Prop_Send, "m_flItemChargeMeter", 99.5);
+		}
+
+		/* Demoman Shields */
+		case 131, 406, 1099, 1144:
+		{
+			SetEntPropFloat(client, Prop_Send, "m_flChargeMeter", 99.5);
+		}
+
+		/* The Bazaar Bargain */
+		case 402:
+		{
+			SetEntProp(weapon, Prop_Send, "m_iHeadCount", 0);
+		}
+
+		/* Cow Mangler 5000 */
+		/* Righteous Bison */
+		case 441, 442:
+		{
+			SetEntProp(weapon, Prop_Send, "m_iEnergy", 100);
+		}
+
 		/* The Vaccinator */
 		case 998:
 		{
@@ -135,7 +164,8 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName,
 		/* The Flare Gun */
 		/* The Detonator */
 		/* The Scorch Shot */
-		case 39, 351, 740:
+		/* Festive Flare Gun */
+		case 39, 351, 740, 1081:
 		{
 			int iOffset = GetEntProp(weapon, Prop_Send, "m_iPrimaryAmmoType", 1) * 4;
 			int iAmmoTable = FindSendPropInfo("CTFPlayer", "m_iAmmo");
@@ -170,6 +200,13 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName,
 			/* Some items don't work if they are spawned with a full charge. */
 			SetEntPropFloat(client, Prop_Send, "m_flItemChargeMeter", 99.5, 1);
 		}
+
+		/* Invis Watch and Friends */
+		case 30, 59, 60, 212, 297, 947:
+		{
+			/* Thanks Valve... */
+			SetEntPropFloat(client, Prop_Send, "m_flCloakMeter", 100.0);
+		}
 	}
 
 	if (!DispatchSpawn(weapon))
@@ -178,6 +215,8 @@ int InternalCreateWeaponDumb(int client, int weaponId, const char[] weaponName,
 	}
 	else
 	{
+		/* This needs to be sent after spawning it... */
+		SetEntProp(weapon, Prop_Send, "m_bInitialized", true);
 		return weapon;
 	}
 }

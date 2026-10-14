@@ -66,14 +66,14 @@ native int MalletConvertTeamFromString(char[] strclass);
  * @note Wearables are supported by this function and are automatically equipped. Invoking `EquipPlayerWeapon` on a wearable will crash the server.
  * @note Weapons must be manually equipped using `EquipPlayerWeapon`
  * 
- * @param client 	index of the client
- * @param weaponId	Team Fortress 2 weapon id
+ * @param client 	    index of the client
+ * @param weaponId	    Team Fortress 2 weapon id
  * @param weaponName	Team Fortress weapon name
  * @param level			Weapon Level
  * @param quality		Weapon Quality
  * @param weaponSlot	Slot idx to equip weapon on
  * @param flags 		[OPTIONAL]
- * @return A entity index if successful, else a negative value which is mapped into a mallet error.
+ * @return              A entity index if successful, else a negative value which is mapped into a mallet error.
  */
 native int MalletCreateWeapon(int client, int weaponId, const char[] weaponName, int level, int quality, int weaponSlot, int flags=0);
 
@@ -81,7 +81,7 @@ native int MalletCreateWeapon(int client, int weaponId, const char[] weaponName,
  * Checks if a entity is a wearable.
  * 
  * @param entity	Entity Index
- * @return A boolean mapped as an int (returns 1 on success)
+ * @return          A boolean mapped as an int (returns 1 on success)
  */
 native int MalletIsWearable(int entity);
 
@@ -89,7 +89,7 @@ native int MalletIsWearable(int entity);
  * Checks if a entity is a weapon.
  * 
  * @param entity	Entity Index
- * @return A boolean mapped as an int (returns 1 on success)
+ * @return          A boolean mapped as an int (returns 1 on success)
  */
 native int MalletIsWeapon(int entity);
 
@@ -97,10 +97,10 @@ native int MalletIsWeapon(int entity);
  * Creates and returns a wearable entity
  * 
  * @note This function DOES NOT equip the wearable. You must call `MalletEquipWearable` to do so.
- * @param client 	index of the client
- * @param weaponId	Team Fortress 2 weapon id
+ * @param client 	    index of the client
+ * @param weaponId	    Team Fortress 2 weapon id
  * @param weaponName	Team Fortress weapon name
- * @return A entity index if successful, else a negative value which is mapped into a mallet error.
+ * @return              A entity index if successful, else a negative value which is mapped into a mallet error.
  */
 native int MalletCreateWearable(int client, int weaponId, const char[] weaponName);
 
@@ -109,7 +109,7 @@ native int MalletCreateWearable(int client, int weaponId, const char[] weaponNam
  * 
  * @param client 	index of the client
  * @param entity 	index of the entity
- * @return A boolean mapped as an int (returns 1 on success)
+ * @return          A boolean mapped as an int (returns 1 on success)
  */
 native int MalletEquipWearable(int client, int entity);
 
@@ -128,10 +128,10 @@ native int MalletGetItemOwner(int item);
  * 
  * @note Invoking this function on a wearable will crash the server.
  * 
- * @param client 	index of the client
+ * @param client 	    index of the client
  * @param weaponEntity 	index of the weapon entity
- * @param slot		slot of the weapon
- * @return An int with the entity index of the old weapon
+ * @param slot		    slot of the weapon
+ * @return              An int with the entity index of the old weapon
  */
 native int MalletSwapWeapon(int client, int weaponEntity, int slot);
 
@@ -140,10 +140,10 @@ native int MalletSwapWeapon(int client, int weaponEntity, int slot);
  * 
  * @note Invoking this function on a wearable will crash the server.
  * 
- * @param client 	index of the client
+ * @param client 	    index of the client
  * @param weaponEntity 	index of the weapon entity
- * @param slot		slot of the weapon
- * @return A boolean.
+ * @param slot		    slot of the weapon
+ * @return              A boolean.
  */
 native int MalletSwapWeaponAndPurge(int client, int weaponEntity, int slot);
 
@@ -156,9 +156,9 @@ native int MalletGetWeaponIndex(int weaponNameSize, const char[] weaponName, int
 /**
  * Returns the attribute definition index from the string name.
  * 
- * @param string 	char array containing the name of the attribute
+ * @param string 	    char array containing the name of the attribute
  * @param stringSize 	Size of the char array
- * @return The index as an integer or zero if no such attribute was found.
+ * @return              The index as an integer or zero if no such attribute was found.
  */
 native int MalletAttributeFromName(char[] string, int stringSize);
 
@@ -168,7 +168,7 @@ native int MalletGetAttributeClass(int key, char[] value, int valueSize);
  * Returns a random Team Fortress 2 item attribute.
  * 
  * @param excludeBroken		Exclude known broken attributes or attributes that are prone to crash players when misused.
- * @return An integer identifier of the attribute.
+ * @return                  An integer identifier of the attribute.
  */
 native int MalletGetRandomAttribute(bool excludeBroken=false);
 
@@ -197,7 +197,7 @@ native int MalletGetAttributeDescription(int key, char[] value, int valueSize, M
  * @param iDefIndex	The attribute identifier.
  * @param flValue	The value to set (as a float)
  * 
- * @return	A boolean in the form of an integer.
+ * @return	        A boolean in the form of an integer.
  */
 native int MalletSetAttribute(int iEntity, int iDefIndex, float flValue);
 
@@ -207,7 +207,7 @@ native int MalletSetAttribute(int iEntity, int iDefIndex, float flValue);
  * @param iEntity	The entity of the weapon or wearable
  * @param iDefIndex	The attribute identifier.
  * 
- * @return	A boolean in the form of an integer.
+ * @return	        A boolean in the form of an integer.
  */
 native int MalletRemoveAttribute(int iEntity, int iDefIndex);
 
@@ -217,9 +217,19 @@ native int MalletRemoveAttribute(int iEntity, int iDefIndex);
  * (Wearables should use the player entity instead)
  * 
  * @param iEntity	The entity of the weapon or wearable
- * @return	A boolean in the form of an integer.
+ * @return	        A boolean in the form of an integer.
  */
 native int MalletDeleteAllAttributes(int iEntity);
+
+/**
+ * Calls CAttributeManager::OnAttributeValuesChanged on the entity.
+ * 
+ * (Wearables should use the player entity instead)
+ * 
+ * @param iEntity	The entity of the weapon or wearable
+ * @return	        A boolean in the form of an integer.
+ */
+native int MalletFlushAttributes(int iEntity);
 
 /* Players */
 

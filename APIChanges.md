@@ -148,3 +148,15 @@ No functional changes, therefore no actual ABI version bump.
 - The VirtualAddress backend no longer prints a warning as it is deemed stable.
 
 - The legacy `port64` 64-bit implementation will be removed at the end of 2026.
+
+### version 10 (2026-10-14)
+
+- Mallet now requires SourceMod `1.13.0.7308` or higher for VirtualAddress.
+
+- Attributes: Added `MalletFlushAttributes`
+
+- Attributes: Fixed `MalletRemoveAttribute` not working
+
+- Weapons: Mallet's "dumb" weapon spawning backend is now slightly less dumb.
+
+- Changed the RNG algorithm to `xoshiro128**`
